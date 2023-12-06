@@ -31,7 +31,7 @@ namespace MapTextureReplacer
     }
     public class VehicleCounterUI : UIExtension
     {
-        public new readonly string extensionID = "example.vehicle_counter";
+        public new readonly string extensionID = "example.map_texture";
         public new readonly string extensionContent;
         public new readonly ExtensionType extensionType = ExtensionType.Panel;
 

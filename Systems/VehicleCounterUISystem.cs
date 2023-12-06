@@ -11,9 +11,6 @@ using Game.Vehicles;
 using System.Threading.Tasks;
 using Unity.Entities;
 
-// This system is responsible for binding the value from VehicleCounterSystem to our Game UI.
-
-// It also sets up a TriggerBinding that calls RemoveVehicles when UI tells it to.
 
 namespace MapTextureReplacer.Systems
 {
@@ -27,12 +24,12 @@ namespace MapTextureReplacer.Systems
             this.systemManaged = this.World.GetExistingSystemManaged<VehicleCounterSystem>();
 
             base.OnCreate();
-            this.AddUpdateBinding(new GetterValueBinding<int>("vehicle_counter", "current_vehicle_count", () =>
+            this.AddUpdateBinding(new GetterValueBinding<int>("map_texture", "current_vehicle_count", () =>
             {
-                return this.systemManaged.current_vehicle_count;
+                return 0;
             }));
 
-            this.AddBinding(new TriggerBinding("vehicle_counter", "remove_vehicles", this.systemManaged.RemoveVehicles));
+            this.AddBinding(new TriggerBinding("map_texture", "open_image", this.systemManaged.OpenImage));
         }
 
 

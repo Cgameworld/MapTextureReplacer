@@ -5,9 +5,12 @@ using Game.Prefabs;
 using Game.Routes;
 using Game.Tools;
 using Game.Vehicles;
+using MapTextureReplacer.Helpers;
+using System.IO;
 using System.Threading.Tasks;
 using Unity.Collections;
 using Unity.Entities;
+using UnityEngine;
 
 // This system is responsible for querying constantly for data about how many entities
 // exists with a specific set of components, and for adding the component `Deleted` to
@@ -17,41 +20,31 @@ namespace MapTextureReplacer.Systems
 {
     public class VehicleCounterSystem : GameSystemBase
     {
-        private EntityQuery m_VehicleQuery;
-        public int current_vehicle_count = 0;
 
         protected override void OnCreate()
         {
             base.OnCreate();
-            // Query for getting all Vehicles in the game
-            this.m_VehicleQuery = this.GetEntityQuery(new EntityQueryDesc()
-            {
-                All = new ComponentType[1] {
-                    ComponentType.ReadOnly<Vehicle>()
-                },
-                None = new ComponentType[2] {
-                    ComponentType.ReadOnly<Deleted>(),
-                    ComponentType.ReadOnly<Temp>()
-                }
-            });
         }
 
         protected override void OnUpdate()
         {
-            this.current_vehicle_count = this.m_VehicleQuery.CalculateEntityCount();
+
         }
 
-        public void RemoveVehicles()
+        public void OpenImage()
         {
-            NativeArray<Entity> entityArray = this.m_VehicleQuery.ToEntityArray(Allocator.TempJob);
-            EntityCommandBuffer commandBuffer = new EntityCommandBuffer(Allocator.TempJob);
-            foreach (var entity in entityArray)
+            var file = OpenFileDialog.ShowDialog("Image files\0*.jpg;*.png\0");
+            Texture2D newTexture = null;
+            byte[] fileData;
+
+            if (!string.IsNullOrEmpty(file))
             {
-                commandBuffer.AddComponent<Deleted>(entity);
+                fileData = File.ReadAllBytes(file);
+                newTexture = new Texture2D(4096, 4096);
+                newTexture.LoadImage(fileData);
             }
-            commandBuffer.Playback(EntityManager);
-            commandBuffer.Dispose();
-            entityArray.Dispose();
+
+            Shader.SetGlobalTexture(Shader.PropertyToID("colossal_TerrainGrassDiffuse"), newTexture);
         }
     }
 }
