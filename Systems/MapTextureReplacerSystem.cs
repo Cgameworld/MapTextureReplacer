@@ -81,6 +81,31 @@ namespace MapTextureReplacer.Systems
             }
         }
 
+        public void OpenTextureZip()
+        {
+            var zipFilePath = OpenFileDialog.ShowDialog("Zip archives\0*.zip\0");
+
+            if (!string.IsNullOrEmpty(zipFilePath))
+            {
+                using (ZipArchive archive = ZipFile.Open(zipFilePath, ZipArchiveMode.Read))
+                {
+                    ZipArchiveEntry entry = archive.GetEntry("Grass_BaseColor.png");
+
+                    if (entry != null)
+                    {
+                        using (Stream entryStream = entry.Open())
+                        {
+                            Debug.Log("called entry!!");
+                            byte[] data = new byte[entry.Length];
+                            entryStream.Read(data, 0, data.Length);
+                            LoadTextureInGame("colossal_TerrainGrassDiffuse", data);
+                        }
+                    }
+                }
+            }
+
+        }
+
        
         private static void ExtractEntry(ZipArchive archive, string entryName, string shaderProperty)
         {
