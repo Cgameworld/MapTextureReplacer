@@ -10,14 +10,16 @@ const Field = ({ label, textureType }) => (
 );
 
 const $Counter = ({ react }) => {
-    // This sets up the currentCount as local state
-    // const [currentCount, setCurrentCount] = react.useState(0)
 
-    // useDataUpdate binds the result of the GetterValueBinding to currentCount
-    // useDataUpdate(react, 'map_texture.current_vehicle_count', setCurrentCount)
+    const [texturePack, setTexturePack] = react.useState(0)
+
+    useDataUpdate(react, 'map_texture.texture_pack', setTexturePack)
 
     // Below, engine.trigger is responsible for triggering the TriggerBinding in the UI System
     return <$Panel react={react} title="Map Texture Replacer">
+        <div>
+            <div className="label_DGc label_ZLb">Texture Pack: {texturePack}</div>
+        </div>
         <Field label="Grass Diffuse" textureType="gd" />
         <Field label="Grass Normal" textureType="gn" />
         <Field label="Dirt Diffuse" textureType="dd" />

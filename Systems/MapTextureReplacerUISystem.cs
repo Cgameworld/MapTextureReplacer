@@ -24,9 +24,9 @@ namespace MapTextureReplacer.Systems
             this.systemManaged = this.World.GetExistingSystemManaged<MapTextureReplacerSystem>();
 
             base.OnCreate();
-            this.AddUpdateBinding(new GetterValueBinding<int>("map_texture", "current_vehicle_count", () =>
+            this.AddUpdateBinding(new GetterValueBinding<string>("map_texture", "texture_pack", () =>
             {
-                return 0;
+                return "None";
             }));
             //replace
             this.AddBinding(new TriggerBinding("map_texture", "open_image_gd", () => this.systemManaged.OpenImage("colossal_TerrainGrassDiffuse"))); ;
