@@ -12,14 +12,17 @@ const Field = ({ label, textureType }) => (
 const $Counter = ({ react }) => {
 
     const [texturePack, setTexturePack] = react.useState(0)
+    const [openTextureZip, setOpenTextureZip] = react.useState(0)
 
     useDataUpdate(react, 'map_texture.texture_pack', setTexturePack)
+    useDataUpdate(react, 'map_texture.open_texture_zip', setOpenTextureZip)
 
     // Below, engine.trigger is responsible for triggering the TriggerBinding in the UI System
-    return <$Panel react={react} title="Map Texture Replacer">
-        <div>
-            <div className="label_DGc label_ZLb">Texture Pack: {texturePack}</div>
+    return <$Panel react={react} style={{ width: '420rem' }}  title="Map Texture Replacer">
+        <div className="field_MBO">
+            <div className="label_DGc label_ZLb" style={{ textAlign: 'center' }}>{texturePack}</div>
         </div>
+        <button className="button_WWa button_SH8" style={{ marginTop: '-10rem', marginBottom: '20rem' }} onClick={() => engine.trigger(`map_texture.open_texture_zip`)}>Load Texture Pack</button>
         <Field label="Grass Diffuse" textureType="gd" />
         <Field label="Grass Normal" textureType="gn" />
         <Field label="Dirt Diffuse" textureType="dd" />
