@@ -20,7 +20,7 @@ const $Counter = ({react}) => {
     </$Panel>
 }
 
-// Registering the panel with HookUI so it shows up in the menu
+/ Registering the panel with HookUI so it shows up in the menu
 window._$hookui.registerPanel({
     id: "example.map_texture",
     name: "Map Texture",
