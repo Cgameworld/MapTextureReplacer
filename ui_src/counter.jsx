@@ -1,6 +1,14 @@
 import React from 'react'
 import { useDataUpdate, $Panel } from 'hookui-framework'
 
+const Field = ({ label, textureType }) => (
+    <div className="field_MBO">
+        <div className="label_DGc label_ZLb">{label}</div>
+        <button className="button_WWa button_SH8" onClick={() => engine.trigger(`map_texture.open_image_${textureType}`)}>Select Image</button>
+        <button className="button_WWa button_SH8" onClick={() => engine.trigger(`map_texture.reset_texture_${textureType}`)}>Reset</button>
+    </div>
+);
+
 const $Counter = ({ react }) => {
     // This sets up the currentCount as local state
     // const [currentCount, setCurrentCount] = react.useState(0)
@@ -10,39 +18,12 @@ const $Counter = ({ react }) => {
 
     // Below, engine.trigger is responsible for triggering the TriggerBinding in the UI System
     return <$Panel react={react} title="Map Texture Replacer">
-
-
-
-        <div className="field_MBO">
-            <div className="label_DGc label_ZLb">Grass Diffuse</div>
-            <button className="button_WWa button_SH8" onClick={() => engine.trigger('map_texture.open_image_gd')}>Select Image</button>
-            <button className="button_WWa button_SH8" onClick={() => engine.trigger('map_texture.reset_texture_gd')}>Reset</button>
-        </div>
-        <div className="field_MBO">
-            <div className="label_DGc label_ZLb">Grass Normal</div>
-            <button className="button_WWa button_SH8" onClick={() => engine.trigger('map_texture.open_image_gn')}>Select Image</button>
-            <button className="button_WWa button_SH8" onClick={() => engine.trigger('map_texture.reset_texture_gn')}>Reset</button>
-        </div>
-        <div className="field_MBO">
-            <div className="label_DGc label_ZLb">Dirt Diffuse</div>
-            <button className="button_WWa button_SH8" onClick={() => engine.trigger('map_texture.open_image_dd')}>Select Image</button>
-            <button className="button_WWa button_SH8" onClick={() => engine.trigger('map_texture.reset_texture_dd')}>Reset</button>
-        </div>
-        <div className="field_MBO">
-            <div className="label_DGc label_ZLb">Dirt Normal</div>
-            <button className="button_WWa button_SH8" onClick={() => engine.trigger('map_texture.open_image_dn')}>Select Image</button>
-            <button className="button_WWa button_SH8" onClick={() => engine.trigger('map_texture.reset_texture_dn')}>Reset</button>
-        </div>
-        <div className="field_MBO">
-            <div className="label_DGc label_ZLb">Cliff Diffuse</div>
-            <button className="button_WWa button_SH8" onClick={() => engine.trigger('map_texture.open_image_cd')}>Select Image</button>
-            <button className="button_WWa button_SH8" onClick={() => engine.trigger('map_texture.reset_texture_cd')}>Reset</button>
-        </div>
-        <div className="field_MBO">
-            <div className="label_DGc label_ZLb">Cliff Normal</div>
-            <button className="button_WWa button_SH8" onClick={() => engine.trigger('map_texture.open_image_cn')}>Select Image</button>
-            <button className="button_WWa button_SH8" onClick={() => engine.trigger('map_texture.reset_texture_cn')}>Reset</button>
-        </div>
+        <Field label="Grass Diffuse" textureType="gd" />
+        <Field label="Grass Normal" textureType="gn" />
+        <Field label="Dirt Diffuse" textureType="dd" />
+        <Field label="Dirt Normal" textureType="dn" />
+        <Field label="Cliff Diffuse" textureType="cd" />
+        <Field label="Cliff Normal" textureType="cn" />
     </$Panel>
 }
 
