@@ -26,9 +26,10 @@ namespace MapTextureReplacer.Systems
             base.OnCreate();
             this.AddUpdateBinding(new GetterValueBinding<string>("map_texture", "texture_pack", () =>
             {
-                return "None";
+                return "Texture Pack Loaded: " + "None";
             }));
-            //replace
+
+            this.AddBinding(new TriggerBinding("map_texture", "open_texture_zip", this.systemManaged.OpenTextureZip));
             this.AddBinding(new TriggerBinding("map_texture", "open_image_gd", () => this.systemManaged.OpenImage("colossal_TerrainGrassDiffuse"))); ;
             this.AddBinding(new TriggerBinding("map_texture", "open_image_gn", () => this.systemManaged.OpenImage("colossal_TerrainGrassNormal"))); ;
             this.AddBinding(new TriggerBinding("map_texture", "open_image_dd", () => this.systemManaged.OpenImage("colossal_TerrainDirtDiffuse"))); ;
