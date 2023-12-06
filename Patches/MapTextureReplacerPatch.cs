@@ -12,8 +12,8 @@ namespace MapTextureReplacer.Patches
         [HarmonyPostfix]
         public static void Postfix(UpdateSystem updateSystem)
         {
-            updateSystem.UpdateAt<VehicleCounterSystem>(SystemUpdatePhase.PostSimulation);
-            updateSystem.UpdateAt<VehicleCounterUISystem>(SystemUpdatePhase.UIUpdate);
+            updateSystem.UpdateAt<MapTextureReplacerSystem>(SystemUpdatePhase.PostSimulation);
+            updateSystem.UpdateAt<MapTextureReplacerUISystem>(SystemUpdatePhase.UIUpdate);
         }
     }
 }
