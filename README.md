@@ -21,9 +21,9 @@ Hopefully when the full offical editor releases, it will include map theming too
 
 ![Mod Window Opened](/assets/images/tux.png)
 
-# Support
+# Disclaimer
 
-This mod is experiemental, so things might not work as expected. 
+This mod is experiemental, so things might not work as expected
 
 # Acknowlegements
 
