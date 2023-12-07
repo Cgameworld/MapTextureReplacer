@@ -46,7 +46,7 @@ Thanks to the Cities Skylines 2 modding community for making modding more access
 
 # Conclusion
 
-[Source Code](https://github.com/Cgameworld/RoadWearRemover/)   
+[Source Code](https://github.com/Cgameworld/MapTextureReplacer/)   
 [Discord](https://discord.gg/tDZhaMrgsQ)
 
 If you like this mod be sure to leave an upvote! Thanks
