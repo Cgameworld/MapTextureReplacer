@@ -1,5 +1,7 @@
 # Map Texture Replacer
 
+![Mod Window Opened](/screenshot.jpg)
+
 This mod allows you to easily replace map textures in your game.
 
 This mod takes advantage of the fact that map textures are stored as standard unity textures, making them straightfoward to read and set. 
@@ -17,9 +19,7 @@ Hopefully when the full offical editor releases, it will include map theming too
 # Instructions
 
 1. To open, click on the HookUI button near the top left of the screen and select the mod from the dropdown
-2. Download a texture pack such as the example linked below and click "Openm.." to load it or click on "Select Image" to replace indivual texture. 
-
-![Mod Window Opened](/screenshot.jpg)
+2. Download a texture pack such as the example linked below and click "Load Texture Pack" to load it or click on "Select Image" to replace indivual texture. 
 
 # Texture Packs
 
