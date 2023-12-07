@@ -1,4 +1,6 @@
 ﻿using System;
+using System.IO;
+using System.Reflection;
 using System.Runtime.InteropServices;
 
 namespace MapTextureReplacer.Helpers
@@ -46,7 +48,7 @@ namespace MapTextureReplacer.Helpers
             ofn.maxFile = ofn.file.Length;
             ofn.fileTitle = new string(new char[64]);
             ofn.maxFileTitle = ofn.fileTitle.Length;
-            ofn.initialDir = UnityEngine.Application.dataPath;
+            ofn.initialDir = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
             ofn.title = "Open File";
             ofn.defExt = defaultExt;
 

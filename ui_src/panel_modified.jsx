@@ -3,7 +3,7 @@
 import React from 'react'
 import * as styles from './styles'
 
-const defaultStyle = {c
+const defaultStyle = {
     position: 'absolute',
     width: "400rem",
     height: "530rem"

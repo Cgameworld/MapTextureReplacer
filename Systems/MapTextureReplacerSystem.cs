@@ -26,8 +26,6 @@ namespace MapTextureReplacer.Systems
         }
         public void OpenImage(string shaderProperty)
         {
-            Debug.Log("map assembly folder:" + Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location));
-
             var file = OpenFileDialog.ShowDialog("Image files\0*.jpg;*.png\0");
 
             CacheExistingTexture(shaderProperty);
