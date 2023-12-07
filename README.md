@@ -13,7 +13,7 @@ Hopefully when the full official editor releases, it will include map theming to
 - HookUI
 
 # Installation
-1) Download the mod from either [thunderstore.io](https://thunderstore.io/c/cities-skylines-ii/p/Cgameworld/MapTextureReplacer) or from the mod's releases page on [GitHub](https://github.com/Cgameworld/MapTextureReplacer/releases) 
+1) Download the mod from either [thunderstore.io](https://thunderstore.io/c/cities-skylines-ii/p/Cgameworld/Map_Texture_Replacer) or from the mod's releases page on [GitHub](https://github.com/Cgameworld/MapTextureReplacer/releases) 
 2) If installing from GitHub, place MapTextureReplacer folder inside `BepInEx/plugins` and optionally download the example texture pack DesertMapTheme.zip
 
 # Instructions
