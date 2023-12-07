@@ -4,9 +4,9 @@
 
 This mod allows you to easily replace grass, dirt and cliff map textures in your game.
 
-This mod takes advantage of the fact that map textures are stored as standard unity textures, making them straightfoward to read and set. 
+This mod takes advantage of the fact that map textures are stored as standard unity textures, making them straightforward to read and set. 
 
-Hopefully when the full offical editor releases, it will include map theming tools, but in the meantime this mod makes basic theming possible.
+Hopefully when the full official editor releases, it will include map theming tools, but in the meantime this mod makes basic theming possible.
 
 # Requirements
 - BepInEx 5
@@ -19,13 +19,13 @@ Hopefully when the full offical editor releases, it will include map theming too
 # Instructions
 
 1. To open, click on the HookUI button near the top left of the screen and select the mod from the dropdown
-2. Click "Load Texture Pack" to load a texture pack or click on "Select Image" to replace indivual texture. 
+2. Click "Load Texture Pack" to load a texture pack or click on "Select Image" to replace an individual texture. 
 
 # Texture Packs
 
 This mod has support to load in texture packs via zip files. This mod includes one example texture pack, a desert map theme.
 
-The vanilla game uses 4096x4096 sized map textures by default for grass, 2048x2048 for dirt and cliff though smaller scaled textures will sucesssfully replace
+The vanilla game uses 4096x4096 sized map textures by default for grass, 2048x2048 for dirt and cliff though smaller scaled textures will successfully replace
 
 To make your own pack, just compress some or all of the following filenames into a zip file
 
