@@ -17,15 +17,32 @@ Hopefully when the full offical editor releases, it will include map theming too
 # Instructions
 
 1. To open, click on the HookUI button near the top left of the screen and select the mod from the dropdown
-2. Click on "Select Image" to replace a texture. The game uses 4096x4096 sized map textures by default, though smaller textures will sucesssfully replace
+2. Download a texture pack such as the example linked below and click "Openm.." to load it or click on "Select Image" to replace indivual texture. 
 
-![Mod Window Opened](/assets/images/tux.png)
+![Mod Window Opened](/screenshot.jpg)
+
+# Texture Packs
+
+This mod has support to load in texture packs via zip files 
+
+Example Texture Pack: [b]Desert Map Theme (1024x1024)[/b]
+
+The vanilla game uses 4096x4096 sized map textures by default for grass, 2048x2048 for dirt and cliff though smaller scaled textures will sucesssfully replace
+
+To make your own pack, just compress some or all of the following filenames into a zip file
+
+>Grass_BaseColor.png   
+Grass_Normal.png  
+Dirt_BaseColor.png  
+Dirt_Normal.png  
+Cliff_BaseColor.png  
+Cliff_Normal.png 
 
 # Disclaimer
 
-This mod is experiemental, so things might not work as expected
+This mod is experimental, so things might not work as expected
 
-# Acknowlegements
+# Acknowledgements
 
 Thanks to the Cities Skylines 2 modding community for making modding more accessible
 

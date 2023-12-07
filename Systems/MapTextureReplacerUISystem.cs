@@ -26,7 +26,7 @@ namespace MapTextureReplacer.Systems
             base.OnCreate();
             this.AddUpdateBinding(new GetterValueBinding<string>("map_texture", "texture_pack", () =>
             {
-                return "Texture Pack Loaded: " + "None";
+                return systemManaged.PackImportedText;
             }));
 
             this.AddBinding(new TriggerBinding("map_texture", "open_texture_zip", this.systemManaged.OpenTextureZip));

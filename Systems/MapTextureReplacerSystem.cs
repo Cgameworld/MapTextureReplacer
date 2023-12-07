@@ -5,12 +5,14 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.IO.Compression;
+using System.Reflection;
 using UnityEngine;
 
 namespace MapTextureReplacer.Systems
 {
     public class MapTextureReplacerSystem : GameSystemBase
     {
+        public string PackImportedText = "Pack Loaded: None";
         static Dictionary<string, Texture> mapTextureCache = new Dictionary<string, Texture>();
 
         protected override void OnCreate()
@@ -24,6 +26,8 @@ namespace MapTextureReplacer.Systems
         }
         public void OpenImage(string shaderProperty)
         {
+            Debug.Log("map assembly folder:" + Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location));
+
             var file = OpenFileDialog.ShowDialog("Image files\0*.jpg;*.png\0");
 
             CacheExistingTexture(shaderProperty);
@@ -53,7 +57,7 @@ namespace MapTextureReplacer.Systems
                     ExtractEntry(archive, "Cliff_Normal.png", "colossal_TerrainRockNormal");
                 }
             }
-
+            PackImportedText = "Pack Loaded: " + Path.GetFileNameWithoutExtension(zipFilePath);
         }
         private static void CacheExistingTexture(string shaderProperty)
         {
