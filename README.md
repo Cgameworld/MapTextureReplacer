@@ -25,7 +25,7 @@ Hopefully when the full official editor releases, it will include map theming to
 
 This mod has support to load in texture packs via zip files. This mod includes one example texture pack, a desert map theme.
 
-The vanilla game uses 4096x4096 sized map textures by default for grass, 2048x2048 for dirt and cliff though smaller scaled textures will successfully replace
+The vanilla game uses 4096x4096 sized map textures by default for grass, 2048x2048 for dirt and cliff though smaller scaled textures will successfully replace. For example, the example desert map theme pack uses 1024x1024 sized textures.
 
 To make your own pack, just compress some or all of the following filenames into a zip file
 
