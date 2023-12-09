@@ -36,9 +36,17 @@ Dirt_Normal.png
 Cliff_BaseColor.png  
 Cliff_Normal.png 
 
+# Changelog
+
+## 1.0.1
+- Fix for set textures resetting after save/autosave
+
+## 1.0.0 
+- Initial Release
+
 # Disclaimer
 
-This mod is experimental, so things might not work as expected
+This mod is experimental, so things might not work as expected. No settings are saved yet, so any changes are gone when you quit the game
 
 # Acknowledgements
 
