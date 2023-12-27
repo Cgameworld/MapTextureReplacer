@@ -99,5 +99,14 @@ namespace MapTextureReplacer.Systems
                 }
             }
         }
+
+        public void SetTile(int v)
+        {
+            UnityEngine.Debug.Log("SetTile Pressed!");
+            UnityEngine.Debug.Log("BF colossal_TerrainTextureTiling: " + Shader.GetGlobalVector(Shader.PropertyToID("colossal_TerrainTextureTiling")));
+            Shader.SetGlobalVector(Shader.PropertyToID("colossal_TerrainTextureTiling"), new Vector4(new System.Random().Next(0, 10000), new System.Random().Next(0, 10000), new System.Random().Next(0, 10000), 1f));
+
+
+        }
     }
 }

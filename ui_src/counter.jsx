@@ -14,9 +14,11 @@ const $Counter = ({ react }) => {
 
     const [texturePack, setTexturePack] = react.useState(0)
     const [openTextureZip, setOpenTextureZip] = react.useState(0)
+    const [tileVal, setTileVal] = react.useState(0)
 
     useDataUpdate(react, 'map_texture.texture_pack', setTexturePack)
     useDataUpdate(react, 'map_texture.open_texture_zip', setOpenTextureZip)
+    useDataUpdate(react, 'map_texture.tile_val', setTileVal)
 
     // Below, engine.trigger is responsible for triggering the TriggerBinding in the UI System
     return <$PanelMod react={react} title="Map Texture Replacer">
@@ -30,6 +32,9 @@ const $Counter = ({ react }) => {
         <TextureSelectUI label="Dirt Normal" textureType="dn" />
         <TextureSelectUI label="Cliff Diffuse" textureType="cd" />
         <TextureSelectUI label="Cliff Normal" textureType="cn" />
+
+        <button className="button_WWa button_SH8" style={{ marginTop: '10rem', marginBottom: '10rem' }} onClick={() => engine.trigger(`map_texture.tile_val`)}>Set Tile</button>
+
     </$PanelMod>
 }
 
