@@ -1,4 +1,4 @@
-import React from 'react'
+import React from 'react';
 import { useDataUpdate } from 'hookui-framework'
 import $PanelMod from './panel_modified'
 
@@ -9,6 +9,66 @@ const TextureSelectUI = ({ label, textureType }) => (
         <button className="button_WWa button_SH8" onClick={() => engine.trigger(`map_texture.reset_texture_${textureType}`)}>Reset</button>
     </div>
 );
+
+const $Slider = ({ react, min, max, sliderPos }) => {
+    const [sliderWidth, setSliderWidth] = react.useState(sliderPos-min);
+    const sliderRef = react.useRef();
+    const [scale, setScale] = react.useState(1);
+
+    react.useLayoutEffect(() => {
+        //const scale = (max - min) / sliderRef.current.getBoundingClientRect().width;
+        
+    }, [min, max]);
+
+    const handleMouseDown = (e) => {
+        e.preventDefault();
+
+        const handleMouseMove = (event) => {
+
+            console.log("(max - min)" + (max - min));
+            console.log("width" + sliderRef.current.getBoundingClientRect().width);
+            const scale = (max - min) / sliderRef.current.getBoundingClientRect().width;
+            console.log("scale: " + scale);
+            setScale(scale);
+
+            const newWidth = Math.min(Math.max(event.clientX - sliderRef.current.getBoundingClientRect().left, 0), sliderRef.current.getBoundingClientRect().width);
+            console.log("newWidth" + newWidth);
+            setSliderWidth(newWidth);
+        };
+
+        const handleMouseUp = () => {
+            document.removeEventListener('mousemove', handleMouseMove);
+            document.removeEventListener('mouseup', handleMouseUp);
+        };
+
+        document.addEventListener('mousemove', handleMouseMove);
+        document.addEventListener('mouseup', handleMouseUp);
+    };
+
+    return (
+        <div className="field_MBO">
+            <div className="row_d2o">
+                <div className="label_DGc label_ZLb">Tiling Test</div>
+                <div className="control_Hds" style={{ width: '67.5%', position: 'relative', left:'20rem'}}>
+                    <div className="slider-container_Q_K">
+                        <div className="slider_KXG slider_pUS horizontal slider_ROT">
+                            <div className="track-bounds_H8_" ref={sliderRef}>
+                                <div className="range-bounds_lNt" style={{ width: `${sliderWidth}rem` }} onMouseDown={handleMouseDown}>
+                                    <div className="range_nHO range_iUN"></div>
+                                    <div className="thumb-container_aso">
+                                        <div className="thumb_kkL"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <input className="slider-input_DXM input_Wfi" type="text" value={Math.round(min + sliderWidth * scale)} />
+                </div>
+            </div>
+        </div>
+    );
+};
+
 
 const $Counter = ({ react }) => {
 
@@ -39,31 +99,13 @@ const $Counter = ({ react }) => {
 
         <button className="button_WWa button_SH8" style={{ marginTop: '10rem', marginBottom: '10rem' }} onClick={() => engine.trigger(`map_texture.tile_val`)}>Set Tile</button>
 
-        <div className="field_MBO">
-            <div className="row_d2o">
-                <div className="label_DGc label_ZLb">Tiling Test</div>
-                <div className="control_Hds" style={{width:'67.5%',position:'relative',left:
-            '20rem'} }>
-                    <div className="slider-container_Q_K">
-                        <div className="slider_KXG slider_pUS horizontal slider_ROT">
-                            <div className="track-bounds_H8_">
-                                <div className="range-bounds_lNt" style={{width:'30%'}}>
-                                    <div className="range_nHO range_iUN"></div>
-                                    <div className="thumb-container_aso">
-                                        <div className="thumb_kkL"></div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <input className="slider-input_DXM input_Wfi" type="text" vk-title="" vk-description="" vk-type="text" rows="5" />
-                </div>
-            </div>
-        </div>
+
+        <$Slider react={react} min={10} max={1000} sliderPos={50}/>
 
         <button onClick={() => setCount(count + 1)}>
             {count}
         </button>
+
 
 
     </$PanelMod>
