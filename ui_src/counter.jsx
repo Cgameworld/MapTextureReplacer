@@ -11,10 +11,10 @@ const TextureSelectUI = ({ label, textureType }) => (
 );
 
 const $Slider = ({ react, min, max, sliderPos }) => {
-    const [sliderWidth, setSliderWidth] = react.useState(sliderPos-min);
+    const [sliderWidth, setSliderWidth] = react.useState(sliderPos - min);
+    const [inputValue, setInputValue] = react.useState(sliderPos);
     const sliderRef = react.useRef();
     const [scale, setScale] = react.useState(1);
-
 
     const handleMouseDown = (e) => {
         e.preventDefault();
@@ -24,8 +24,9 @@ const $Slider = ({ react, min, max, sliderPos }) => {
             setScale(scale);
 
             const newWidth = Math.min(Math.max(event.clientX - sliderRef.current.getBoundingClientRect().left, 0), sliderRef.current.getBoundingClientRect().width);
-            console.log("newWidth" + newWidth);
+            //console.log("newWidth" + newWidth);
             setSliderWidth(newWidth);
+            setInputValue(Math.round(min + newWidth * scale));
         };
 
         const handleMouseUp = () => {
@@ -37,14 +38,16 @@ const $Slider = ({ react, min, max, sliderPos }) => {
         document.addEventListener('mouseup', handleMouseUp);
     };
 
-    const sliderValue = Math.round(min + sliderWidth * scale);
-    //figure out how to handle values larger but still keep the num!!
     const handleInputChange = (event) => {
         const newValue = event.target.value;
-        if (newValue > max) {
-            setSliderWidth(sliderRef.current.getBoundingClientRect().width);
-        } else {
+        setInputValue(newValue); // store the input value
+        //console.log("Input Value: " + newValue); // log the input value
+
+        if (newValue >= min && newValue <= max) {
             setSliderWidth((newValue - min) / scale);
+        }
+        else if (newValue > max) {
+            setSliderWidth(max/scale);
         }
     };
 
@@ -52,7 +55,7 @@ const $Slider = ({ react, min, max, sliderPos }) => {
         <div className="field_MBO">
             <div className="row_d2o">
                 <div className="label_DGc label_ZLb">Tiling Test</div>
-                <div className="control_Hds" style={{ width: '67.5%', position: 'relative', left:'20rem'}}>
+                <div className="control_Hds" style={{ width: '67.5%', position: 'relative', left: '20rem' }}>
                     <div className="slider-container_Q_K">
                         <div className="slider_KXG slider_pUS horizontal slider_ROT">
                             <div className="track-bounds_H8_" ref={sliderRef}>
@@ -65,7 +68,7 @@ const $Slider = ({ react, min, max, sliderPos }) => {
                             </div>
                         </div>
                     </div>
-                    <input className="slider-input_DXM input_Wfi" type="text" value={sliderValue} onChange={handleInputChange} />
+                    <input className="slider-input_DXM input_Wfi" type="text" value={inputValue} onChange={handleInputChange} />
                 </div>
             </div>
         </div>
