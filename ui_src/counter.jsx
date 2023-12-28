@@ -15,20 +15,12 @@ const $Slider = ({ react, min, max, sliderPos }) => {
     const sliderRef = react.useRef();
     const [scale, setScale] = react.useState(1);
 
-    react.useLayoutEffect(() => {
-        //const scale = (max - min) / sliderRef.current.getBoundingClientRect().width;
-        
-    }, [min, max]);
 
     const handleMouseDown = (e) => {
         e.preventDefault();
 
         const handleMouseMove = (event) => {
-
-            console.log("(max - min)" + (max - min));
-            console.log("width" + sliderRef.current.getBoundingClientRect().width);
             const scale = (max - min) / sliderRef.current.getBoundingClientRect().width;
-            console.log("scale: " + scale);
             setScale(scale);
 
             const newWidth = Math.min(Math.max(event.clientX - sliderRef.current.getBoundingClientRect().left, 0), sliderRef.current.getBoundingClientRect().width);
@@ -43,6 +35,17 @@ const $Slider = ({ react, min, max, sliderPos }) => {
 
         document.addEventListener('mousemove', handleMouseMove);
         document.addEventListener('mouseup', handleMouseUp);
+    };
+
+    const sliderValue = Math.round(min + sliderWidth * scale);
+    //figure out how to handle values larger but still keep the num!!
+    const handleInputChange = (event) => {
+        const newValue = event.target.value;
+        if (newValue > max) {
+            setSliderWidth(sliderRef.current.getBoundingClientRect().width);
+        } else {
+            setSliderWidth((newValue - min) / scale);
+        }
     };
 
     return (
@@ -62,7 +65,7 @@ const $Slider = ({ react, min, max, sliderPos }) => {
                             </div>
                         </div>
                     </div>
-                    <input className="slider-input_DXM input_Wfi" type="text" value={Math.round(min + sliderWidth * scale)} />
+                    <input className="slider-input_DXM input_Wfi" type="text" value={sliderValue} onChange={handleInputChange} />
                 </div>
             </div>
         </div>
@@ -100,7 +103,9 @@ const $Counter = ({ react }) => {
         <button className="button_WWa button_SH8" style={{ marginTop: '10rem', marginBottom: '10rem' }} onClick={() => engine.trigger(`map_texture.tile_val`)}>Set Tile</button>
 
 
-        <$Slider react={react} min={10} max={1000} sliderPos={50}/>
+        <$Slider react={react} min={10} max={1000} sliderPos={50} />
+        //fix sliderPos when loading, take into account width?
+        <$Slider react={react} min={50} max={5000} sliderPos={1150} />
 
         <button onClick={() => setCount(count + 1)}>
             {count}
