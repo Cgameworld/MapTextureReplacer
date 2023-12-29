@@ -11,10 +11,19 @@ const TextureSelectUI = ({ label, textureType }) => (
 );
 
 const $Slider = ({ react, min, max, sliderPos }) => {
-    const [sliderWidth, setSliderWidth] = react.useState(sliderPos - min);
+    const [sliderWidth, setSliderWidth] = react.useState(0);
     const [inputValue, setInputValue] = react.useState(sliderPos);
     const sliderRef = react.useRef();
     const [scale, setScale] = react.useState(1);
+
+    //find better solution later - sliderRef.current.getBoundingClientRect().width doesn't resolve immediately
+    react.useLayoutEffect(() => {
+        setTimeout(() => {
+            const scale = (max - min) / sliderRef.current.getBoundingClientRect().width;
+            setScale(scale);
+            setSliderWidth((sliderPos - min) / scale);
+        }, 250);
+    }, []);
 
     const handleMouseDown = (e) => {
         e.preventDefault();
@@ -40,8 +49,7 @@ const $Slider = ({ react, min, max, sliderPos }) => {
 
     const handleInputChange = (event) => {
         const newValue = event.target.value;
-        setInputValue(newValue); // store the input value
-        //console.log("Input Value: " + newValue); // log the input value
+        setInputValue(newValue);
 
         if (newValue >= min && newValue <= max) {
             setSliderWidth((newValue - min) / scale);
