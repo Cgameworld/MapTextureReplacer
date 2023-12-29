@@ -1,6 +1,6 @@
 import React from 'react'
 
-const $SliderMod = ({ react, title, min, max, sliderPos }) => {
+const $SliderMod = ({ react, title, min, max, sliderPos, onInputChange }) => {
     const [sliderWidth, setSliderWidth] = react.useState(0);
     const [inputValue, setInputValue] = react.useState(sliderPos);
     const sliderRef = react.useRef();
@@ -25,7 +25,9 @@ const $SliderMod = ({ react, title, min, max, sliderPos }) => {
             const newWidth = Math.min(Math.max(event.clientX - sliderRef.current.getBoundingClientRect().left, 0), sliderRef.current.getBoundingClientRect().width);
             //console.log("newWidth" + newWidth);
             setSliderWidth(newWidth);
-            setInputValue(Math.round(min + newWidth * scale));
+            const newInputValue = Math.round(min + newWidth * scale);
+            setInputValue(newInputValue);
+            onInputChange(newInputValue);
         };
 
         const handleMouseUp = () => {
@@ -47,6 +49,9 @@ const $SliderMod = ({ react, title, min, max, sliderPos }) => {
         else if (newValue > max) {
             setSliderWidth(max / scale);
         }
+
+        // Call the passed in function with the new value
+        onInputChange(newValue);
     };
 
     return (

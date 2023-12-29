@@ -19,6 +19,13 @@ const $Counter = ({ react }) => {
 
     const [count, setCount] = react.useState(0);
 
+    const [sliderValue, setSliderValue] = react.useState(0);
+
+    const handleInputChange = (newValue) => {
+        console.log("newValue: " + newValue)
+        setSliderValue(newValue);
+    };
+
     useDataUpdate(react, 'map_texture.texture_pack', setTexturePack)
     useDataUpdate(react, 'map_texture.open_texture_zip', setOpenTextureZip)
     useDataUpdate(react, 'map_texture.tile_val', setTileVal)
@@ -37,9 +44,7 @@ const $Counter = ({ react }) => {
         <TextureSelectUI label="Cliff Diffuse" textureType="cd" />
         <TextureSelectUI label="Cliff Normal" textureType="cn" />
 
-        <$SliderMod react={react} title={"Far Tiling"} min={10} max={1000} sliderPos={50} />
-        <$SliderMod react={react} title={"Near Tiling"} min={50} max={5000} sliderPos={1150} />
-        <$SliderMod react={react} title={"Near Dirt Tiling"} min={50} max={5000} sliderPos={1150} />
+        <$SliderMod react={react} title={"Far Tiling"} min={10} max={1000} sliderPos={50} onInputChange={handleInputChange} />
 
         <button className="button_WWa button_SH8" style={{ marginTop: '10rem', marginBottom: '10rem' }} onClick={() => engine.trigger(`map_texture.tile_val`)}>Set Tile</button>
 
