@@ -12,7 +12,7 @@ using Game.Vehicles;
 using System;
 using System.Threading.Tasks;
 using Unity.Entities;
-
+using UnityEngine;
 
 namespace MapTextureReplacer.Systems
 {
@@ -51,8 +51,8 @@ namespace MapTextureReplacer.Systems
             this.AddBinding(new TriggerBinding("map_texture", "tile_val", () => this.systemManaged.SetTile(5)));
 
             this.AddUpdateBinding(new GetterValueBinding<int>("map_texture", "slider1_Pos", () =>
-            {               
-                return 150;
+            {
+                return (int)Shader.GetGlobalVector(Shader.PropertyToID("colossal_TerrainTextureTiling")).x;
             }));
 
             this.AddBinding(new TriggerBinding<int>("map_texture", "slider1_UpdatedValue", HandleTileChange1));
@@ -60,8 +60,10 @@ namespace MapTextureReplacer.Systems
 
         private void HandleTileChange1(int tileValue)
         {
-            UnityEngine.Debug.Log("new tileValue! " + tileValue);
-
+            //UnityEngine.Debug.Log("new tileValue! " + tileValue);
+            int propertyID = Shader.PropertyToID("colossal_TerrainTextureTiling");
+            Vector4 currentVector = Shader.GetGlobalVector(propertyID);
+            Shader.SetGlobalVector(propertyID, new Vector4(tileValue, currentVector.y, currentVector.z, currentVector.w));
         }
     }
 }

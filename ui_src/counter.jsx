@@ -49,7 +49,7 @@ const $Counter = ({ react }) => {
         <TextureSelectUI label="Cliff Normal" textureType="cn" />
 
         {slider1Pos == 0 ? null :
-            <$SliderMod react={react} title={"Far Tiling"} min={10} max={1000} sliderPos={slider1Pos} onInputChange={handleInputChange} />
+            <$SliderMod react={react} title={"Far Tiling"} min={1} max={250} sliderPos={slider1Pos} onInputChange={handleInputChange} />
         }
 
         <button className="button_WWa button_SH8" style={{ marginTop: '10rem', marginBottom: '10rem' }} onClick={() => engine.trigger(`map_texture.tile_val`)}>Set Tile</button>
