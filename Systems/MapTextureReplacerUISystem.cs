@@ -10,6 +10,7 @@ using Game.Tools;
 using Game.UI;
 using Game.Vehicles;
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using Unity.Entities;
 using UnityEngine;
@@ -20,6 +21,7 @@ namespace MapTextureReplacer.Systems
     {
         public int current_vehicle_count = 0;
         public MapTextureReplacerSystem systemManaged;
+        private Dictionary<string, Action<int>> handlers = new Dictionary<string, Action<int>>();
 
         protected override void OnCreate()
         {
@@ -50,35 +52,28 @@ namespace MapTextureReplacer.Systems
             //testbutton
             this.AddBinding(new TriggerBinding("map_texture", "tile_val", () => this.systemManaged.SetTile(5)));
 
-            this.AddUpdateBinding(new GetterValueBinding<int>("map_texture", "slider1_Pos", () =>
-            {
-                return (int)Shader.GetGlobalVector(Shader.PropertyToID("colossal_TerrainTextureTiling")).x;
-            }));
-
-            this.AddBinding(new TriggerBinding<int>("map_texture", "slider1_UpdatedValue", HandleTileChange1));
-
-            this.AddUpdateBinding(new GetterValueBinding<int>("map_texture", "slider2_Pos", () =>
-            {
-                return (int)Shader.GetGlobalVector(Shader.PropertyToID("colossal_TerrainTextureTiling")).y;
-            }));
-
-            this.AddBinding(new TriggerBinding<int>("map_texture", "slider2_UpdatedValue", HandleTileChange2));
+            AddSlider("slider1", "colossal_TerrainTextureTiling", 0);
+            AddSlider("slider2", "colossal_TerrainTextureTiling", 1);
+            AddSlider("slider3", "colossal_TerrainTextureTiling", 2);
+            AddSlider("slider4", "colossal_TerrainTextureTiling", 3);
         }
 
-        private void HandleTileChange1(int tileValue)
+        private void AddSlider(string sliderName, string shaderProperty, int vectorIndex)
         {
-            //UnityEngine.Debug.Log("new tileValue! " + tileValue);
-            int propertyID = Shader.PropertyToID("colossal_TerrainTextureTiling");
-            Vector4 currentVector = Shader.GetGlobalVector(propertyID);
-            Shader.SetGlobalVector(propertyID, new Vector4(tileValue, currentVector.y, currentVector.z, currentVector.w));
+            this.AddUpdateBinding(new GetterValueBinding<int>("map_texture", $"{sliderName}_Pos", () =>
+            {
+                return (int)Shader.GetGlobalVector(Shader.PropertyToID(shaderProperty))[vectorIndex];
+            }));
+
+            this.AddBinding(new TriggerBinding<int>("map_texture", $"{sliderName}_UpdatedValue", (tileValue) => TileVectorChange(shaderProperty, vectorIndex, tileValue)));
         }
 
-        private void HandleTileChange2(int tileValue)
+        private void TileVectorChange(string shaderProperty, int vectorIndex, int tileValue)
         {
-            //UnityEngine.Debug.Log("new tileValue! " + tileValue);
-            int propertyID = Shader.PropertyToID("colossal_TerrainTextureTiling");
+            int propertyID = Shader.PropertyToID(shaderProperty);
             Vector4 currentVector = Shader.GetGlobalVector(propertyID);
-            Shader.SetGlobalVector(propertyID, new Vector4(currentVector.x, tileValue, currentVector.z, currentVector.w));
+            currentVector[vectorIndex] = tileValue;
+            Shader.SetGlobalVector(propertyID, currentVector);
         }
     }
 }
