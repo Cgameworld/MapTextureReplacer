@@ -29,27 +29,29 @@ const $Counter = ({ react }) => {
 
     const [texturePack, setTexturePack] = react.useState(0)
     const [openTextureZip, setOpenTextureZip] = react.useState(0)
-    const [tileVal, setTileVal] = react.useState(0)
+    const [resetTiling, setResetTiling] = react.useState(0)
 
     const [count, setCount] = react.useState(0);
 
     useDataUpdate(react, 'map_texture.texture_pack', setTexturePack)
     useDataUpdate(react, 'map_texture.open_texture_zip', setOpenTextureZip)
-    useDataUpdate(react, 'map_texture.tile_val', setTileVal)
+    useDataUpdate(react, 'map_texture.reset_tiling', setResetTiling)
 
     const sliders = [
         { title: 'Far Tiling', min: 1, max: 250, pos: 'map_texture.slider1_Pos', update: 'map_texture.slider1_UpdatedValue' },
         { title: 'Close Tiling', min: 10, max: 3000, pos: 'map_texture.slider2_Pos', update: 'map_texture.slider2_UpdatedValue' },
         { title: 'Close Dirt Tiling', min: 10, max: 4000, pos: 'map_texture.slider3_Pos', update: 'map_texture.slider3_UpdatedValue' },
-        { title: 'Scale?', min: 1, max: 10, pos: 'map_texture.slider4_Pos', update: 'map_texture.slider4_UpdatedValue' },
     ];
+
+    const handleButtonClick = () => {
+        engine.trigger('map_texture.reset_tiling');
+    }
 
     return <$PanelMod react={react} title="Map Texture Replacer">
         <div className="field_MBO">
             <div className="label_DGc label_ZLb" style={{ textAlign: 'center' }}>{texturePack}</div>
         </div>
-        <button className="button_WWa button_SH8" style={{ marginTop: '-10rem', marginBottom: '20rem' }} onClick={() => engine.trigger(`map_texture.open_texture_zip`)}>Load Texture Pack</button>
-
+        <button className="button_WWa button_SH8" style={{ marginTop: '-10rem', marginBottom: '20rem' }} onClick={resetTiling}>Load Texture Pack</button>
 
         <TextureSelectUI label="Grass Diffuse" textureType="gd" />
         <TextureSelectUI label="Grass Normal" textureType="gn" />
@@ -58,18 +60,16 @@ const $Counter = ({ react }) => {
         <TextureSelectUI label="Cliff Diffuse" textureType="cd" />
         <TextureSelectUI label="Cliff Normal" textureType="cn" />
 
-
-
         {sliders.map((slider, index) => <SliderComponent key={index} react={react} slider={slider} />)}
 
-        <button className="button_WWa button_SH8" style={{ marginTop: '10rem', marginBottom: '10rem' }} onClick={() => engine.trigger(`map_texture.tile_val`)}>Set Tile</button>
+        //still need to update sliders when pressed!
+        <div className="field_MBO" style={{ minHeight: '52.5rem' }} >
+            <button className="button_WWa button_SH8" onClick={handleButtonClick}>Reset Tiling</button>
+        </div>
 
-        <button onClick={() => setCount(count + 1)}>
-            {count}
-        </button>
 
     </$PanelMod>
-}
+}     
 
 //Registering the panel with HookUI so it shows up in the menu
 window._$hookui.registerPanel({

@@ -49,13 +49,17 @@ namespace MapTextureReplacer.Systems
             this.AddBinding(new TriggerBinding("map_texture", "reset_texture_cd", () => this.systemManaged.ResetTexture("colossal_TerrainRockDiffuse")));
             this.AddBinding(new TriggerBinding("map_texture", "reset_texture_cn", () => this.systemManaged.ResetTexture("colossal_TerrainRockNormal")));
 
-            //testbutton
-            this.AddBinding(new TriggerBinding("map_texture", "tile_val", () => this.systemManaged.SetTile(5)));
+            //reset tiling
+            this.AddBinding(new TriggerBinding("map_texture", "reset_tiling", ResetTiling));
 
             AddSlider("slider1", "colossal_TerrainTextureTiling", 0);
             AddSlider("slider2", "colossal_TerrainTextureTiling", 1);
             AddSlider("slider3", "colossal_TerrainTextureTiling", 2);
-            AddSlider("slider4", "colossal_TerrainTextureTiling", 3);
+        }
+
+        private void ResetTiling()
+        {
+            Shader.SetGlobalVector(Shader.PropertyToID("colossal_TerrainTextureTiling"), new Vector4(160f, 1600f, 2400f, 1f));
         }
 
         private void AddSlider(string sliderName, string shaderProperty, int vectorIndex)

@@ -6,7 +6,7 @@ import * as styles from './styles'
 const defaultStyle = {
     position: 'absolute',
     width: "400rem",
-    height: "730rem"
+    height: "690rem"
 }
 
 const $PanelMod = ({ title, children, react, style }) => {
