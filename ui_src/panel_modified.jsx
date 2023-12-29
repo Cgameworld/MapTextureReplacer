@@ -9,6 +9,12 @@ const defaultStyle = {
     height: "690rem"
 }
 
+const $CloseButton = ({ onClick }) => {
+    return <button className="button_bvQ button_bvQ close-button_wKK" onClick={onClick}>
+        <div className="tinted-icon_iKo icon_PhD" style={{ maskImage: 'url(Media/Glyphs/Close.svg)' }}></div>
+    </button>
+}
+
 const $PanelMod = ({ title, children, react, style }) => {
     const [position, setPosition] = react.useState({ top: 100, left: 10 });
     const [dragging, setDragging] = react.useState(false);
@@ -48,6 +54,12 @@ const $PanelMod = ({ title, children, react, style }) => {
         e.preventDefault();
     }
 
+    const onClose = (e) => {
+        const data = { type: "toggle_visibility", id: "example.map_texture" };
+        const event = new CustomEvent('hookui', { detail: data });
+        window.dispatchEvent(event);
+    }
+
     const draggableStyle = {
         ...defaultStyle,
         top: position.top + 'px',
@@ -76,6 +88,7 @@ const $PanelMod = ({ title, children, react, style }) => {
                 <div className="title-bar_PF4">
                     <div className="icon-space_h_f"></div>
                     <div className="title_SVH title_zQN">{title}</div>
+                    <$CloseButton onClick={onClose} />
                 </div>
             </div>
             <div className="content_XD5 content_AD7 child-opacity-transition_nkS">
