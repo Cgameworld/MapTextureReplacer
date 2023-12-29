@@ -23,10 +23,10 @@ const $Counter = ({ react }) => {
     const handleInputChange = (newValue) => {
         console.log("newValue: " + newValue)
         setSliderValue(newValue);
-        engine.trigger('map_texture.slider1_UpdatedValue', newValue);
+        engine.trigger('map_texture.slider1_UpdatedValue', Number(newValue));
     };
 
-    const [slider1Pos, setSlider1Pos] = react.useState(0);
+    const [slider1Pos, setSlider1Pos] = react.useState();
 
     useDataUpdate(react, 'map_texture.texture_pack', setTexturePack)
     useDataUpdate(react, 'map_texture.open_texture_zip', setOpenTextureZip)
@@ -48,7 +48,7 @@ const $Counter = ({ react }) => {
         <TextureSelectUI label="Cliff Diffuse" textureType="cd" />
         <TextureSelectUI label="Cliff Normal" textureType="cn" />
 
-        {slider1Pos == 0 ? null :
+        {slider1Pos == null ? null :
             <$SliderMod react={react} title={"Far Tiling"} min={1} max={250} sliderPos={slider1Pos} onInputChange={handleInputChange} />
         }
 
