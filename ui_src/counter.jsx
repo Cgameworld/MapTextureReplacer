@@ -11,7 +11,7 @@ const TextureSelectUI = ({ label, textureType }) => (
     </div>
 );
 
-const SliderComponent = ({ react, slider }) => {
+const SliderComponent = ({ react, slider, isRendered }) => {
     const [sliderValue, setSliderValue] = react.useState(0);
     const [sliderPos, setSliderPos] = react.useState();
 
@@ -21,9 +21,10 @@ const SliderComponent = ({ react, slider }) => {
         engine.trigger(slider.update, Number(newValue));
     };
 
-    return sliderPos == null ? null :
+    return (!isRendered || sliderPos == null) ? null :
         <$SliderMod react={react} title={slider.title} min={slider.min} max={slider.max} sliderPos={sliderPos} onInputChange={handleInputChange} />
 }
+
 
 const $Counter = ({ react }) => {
 
@@ -43,15 +44,22 @@ const $Counter = ({ react }) => {
         { title: 'Close Dirt Tiling', min: 10, max: 4000, pos: 'map_texture.slider3_Pos', update: 'map_texture.slider3_UpdatedValue' },
     ];
 
+    const [slidersRendered, setSlidersRendered] = react.useState(true);
+
     const handleButtonClick = () => {
         engine.trigger('map_texture.reset_tiling');
+        //hack to reset slider position
+        setSlidersRendered(false);
+        requestAnimationFrame(() => {
+            setSlidersRendered(true);
+        });
     }
 
     return <$PanelMod react={react} title="Map Texture Replacer">
         <div className="field_MBO">
             <div className="label_DGc label_ZLb" style={{ textAlign: 'center' }}>{texturePack}</div>
         </div>
-        <button className="button_WWa button_SH8" style={{ marginTop: '-10rem', marginBottom: '20rem' }} onClick={resetTiling}>Load Texture Pack</button>
+        <button className="button_WWa button_SH8" style={{ marginTop: '-10rem', marginBottom: '20rem' }} onClick={() => engine.trigger(`map_texture.open_texture_zip`)}>Load Texture Pack</button>
 
         <TextureSelectUI label="Grass Diffuse" textureType="gd" />
         <TextureSelectUI label="Grass Normal" textureType="gn" />
@@ -60,13 +68,11 @@ const $Counter = ({ react }) => {
         <TextureSelectUI label="Cliff Diffuse" textureType="cd" />
         <TextureSelectUI label="Cliff Normal" textureType="cn" />
 
-        {sliders.map((slider, index) => <SliderComponent key={index} react={react} slider={slider} />)}
+        {sliders.map((slider, index) => <SliderComponent key={index} react={react} slider={slider} isRendered={slidersRendered} />)}
 
-        //still need to update sliders when pressed!
         <div className="field_MBO" style={{ minHeight: '52.5rem' }} >
             <button className="button_WWa button_SH8" onClick={handleButtonClick}>Reset Tiling</button>
         </div>
-
 
     </$PanelMod>
 }     
