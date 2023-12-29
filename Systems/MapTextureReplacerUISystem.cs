@@ -56,6 +56,13 @@ namespace MapTextureReplacer.Systems
             }));
 
             this.AddBinding(new TriggerBinding<int>("map_texture", "slider1_UpdatedValue", HandleTileChange1));
+
+            this.AddUpdateBinding(new GetterValueBinding<int>("map_texture", "slider2_Pos", () =>
+            {
+                return (int)Shader.GetGlobalVector(Shader.PropertyToID("colossal_TerrainTextureTiling")).y;
+            }));
+
+            this.AddBinding(new TriggerBinding<int>("map_texture", "slider2_UpdatedValue", HandleTileChange2));
         }
 
         private void HandleTileChange1(int tileValue)
@@ -64,6 +71,14 @@ namespace MapTextureReplacer.Systems
             int propertyID = Shader.PropertyToID("colossal_TerrainTextureTiling");
             Vector4 currentVector = Shader.GetGlobalVector(propertyID);
             Shader.SetGlobalVector(propertyID, new Vector4(tileValue, currentVector.y, currentVector.z, currentVector.w));
+        }
+
+        private void HandleTileChange2(int tileValue)
+        {
+            //UnityEngine.Debug.Log("new tileValue! " + tileValue);
+            int propertyID = Shader.PropertyToID("colossal_TerrainTextureTiling");
+            Vector4 currentVector = Shader.GetGlobalVector(propertyID);
+            Shader.SetGlobalVector(propertyID, new Vector4(currentVector.x, tileValue, currentVector.z, currentVector.w));
         }
     }
 }

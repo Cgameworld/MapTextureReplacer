@@ -11,6 +11,20 @@ const TextureSelectUI = ({ label, textureType }) => (
     </div>
 );
 
+const SliderComponent = ({ react, slider }) => {
+    const [sliderValue, setSliderValue] = react.useState(0);
+    const [sliderPos, setSliderPos] = react.useState();
+
+    useDataUpdate(react, slider.pos, setSliderPos);
+
+    const handleInputChange = (newValue) => {
+        engine.trigger(slider.update, Number(newValue));
+    };
+
+    return sliderPos == null ? null :
+        <$SliderMod react={react} title={slider.title} min={slider.min} max={slider.max} sliderPos={sliderPos} onInputChange={handleInputChange} />
+}
+
 const $Counter = ({ react }) => {
 
     const [texturePack, setTexturePack] = react.useState(0)
@@ -19,20 +33,16 @@ const $Counter = ({ react }) => {
 
     const [count, setCount] = react.useState(0);
 
-    const [sliderValue, setSliderValue] = react.useState(0);
-    const handleInputChange = (newValue) => {
-        console.log("newValue: " + newValue)
-        setSliderValue(newValue);
-        engine.trigger('map_texture.slider1_UpdatedValue', Number(newValue));
-    };
-
-    const [slider1Pos, setSlider1Pos] = react.useState();
-
     useDataUpdate(react, 'map_texture.texture_pack', setTexturePack)
     useDataUpdate(react, 'map_texture.open_texture_zip', setOpenTextureZip)
     useDataUpdate(react, 'map_texture.tile_val', setTileVal)
 
-    useDataUpdate(react, 'map_texture.slider1_Pos', setSlider1Pos)
+    const sliders = [
+        { title: 'Far Tiling', min: 1, max: 250, pos: 'map_texture.slider1_Pos', update: 'map_texture.slider1_UpdatedValue' },
+        { title: 'Close Tiling', min: 10, max: 3000, pos: 'map_texture.slider2_Pos', update: 'map_texture.slider2_UpdatedValue' },
+        { title: 'Close Dirt Tiling', min: 10, max: 4000, pos: 'map_texture.slider3_Pos', update: 'map_texture.slider3_UpdatedValue' },
+        { title: 'Scale?', min: 1, max: 10, pos: 'map_texture.slider4_Pos', update: 'map_texture.slider4_UpdatedValue' },
+    ];
 
     return <$PanelMod react={react} title="Map Texture Replacer">
         <div className="field_MBO">
@@ -48,9 +58,9 @@ const $Counter = ({ react }) => {
         <TextureSelectUI label="Cliff Diffuse" textureType="cd" />
         <TextureSelectUI label="Cliff Normal" textureType="cn" />
 
-        {slider1Pos == null ? null :
-            <$SliderMod react={react} title={"Far Tiling"} min={1} max={250} sliderPos={slider1Pos} onInputChange={handleInputChange} />
-        }
+
+
+        {sliders.map((slider, index) => <SliderComponent key={index} react={react} slider={slider} />)}
 
         <button className="button_WWa button_SH8" style={{ marginTop: '10rem', marginBottom: '10rem' }} onClick={() => engine.trigger(`map_texture.tile_val`)}>Set Tile</button>
 
