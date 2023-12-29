@@ -1,6 +1,6 @@
 import React from 'react'
 
-const $SliderMod = ({ react, min, max, sliderPos }) => {
+const $SliderMod = ({ react, title, min, max, sliderPos }) => {
     const [sliderWidth, setSliderWidth] = react.useState(0);
     const [inputValue, setInputValue] = react.useState(sliderPos);
     const sliderRef = react.useRef();
@@ -50,9 +50,9 @@ const $SliderMod = ({ react, min, max, sliderPos }) => {
     };
 
     return (
-        <div className="field_MBO">
+        <div className="field_MBO" style={{ minHeight: '52.5rem' }}>
             <div className="row_d2o">
-                <div className="label_DGc label_ZLb">Tiling Test</div>
+                <div className="label_ZLb label_test2" style={{ width: '100rem', marginRight: '5rem' }} >{title}</div>
                 <div className="control_Hds" style={{ width: '67.5%', position: 'relative', left: '20rem' }}>
                     <div className="slider-container_Q_K">
                         <div className="slider_KXG slider_pUS horizontal slider_ROT">
