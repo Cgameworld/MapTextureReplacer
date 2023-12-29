@@ -20,15 +20,19 @@ const $Counter = ({ react }) => {
     const [count, setCount] = react.useState(0);
 
     const [sliderValue, setSliderValue] = react.useState(0);
-
     const handleInputChange = (newValue) => {
         console.log("newValue: " + newValue)
         setSliderValue(newValue);
+        engine.trigger('map_texture.slider1_UpdatedValue', newValue);
     };
+
+    const [slider1Pos, setSlider1Pos] = react.useState(0);
 
     useDataUpdate(react, 'map_texture.texture_pack', setTexturePack)
     useDataUpdate(react, 'map_texture.open_texture_zip', setOpenTextureZip)
     useDataUpdate(react, 'map_texture.tile_val', setTileVal)
+
+    useDataUpdate(react, 'map_texture.slider1_Pos', setSlider1Pos)
 
     return <$PanelMod react={react} title="Map Texture Replacer">
         <div className="field_MBO">
@@ -44,7 +48,9 @@ const $Counter = ({ react }) => {
         <TextureSelectUI label="Cliff Diffuse" textureType="cd" />
         <TextureSelectUI label="Cliff Normal" textureType="cn" />
 
-        <$SliderMod react={react} title={"Far Tiling"} min={10} max={1000} sliderPos={50} onInputChange={handleInputChange} />
+        {slider1Pos == 0 ? null :
+            <$SliderMod react={react} title={"Far Tiling"} min={10} max={1000} sliderPos={slider1Pos} onInputChange={handleInputChange} />
+        }
 
         <button className="button_WWa button_SH8" style={{ marginTop: '10rem', marginBottom: '10rem' }} onClick={() => engine.trigger(`map_texture.tile_val`)}>Set Tile</button>
 

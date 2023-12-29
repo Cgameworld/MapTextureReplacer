@@ -5,9 +5,11 @@ using Game.Debug;
 using Game.Prefabs;
 using Game.Routes;
 using Game.Serialization;
+using Game.Simulation;
 using Game.Tools;
 using Game.UI;
 using Game.Vehicles;
+using System;
 using System.Threading.Tasks;
 using Unity.Entities;
 
@@ -47,8 +49,19 @@ namespace MapTextureReplacer.Systems
 
             //testbutton
             this.AddBinding(new TriggerBinding("map_texture", "tile_val", () => this.systemManaged.SetTile(5)));
+
+            this.AddUpdateBinding(new GetterValueBinding<int>("map_texture", "slider1_Pos", () =>
+            {               
+                return 150;
+            }));
+
+            this.AddBinding(new TriggerBinding<int>("map_texture", "slider1_UpdatedValue", HandleTileChange1));
         }
 
+        private void HandleTileChange1(int tileValue)
+        {
+            UnityEngine.Debug.Log("new tileValue! " + tileValue);
 
+        }
     }
 }
