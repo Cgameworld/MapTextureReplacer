@@ -28,6 +28,8 @@ const $SliderMod = ({ react, title, min, max, sliderPos, onInputChange }) => {
             const newInputValue = Math.round(min + newWidth * scale);
             setInputValue(newInputValue);
             onInputChange(newInputValue);
+
+            engine.trigger("audio.playSound", "drag-slider", 1);
         };
 
         const handleMouseUp = () => {

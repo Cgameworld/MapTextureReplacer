@@ -57,9 +57,11 @@ const $Counter = ({ react }) => {
     }
 
     const options = [
-        { value: 'option1', label: 'None' },
-        { value: 'option2', label: 'Dummy1' },
-        { value: 'option3', label: 'Dummy2' },
+        { value: 'option1', label: texturePack },
+        { value: 'option2', label: 'Tropical Map Theme' },
+        { value: 'option3', label: '[CS1] Cleyra' },
+        { value: 'option4', label: '[CS1] Seychelles' },
+        { value: 'option5', label: 'Load from file...' },
     ];
 
     const onSelectionChanged1 = (value) => {
@@ -68,7 +70,7 @@ const $Counter = ({ react }) => {
 
     return <$PanelMod react={react} title="Map Texture Replacer">
         <div className="field_MBO">
-            <div className="label_DGc label_ZLb" style={{ textAlign: 'center' }}>{texturePack}</div>
+            <div className="label_DGc label_ZLb">Pack Loaded:</div>
             <$DropdownMod react={react} onSelectionChanged={onSelectionChanged1} selected={options[0].value} options={options} />
         </div>
         <button className="button_WWa button_SH8" style={{ marginTop: '-10rem', marginBottom: '20rem' }} onClick={() => engine.trigger(`map_texture.open_texture_zip`)}>Load Texture Pack</button>

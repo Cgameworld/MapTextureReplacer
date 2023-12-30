@@ -58,6 +58,7 @@ const $PanelMod = ({ title, children, react, style }) => {
         const data = { type: "toggle_visibility", id: "example.map_texture" };
         const event = new CustomEvent('hookui', { detail: data });
         window.dispatchEvent(event);
+        engine.trigger("audio.playSound", "select-item", 1);
     }
 
     const draggableStyle = {
