@@ -11,7 +11,14 @@ const $SliderMod = ({ react, title, min, max, sliderPos, onInputChange }) => {
         setTimeout(() => {
             const scale = (max - min) / sliderRef.current.getBoundingClientRect().width;
             setScale(scale);
-            setSliderWidth((sliderPos - min) / scale);
+
+            const sliderWidth = (sliderPos - min) / scale;
+            if (sliderWidth > max) {
+                setSliderWidth(max / scale);
+            }
+            else {
+                setSliderWidth(sliderWidth);
+            }
         }, 250);
     }, []);
 
