@@ -12,5 +12,8 @@
   "devDependencies": {
     "esbuild": "^0.19.8",
     "hookui-framework": "github:captain-of-coit/hookui-framework"
+  },
+  "dependencies": {
+    "react-dom": "^18.2.0"
   }
 }

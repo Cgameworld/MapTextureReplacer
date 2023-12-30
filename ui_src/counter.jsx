@@ -2,6 +2,7 @@ import React from 'react';
 import { useDataUpdate } from 'hookui-framework'
 import $PanelMod from './panel_modified'
 import $SliderMod from './slider_modified'
+import $DropdownMod from './dropdown_modified'
 
 const TextureSelectUI = ({ label, textureType }) => (
     <div className="field_MBO" style={{minHeight: '52.5rem'}} >
@@ -55,9 +56,20 @@ const $Counter = ({ react }) => {
         });
     }
 
+    const options = [
+        { value: 'option1', label: 'None' },
+        { value: 'option2', label: 'Dummy1' },
+        { value: 'option3', label: 'Dummy2' },
+    ];
+
+    const onSelectionChanged1 = (value) => {
+        console.log(`Selected value: ${value}`);
+    };
+
     return <$PanelMod react={react} title="Map Texture Replacer">
         <div className="field_MBO">
             <div className="label_DGc label_ZLb" style={{ textAlign: 'center' }}>{texturePack}</div>
+            <$DropdownMod react={react} onSelectionChanged={onSelectionChanged1} selected={options[0].value} options={options} />
         </div>
         <button className="button_WWa button_SH8" style={{ marginTop: '-10rem', marginBottom: '20rem' }} onClick={() => engine.trigger(`map_texture.open_texture_zip`)}>Load Texture Pack</button>
 
