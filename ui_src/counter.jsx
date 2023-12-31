@@ -58,26 +58,32 @@ const $Counter = ({ react }) => {
 
    
     const [options, setOptions] = react.useState([
-        { value: 'option1', label: 'None' },
-        { value: 'loadfile', label: 'Load from file...' },
+        { value: 'none', label: 'None', filepath: 'None' },
+        { value: 'loadfile', label: 'Load from file...', filepath: 'None' },
     ]);
 
     const [onSelectedPackDropdown, setOnSelectedPackDropdown] = react.useState(options[0].value)
 
     const onSelectionChanged1 = (value) => {
-        console.log(`Selected value: ${value}`);
         setOnSelectedPackDropdown(value);
         if (value == "loadfile") {
             engine.trigger(`map_texture.open_texture_zip`);
         }
+        else if (value != "none") {
+            console.log(value + " selected");
+            //engine.trigger() method to pass filepath of value to be extracted again?
+        }
     };
+
+    //in general have variable to get filepath when adding files manually
+    //then find way to feed all three paramters on load to options const
 
     react.useEffect(() => {
         if (texturePack) {
             setOptions(prevOptions => {               
                 if (!prevOptions.some(option => option.value === texturePack)) {
                     let newOptions = [...prevOptions];
-                    newOptions.splice(newOptions.length - 1, 0, { value: texturePack, label: texturePack });
+                    newOptions.splice(newOptions.length - 1, 0, { value: texturePack, label: texturePack.split(",")[0], filepath: texturePack.split(",")[1] });
                     return newOptions;
                 }
                 return prevOptions;

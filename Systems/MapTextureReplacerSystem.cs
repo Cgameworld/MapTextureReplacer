@@ -55,7 +55,7 @@ namespace MapTextureReplacer.Systems
                     ExtractEntry(archive, "Cliff_Normal.png", "colossal_TerrainRockNormal");
                 }
             }
-            PackImportedText = Path.GetFileNameWithoutExtension(zipFilePath);
+            PackImportedText = Path.GetFileNameWithoutExtension(zipFilePath) + "," + zipFilePath;
         }
         private static void CacheExistingTexture(string shaderProperty)
         {
