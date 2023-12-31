@@ -12,7 +12,7 @@ namespace MapTextureReplacer.Systems
 {
     public class MapTextureReplacerSystem : GameSystemBase
     {
-        public string PackImportedText = "Pack Loaded: None";
+        public string PackImportedText = "";
         static Dictionary<string, Texture> mapTextureCache = new Dictionary<string, Texture>();
 
         protected override void OnCreate()
@@ -55,7 +55,7 @@ namespace MapTextureReplacer.Systems
                     ExtractEntry(archive, "Cliff_Normal.png", "colossal_TerrainRockNormal");
                 }
             }
-            PackImportedText = "Pack Loaded: " + Path.GetFileNameWithoutExtension(zipFilePath);
+            PackImportedText = Path.GetFileNameWithoutExtension(zipFilePath);
         }
         private static void CacheExistingTexture(string shaderProperty)
         {

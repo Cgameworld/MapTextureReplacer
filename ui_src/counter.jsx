@@ -56,24 +56,45 @@ const $Counter = ({ react }) => {
         });
     }
 
-    const options = [
-        { value: 'option1', label: texturePack },
-        { value: 'option2', label: 'Tropical Map Theme' },
-        { value: 'option3', label: '[CS1] Cleyra' },
-        { value: 'option4', label: '[CS1] Seychelles' },
-        { value: 'option5', label: 'Load from file...' },
-    ];
+   
+    const [options, setOptions] = react.useState([
+        { value: 'option1', label: 'None' },
+        { value: 'loadfile', label: 'Load from file...' },
+    ]);
+
+    const [onSelectedPackDropdown, setOnSelectedPackDropdown] = react.useState(options[0].value)
 
     const onSelectionChanged1 = (value) => {
         console.log(`Selected value: ${value}`);
+        setOnSelectedPackDropdown(value);
+        if (value == "loadfile") {
+            engine.trigger(`map_texture.open_texture_zip`);
+        }
     };
+
+    react.useEffect(() => {
+        if (texturePack) {
+            setOptions(prevOptions => {               
+                if (!prevOptions.some(option => option.value === texturePack)) {
+                    let newOptions = [...prevOptions];
+                    newOptions.splice(newOptions.length - 1, 0, { value: texturePack, label: texturePack });
+                    return newOptions;
+                }
+                return prevOptions;
+            });
+            console.log(options);
+
+            onSelectionChanged1(texturePack);
+        }
+    }, [texturePack]);
+
+
 
     return <$PanelMod react={react} title="Map Texture Replacer">
         <div className="field_MBO">
             <div className="label_DGc label_ZLb">Pack Loaded:</div>
-            <$DropdownMod react={react} onSelectionChanged={onSelectionChanged1} selected={options[0].value} options={options} />
+            <$DropdownMod react={react} onSelectionChanged={onSelectionChanged1} selected={onSelectedPackDropdown} options={options} />
         </div>
-        <button className="button_WWa button_SH8" style={{ marginTop: '-10rem', marginBottom: '20rem' }} onClick={() => engine.trigger(`map_texture.open_texture_zip`)}>Load Texture Pack</button>
 
         <TextureSelectUI label="Grass Diffuse" textureType="gd" />
         <TextureSelectUI label="Grass Normal" textureType="gn" />
