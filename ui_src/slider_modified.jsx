@@ -1,25 +1,29 @@
 import React from 'react'
 
+//rewrite this later with %, has issues with some screen sizes
 const $SliderMod = ({ react, title, min, max, sliderPos, onInputChange }) => {
     const [sliderWidth, setSliderWidth] = react.useState(0);
     const [inputValue, setInputValue] = react.useState(sliderPos);
     const sliderRef = react.useRef();
     const [scale, setScale] = react.useState(1);
 
-    //find better solution later - sliderRef.current.getBoundingClientRect().width doesn't resolve immediately
-    react.useLayoutEffect(() => {
-        setTimeout(() => {
-            const scale = (max - min) / sliderRef.current.getBoundingClientRect().width;
-            setScale(scale);
 
-            const sliderWidth = (sliderPos - min) / scale;
-            if (sliderWidth > max) {
-                setSliderWidth(max / scale);
-            }
-            else {
-                setSliderWidth(sliderWidth);
-            }
-        }, 250);
+    react.useLayoutEffect(() => {
+        //find better solution than hardcoding - this doesn't resolve immediately
+        //const scale = (max - min) / sliderRef.current.getBoundingClientRect().width;
+        const scale = (max - min) / 155.90866;
+
+        setScale(scale);
+
+        const sliderWidth = (sliderPos - min) / scale;
+        if (sliderWidth > max) {
+            setSliderWidth(max / scale);
+        }
+
+        else {
+            setSliderWidth(sliderWidth);
+        }
+
     }, []);
 
     const handleMouseDown = (e) => {
@@ -28,9 +32,8 @@ const $SliderMod = ({ react, title, min, max, sliderPos, onInputChange }) => {
         const handleMouseMove = (event) => {
             const scale = (max - min) / sliderRef.current.getBoundingClientRect().width;
             setScale(scale);
-
+            console.log(sliderRef.current.getBoundingClientRect().width);
             const newWidth = Math.min(Math.max(event.clientX - sliderRef.current.getBoundingClientRect().left, 0), sliderRef.current.getBoundingClientRect().width);
-            //console.log("newWidth" + newWidth);
             setSliderWidth(newWidth);
             const newInputValue = Math.round(min + newWidth * scale);
             setInputValue(newInputValue);
@@ -59,7 +62,6 @@ const $SliderMod = ({ react, title, min, max, sliderPos, onInputChange }) => {
             setSliderWidth(max / scale);
         }
 
-        // Call the passed in function with the new value
         onInputChange(newValue);
     };
 
