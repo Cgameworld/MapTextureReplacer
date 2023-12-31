@@ -58,8 +58,8 @@ const $Counter = ({ react }) => {
 
    
     const [options, setOptions] = react.useState([
-        { value: 'none', label: 'None', filepath: 'None' },
-        { value: 'loadfile', label: 'Load from file...', filepath: 'None' },
+        { value: 'none', label: 'None' },
+        { value: 'loadfile', label: 'Load from file...'},
     ]);
 
     const [onSelectedPackDropdown, setOnSelectedPackDropdown] = react.useState(options[0].value)
@@ -69,9 +69,8 @@ const $Counter = ({ react }) => {
         if (value == "loadfile") {
             engine.trigger(`map_texture.open_texture_zip`);
         }
-        else if (value != "none") {
-            console.log(value + " selected");
-            //engine.trigger() method to pass filepath of value to be extracted again?
+        else {
+            engine.trigger('map_texture.change_pack',value);
         }
     };
 
@@ -83,7 +82,7 @@ const $Counter = ({ react }) => {
             setOptions(prevOptions => {               
                 if (!prevOptions.some(option => option.value === texturePack)) {
                     let newOptions = [...prevOptions];
-                    newOptions.splice(newOptions.length - 1, 0, { value: texturePack, label: texturePack.split(",")[0], filepath: texturePack.split(",")[1] });
+                    newOptions.splice(newOptions.length - 1, 0, { value: texturePack, label: texturePack.split(",")[0]});
                     return newOptions;
                 }
                 return prevOptions;

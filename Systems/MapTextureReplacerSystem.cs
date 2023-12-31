@@ -108,5 +108,10 @@ namespace MapTextureReplacer.Systems
 
 
         }
+
+        public void ChangePack(string current)
+        {
+            UnityEngine.Debug.Log("hello! selected: " + current);
+        }
     }
 }
