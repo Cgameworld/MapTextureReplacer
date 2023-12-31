@@ -24,6 +24,22 @@ namespace MapTextureReplacer.Systems
         {
 
         }
+        public void ChangePack(string current)
+        {
+            if (current == "none")
+            {
+                ResetTexture("colossal_TerrainGrassDiffuse");
+                ResetTexture("colossal_TerrainGrassNormal");
+                ResetTexture("colossal_TerrainDirtDiffuse");
+                ResetTexture("colossal_TerrainDirtNormal");
+                ResetTexture("colossal_TerrainRockDiffuse");
+                ResetTexture("colossal_TerrainRockNormal");
+            }
+            else
+            {
+                OpenTextureZip(current.Split(',')[1]);
+            }
+        }
         public void OpenImage(string shaderProperty)
         {
             var file = OpenFileDialog.ShowDialog("Image files\0*.jpg;*.png\0");
@@ -39,9 +55,14 @@ namespace MapTextureReplacer.Systems
             }
 
         }
-        public void OpenTextureZip()
+        public void GetTextureZip()
         {
             var zipFilePath = OpenFileDialog.ShowDialog("Zip archives\0*.zip\0");
+            PackImportedText = Path.GetFileNameWithoutExtension(zipFilePath) + "," + zipFilePath;
+        }
+        public void OpenTextureZip(string zipFilePath)
+        {
+            //var zipFilePath = OpenFileDialog.ShowDialog("Zip archives\0*.zip\0");
 
             if (!string.IsNullOrEmpty(zipFilePath))
             {
@@ -55,7 +76,6 @@ namespace MapTextureReplacer.Systems
                     ExtractEntry(archive, "Cliff_Normal.png", "colossal_TerrainRockNormal");
                 }
             }
-            PackImportedText = Path.GetFileNameWithoutExtension(zipFilePath) + "," + zipFilePath;
         }
         private static void CacheExistingTexture(string shaderProperty)
         {
@@ -109,9 +129,5 @@ namespace MapTextureReplacer.Systems
 
         }
 
-        public void ChangePack(string current)
-        {
-            UnityEngine.Debug.Log("hello! selected: " + current);
-        }
     }
 }
