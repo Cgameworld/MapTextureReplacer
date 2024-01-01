@@ -78,7 +78,7 @@ const $Counter = ({ react }) => {
     //then find way to feed all three paramters on load to options const
 
     react.useEffect(() => {
-        if (texturePack) {
+        if (texturePack && texturePack != ",") {
             setOptions(prevOptions => {               
                 if (!prevOptions.some(option => option.value === texturePack)) {
                     let newOptions = [...prevOptions];

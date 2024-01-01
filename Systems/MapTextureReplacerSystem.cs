@@ -18,6 +18,32 @@ namespace MapTextureReplacer.Systems
         protected override void OnCreate()
         {
             base.OnCreate();
+            List<string> texturePackFolders = new List<string>();
+
+            DirectoryInfo modsFolderDirectory = Directory.GetParent(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location));
+
+            UnityEngine.Debug.Log(modsFolderDirectory.FullName);
+
+            foreach (var filePath in Directory.GetFiles(modsFolderDirectory.FullName, "*.json", SearchOption.AllDirectories))
+            {
+                var filename = Path.GetFileName(filePath.ToString());              
+                if (filename == "maptextureconfig.json")
+                {
+                    UnityEngine.Debug.Log("maptextureconfig at: " + filePath);                
+                    texturePackFolders.Add(Directory.GetParent(filePath).FullName);
+                }
+            }
+
+
+
+            foreach(var folder in texturePackFolders)
+            {
+                foreach (var filePath in Directory.GetFiles(folder))
+                {
+                    UnityEngine.Debug.Log("files in found folder: " + filePath);
+                }
+            }
+
         }
 
         protected override void OnUpdate()
