@@ -35,6 +35,7 @@ const $Counter = ({ react }) => {
 
     const [count, setCount] = react.useState(0);
 
+
     useDataUpdate(react, 'map_texture.texture_pack', setTexturePack)
     useDataUpdate(react, 'map_texture.open_texture_zip', setOpenTextureZip)
     useDataUpdate(react, 'map_texture.reset_tiling', setResetTiling)
@@ -56,11 +57,31 @@ const $Counter = ({ react }) => {
         });
     }
 
-   
+
+
     const [options, setOptions] = react.useState([
         { value: 'none', label: 'None' },
         { value: 'loadfile', label: 'Load from file...'},
     ]);
+
+    const [getDetectedPacks, setGetDetectedPacks] = react.useState()
+    useDataUpdate(react, 'map_texture.get_detected_packs', setGetDetectedPacks)
+
+    //load in packs dectected from the mod folder
+    react.useEffect(() => {
+        if (getDetectedPacks) {
+            var newitems = JSON.parse(getDetectedPacks);
+            for (let key in newitems) {
+                let newItem = {
+                    "value": key,
+                    "label": newitems[key]
+                };
+                options.splice(options.length - 1, 0, newItem);
+            }
+        }
+    }, [getDetectedPacks]);
+
+    
 
     const [onSelectedPackDropdown, setOnSelectedPackDropdown] = react.useState(options[0].value)
 
