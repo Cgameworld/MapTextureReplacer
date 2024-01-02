@@ -57,10 +57,8 @@ const $Counter = ({ react }) => {
         });
     }
 
-
-
     const [options, setOptions] = react.useState([
-        { value: 'none', label: 'None' },
+        { value: 'none', label: 'Default' },
         { value: 'loadfile', label: 'Load from file...'},
     ]);
 
@@ -92,7 +90,12 @@ const $Counter = ({ react }) => {
         }
         else {
             console.log("dropdownval: " + value);
-            engine.trigger('map_texture.change_pack',value);
+            engine.trigger('map_texture.change_pack', value);
+            //hack to reset slider position
+            setSlidersRendered(false);
+            requestAnimationFrame(() => {
+                setSlidersRendered(true);
+            });
         }
     };
 

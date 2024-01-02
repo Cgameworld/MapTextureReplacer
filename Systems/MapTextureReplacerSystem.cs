@@ -84,6 +84,7 @@ namespace MapTextureReplacer.Systems
                 {
                     ResetTexture(item.Key);
                 }
+                SetTilingValueDefault();
             }
             else
             {
@@ -102,10 +103,20 @@ namespace MapTextureReplacer.Systems
                         {
                             LoadImageFile(filePath, item.Value, item.Key);
                         }
-                        
                     }
+
+                    MapTextureConfig config = JsonConvert.DeserializeObject<MapTextureConfig>(File.ReadAllText(current));
+                    SetTilingValues(config.far_tiling, config.close_tiling, config.close_dirt_tiling);
                 }
             }
+        }
+        public void SetTilingValues(string far, string close, string dirtClose)
+        {
+            Shader.SetGlobalVector(Shader.PropertyToID("colossal_TerrainTextureTiling"), new Vector4(float.Parse(far), float.Parse(close), float.Parse(dirtClose), 1f));
+        }
+        public void SetTilingValueDefault()
+        {
+            Shader.SetGlobalVector(Shader.PropertyToID("colossal_TerrainTextureTiling"), new Vector4(160f, 1600f, 2400f, 1f));
         }
         private static void LoadImageFile(string filePath, string textureFile, string shaderProperty)
         {
