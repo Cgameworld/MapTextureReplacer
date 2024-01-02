@@ -46,6 +46,7 @@
         <Reference Include="$(Cities2_Location)\Cities2_Data\Managed\Colossal.*.dll" Private="False" />
         <Reference Include="$(Cities2_Location)\Cities2_Data\Managed\Game.dll" Private="False" />
         <Reference Include="$(Cities2_Location)\Cities2_Data\Managed\Unity.*.dll" Private="False" />
+		<Reference Include="$(Cities2_Location)\Cities2_Data\Managed\Newtonsoft.Json.dll" Private="False" />
 	</ItemGroup>
 
 	<!--

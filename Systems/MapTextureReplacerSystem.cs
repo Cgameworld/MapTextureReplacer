@@ -1,6 +1,9 @@
-﻿using Game;
+﻿using Colossal.Json;
+using Game;
+using Game.Notifications;
 using Game.UI;
 using MapTextureReplacer.Helpers;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -13,7 +16,11 @@ namespace MapTextureReplacer.Systems
     public class MapTextureReplacerSystem : GameSystemBase
     {
         public string PackImportedText = "";
+        public Dictionary<string, string> importedPacks = new Dictionary<string, string>();
+        public string importedPacksJsonString;
+
         static Dictionary<string, Texture> mapTextureCache = new Dictionary<string, Texture>();
+        
 
         protected override void OnCreate()
         {
@@ -24,9 +31,9 @@ namespace MapTextureReplacer.Systems
 
             UnityEngine.Debug.Log(modsFolderDirectory.FullName);
 
-            foreach (var filePath in Directory.GetFiles(modsFolderDirectory.FullName, "*.json", SearchOption.AllDirectories))
+            foreach (string filePath in Directory.GetFiles(modsFolderDirectory.FullName, "*.json", SearchOption.AllDirectories))
             {
-                var filename = Path.GetFileName(filePath.ToString());              
+                var filename = Path.GetFileName(filePath);              
                 if (filename == "maptextureconfig.json")
                 {
                     UnityEngine.Debug.Log("maptextureconfig at: " + filePath);                
@@ -36,13 +43,25 @@ namespace MapTextureReplacer.Systems
 
 
 
-            foreach(var folder in texturePackFolders)
+            foreach (var folder in texturePackFolders)
             {
-                foreach (var filePath in Directory.GetFiles(folder))
+                foreach (string filePath in Directory.GetFiles(folder))
                 {
                     UnityEngine.Debug.Log("files in found folder: " + filePath);
+                    var filename = Path.GetFileName(filePath);
+                    if (filename == "maptextureconfig.json")
+                    {
+                        MapTextureConfig mapTheme = JsonConvert.DeserializeObject<MapTextureConfig>(File.ReadAllText(filePath));
+                       // UnityEngine.Debug.Log($"Pack Name: {mapTheme.pack_name}");
+                        //UnityEngine.Debug.Log($"Far Tiling: {mapTheme.far_tiling}");
+                       // UnityEngine.Debug.Log($"Close Tiling: {mapTheme.close_tiling}");
+                       // UnityEngine.Debug.Log($"Close Dirt Tiling: {mapTheme.close_dirt_tiling}");
+                        importedPacks.Add(filePath, mapTheme.pack_name);
+                    }
                 }
             }
+
+            importedPacksJsonString = JsonConvert.SerializeObject(importedPacks);
 
         }
 
