@@ -91,6 +91,7 @@ const $Counter = ({ react }) => {
             engine.trigger(`map_texture.open_texture_zip`);
         }
         else {
+            console.log("dropdownval: " + value);
             engine.trigger('map_texture.change_pack',value);
         }
     };

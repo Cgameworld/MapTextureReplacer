@@ -20,11 +20,26 @@ namespace MapTextureReplacer.Systems
         public string importedPacksJsonString;
 
         static Dictionary<string, Texture> mapTextureCache = new Dictionary<string, Texture>();
-        
+
+        static readonly Dictionary<string, string> textureTypes = new Dictionary<string, string>() {
+            {"colossal_TerrainGrassDiffuse", "Grass_BaseColor.png"},
+            {"colossal_TerrainGrassNormal", "Grass_Normal.png"},
+            {"colossal_TerrainDirtDiffuse", "Dirt_BaseColor.png"},
+            {"colossal_TerrainDirtNormal", "Dirt_Normal.png"},
+            {"colossal_TerrainRockDiffuse", "Cliff_BaseColor.png"},
+            {"colossal_TerrainRockNormal", "Cliff_Normal.png"},
+        };
 
         protected override void OnCreate()
         {
             base.OnCreate();
+
+            //cache original textures for reset function
+            foreach (var item in textureTypes)
+            {
+                CacheExistingTexture(item.Key);
+            }
+
             List<string> texturePackFolders = new List<string>();
 
             DirectoryInfo modsFolderDirectory = Directory.GetParent(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location));
@@ -61,25 +76,50 @@ namespace MapTextureReplacer.Systems
         }
         public void ChangePack(string current)
         {
+            UnityEngine.Debug.Log(current);
+
             if (current == "none")
             {
-                ResetTexture("colossal_TerrainGrassDiffuse");
-                ResetTexture("colossal_TerrainGrassNormal");
-                ResetTexture("colossal_TerrainDirtDiffuse");
-                ResetTexture("colossal_TerrainDirtNormal");
-                ResetTexture("colossal_TerrainRockDiffuse");
-                ResetTexture("colossal_TerrainRockNormal");
+                foreach (var item in textureTypes)
+                {
+                    ResetTexture(item.Key);
+                }
             }
             else
             {
-                OpenTextureZip(current.Split(',')[1]);
+                if (current.EndsWith(".zip"))
+                {
+                    OpenTextureZip(current.Split(',')[1]);
+                }
+                else if (current.EndsWith(".json"))
+                {
+                    var directory = Path.GetDirectoryName(current);
+                    UnityEngine.Debug.Log("preloaded folder? " + directory);
+
+                    foreach (string filePath in Directory.GetFiles(directory))
+                    {
+                        foreach (var item in textureTypes)
+                        {
+                            LoadImageFile(filePath, item.Value, item.Key);
+                        }
+                        
+                    }
+                }
             }
         }
+        private static void LoadImageFile(string filePath, string textureFile, string shaderProperty)
+        {
+            if (Path.GetFileName(filePath) == textureFile)
+            {
+                byte[] data = File.ReadAllBytes(filePath);
+
+                LoadTextureInGame(shaderProperty, data);
+            }
+        }
+
         public void OpenImage(string shaderProperty)
         {
             var file = OpenFileDialog.ShowDialog("Image files\0*.jpg;*.png\0");
-
-            CacheExistingTexture(shaderProperty);
 
             byte[] fileData;
 
@@ -140,8 +180,6 @@ namespace MapTextureReplacer.Systems
 
         private static void ExtractEntry(ZipArchive archive, string entryName, string shaderProperty)
         {
-            CacheExistingTexture(shaderProperty);
-
             ZipArchiveEntry entry = archive.GetEntry(entryName);
 
             if (entry != null)
