@@ -29,40 +29,30 @@ namespace MapTextureReplacer.Systems
 
             DirectoryInfo modsFolderDirectory = Directory.GetParent(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location));
 
-            UnityEngine.Debug.Log(modsFolderDirectory.FullName);
-
+            //find folders that contain pack config json files
             foreach (string filePath in Directory.GetFiles(modsFolderDirectory.FullName, "*.json", SearchOption.AllDirectories))
             {
                 var filename = Path.GetFileName(filePath);              
                 if (filename == "maptextureconfig.json")
-                {
-                    UnityEngine.Debug.Log("maptextureconfig at: " + filePath);                
+                {            
                     texturePackFolders.Add(Directory.GetParent(filePath).FullName);
                 }
             }
 
-
-
+            //read pack config json files in the folders that have them
             foreach (var folder in texturePackFolders)
             {
                 foreach (string filePath in Directory.GetFiles(folder))
                 {
-                    UnityEngine.Debug.Log("files in found folder: " + filePath);
                     var filename = Path.GetFileName(filePath);
                     if (filename == "maptextureconfig.json")
                     {
                         MapTextureConfig mapTheme = JsonConvert.DeserializeObject<MapTextureConfig>(File.ReadAllText(filePath));
-                       // UnityEngine.Debug.Log($"Pack Name: {mapTheme.pack_name}");
-                        //UnityEngine.Debug.Log($"Far Tiling: {mapTheme.far_tiling}");
-                       // UnityEngine.Debug.Log($"Close Tiling: {mapTheme.close_tiling}");
-                       // UnityEngine.Debug.Log($"Close Dirt Tiling: {mapTheme.close_dirt_tiling}");
                         importedPacks.Add(filePath, mapTheme.pack_name);
                     }
                 }
             }
-
             importedPacksJsonString = JsonConvert.SerializeObject(importedPacks);
-
         }
 
         protected override void OnUpdate()
