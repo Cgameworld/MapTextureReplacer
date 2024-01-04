@@ -8,8 +8,10 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.IO.Compression;
+using System.Linq;
 using System.Reflection;
 using UnityEngine;
+using UnityEngine.InputSystem;
 
 namespace MapTextureReplacer.Systems
 {
@@ -22,6 +24,7 @@ namespace MapTextureReplacer.Systems
         
         public string textureSelectDataJsonString;
         private List<KeyValuePair<string, string>> textureSelectData = new List<KeyValuePair<string, string>>() {
+            new KeyValuePair<string, string>("Select Image", ""),
             new KeyValuePair<string, string>("Select Image", ""),
             new KeyValuePair<string, string>("Select Image", ""),
             new KeyValuePair<string, string>("Select Image", ""),
@@ -98,7 +101,7 @@ namespace MapTextureReplacer.Systems
                     ResetTexture(item.Key);
                 }
                 SetTilingValueDefault();
-                SetSelectImageAllText("Select Image");
+                //SetSelectImageAllText("Select Image");
             }
             else
             {
@@ -165,7 +168,18 @@ namespace MapTextureReplacer.Systems
             {
                 fileData = File.ReadAllBytes(file);
                 LoadTextureInGame(shaderProperty, fileData);
+
+                int index = textureTypes.Keys.ToList().IndexOf(shaderProperty);
+                string fileName = Path.GetFileName(file);
+                if (fileName.Length > 15)
+                {
+                    fileName = fileName.Substring(0, 15);
+                }
+                textureSelectData[index] = new KeyValuePair<string, string>(fileName, file);
+                textureSelectDataJsonString = JsonConvert.SerializeObject(textureSelectData);
             }
+
+
 
         }
         public void GetTextureZip()
@@ -214,6 +228,10 @@ namespace MapTextureReplacer.Systems
             {
                 Shader.SetGlobalTexture(Shader.PropertyToID(shaderProperty), texture);
             }
+            //reset neighboring button text to select image
+            int index = textureTypes.Keys.ToList().IndexOf(shaderProperty);
+            textureSelectData[index] = new KeyValuePair<string, string>("Select Image", "");
+            textureSelectDataJsonString = JsonConvert.SerializeObject(textureSelectData);
         }
 
         private static void ExtractEntry(ZipArchive archive, string entryName, string shaderProperty)
