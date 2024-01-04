@@ -17,11 +17,32 @@ const TextureSelectUIs = ({ react }) => {
     const [textureTypes, setTextureTypes] = react.useState([
         { label: "Grass Diffuse", type: "gd", selectImageText: "Select Image", filepath: "" },
         { label: "Grass Normal", type: "gn", selectImageText: "Select Image", filepath: "" },
-        { label: "Dirt Diffuse", type: "dd", selectImageText: "1Select Image", filepath: "" },
+        { label: "Dirt Diffuse", type: "dd", selectImageText: "Select Image", filepath: "" },
         { label: "Dirt Normal", type: "dn", selectImageText: "Select Image", filepath: "" },
         { label: "Cliff Diffuse", type: "cd", selectImageText: "Select Image", filepath: "" },
         { label: "Cliff Normal", type: "cn", selectImageText: "Select Image", filepath: "" },
     ]);
+
+    const [getTextureSelectData, setGetTextureSelectData] = react.useState();
+    useDataUpdate(react, 'map_texture.get_texture_select_data', setGetTextureSelectData)
+
+    //load in new data when packs change 
+    react.useEffect(() => {
+        if (getTextureSelectData) {
+            var newitems = JSON.parse(getTextureSelectData);
+            console.log("getTextureSelectData updated!")
+            console.log(newitems);
+
+            const newTextureTypes = textureTypes.map((textureType, index) => {
+                return {
+                    ...textureType,
+                    selectImageText: newitems[index]?.Key || textureType.selectImageText,
+                    filepath: newitems[index]?.Value || textureType.filepath
+                };
+            });
+            setTextureTypes(newTextureTypes);
+        }
+    }, [getTextureSelectData]);
 
     return textureTypes.map(texture =>
         <TextureSelectUI

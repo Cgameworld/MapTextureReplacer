@@ -38,6 +38,11 @@ namespace MapTextureReplacer.Systems
                 return systemManaged.importedPacksJsonString;
             }));
 
+            this.AddUpdateBinding(new GetterValueBinding<string>("map_texture", "get_texture_select_data", () =>
+            {
+                return systemManaged.textureSelectDataJsonString;
+            }));
+
             this.AddBinding(new TriggerBinding("map_texture", "open_texture_zip", this.systemManaged.GetTextureZip));
 
             this.AddBinding(new TriggerBinding<string>("map_texture", "change_pack", this.systemManaged.ChangePack));

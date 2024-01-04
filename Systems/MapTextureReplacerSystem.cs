@@ -16,11 +16,21 @@ namespace MapTextureReplacer.Systems
     public class MapTextureReplacerSystem : GameSystemBase
     {
         public string PackImportedText = "";
-        public Dictionary<string, string> importedPacks = new Dictionary<string, string>();
+
+        private Dictionary<string, string> importedPacks = new Dictionary<string, string>();
         public string importedPacksJsonString;
+        
+        public string textureSelectDataJsonString;
+        private List<KeyValuePair<string, string>> textureSelectData = new List<KeyValuePair<string, string>>() {
+            new KeyValuePair<string, string>("Select Image", ""),
+            new KeyValuePair<string, string>("Select Image", ""),
+            new KeyValuePair<string, string>("Select Image", ""),
+            new KeyValuePair<string, string>("Select Image", ""),
+            new KeyValuePair<string, string>("Select Image", ""),
+        };
 
         static Dictionary<string, Texture> mapTextureCache = new Dictionary<string, Texture>();
-
+       
         static readonly Dictionary<string, string> textureTypes = new Dictionary<string, string>() {
             {"colossal_TerrainGrassDiffuse", "Grass_BaseColor.png"},
             {"colossal_TerrainGrassNormal", "Grass_Normal.png"},
@@ -68,6 +78,9 @@ namespace MapTextureReplacer.Systems
                 }
             }
             importedPacksJsonString = JsonConvert.SerializeObject(importedPacks);
+
+            //populate string
+            textureSelectDataJsonString = JsonConvert.SerializeObject(textureSelectData);
         }
 
         protected override void OnUpdate()
@@ -85,6 +98,7 @@ namespace MapTextureReplacer.Systems
                     ResetTexture(item.Key);
                 }
                 SetTilingValueDefault();
+                SetSelectImageAllText("Select Image");
             }
             else
             {
@@ -106,10 +120,23 @@ namespace MapTextureReplacer.Systems
                     }
 
                     MapTextureConfig config = JsonConvert.DeserializeObject<MapTextureConfig>(File.ReadAllText(current));
-                    SetTilingValues(config.far_tiling, config.close_tiling, config.close_dirt_tiling);
+                    SetTilingValues(config.far_tiling, config.close_tiling, config.close_dirt_tiling);                   
+                    SetSelectImageAllText(config.pack_name);
                 }
             }
         }
+
+        private void SetSelectImageAllText(string key)
+        {
+            //set select image text labels
+            for (int i = 0; i < textureSelectData.Count; i++)
+            {
+                textureSelectData[i] = new KeyValuePair<string, string>(key, "");
+                //textureSelectData[i].Value
+            }
+            textureSelectDataJsonString = JsonConvert.SerializeObject(textureSelectData);
+        }
+
         public void SetTilingValues(string far, string close, string dirtClose)
         {
             Shader.SetGlobalVector(Shader.PropertyToID("colossal_TerrainTextureTiling"), new Vector4(float.Parse(far), float.Parse(close), float.Parse(dirtClose), 1f));
