@@ -4,13 +4,35 @@ import $PanelMod from './panel_modified'
 import $SliderMod from './slider_modified'
 import $DropdownMod from './dropdown_modified'
 
-const TextureSelectUI = ({ label, textureType }) => (
-    <div className="field_MBO" style={{minHeight: '52.5rem'}} >
+const TextureSelectUI = ({ label, textureType, selectImageText, filePath }) => (
+    <div className="field_MBO" style={{ minHeight: '52.5rem' }} >
         <div className="label_DGc label_ZLb">{label}</div>
-        <button className="button_WWa button_SH8" onClick={() => engine.trigger(`map_texture.open_image_${textureType}`)}>Select Image</button>
-        <button className="button_WWa button_SH8" onClick={() => engine.trigger(`map_texture.reset_texture_${textureType}`)}>Reset</button>
+        <button className="button_WWa button_SH8" style={{ width: '37.5%'}} onClick={() => engine.trigger(`map_texture.open_image_${textureType}`)}>{selectImageText}</button>
+        <button className="button_WWa button_SH8" onClick={() => engine.trigger(`map_texture.reset_texture_${textureType}`)}>Reset {filePath}</button>
     </div>
 );
+
+const TextureSelectUIs = ({ react }) => {
+
+    const [textureTypes, setTextureTypes] = react.useState([
+        { label: "Grass Diffuse", type: "gd", selectImageText: "Select Image", filepath: "" },
+        { label: "Grass Normal", type: "gn", selectImageText: "Select Image", filepath: "" },
+        { label: "Dirt Diffuse", type: "dd", selectImageText: "1Select Image", filepath: "" },
+        { label: "Dirt Normal", type: "dn", selectImageText: "Select Image", filepath: "" },
+        { label: "Cliff Diffuse", type: "cd", selectImageText: "Select Image", filepath: "" },
+        { label: "Cliff Normal", type: "cn", selectImageText: "Select Image", filepath: "" },
+    ]);
+
+    return textureTypes.map(texture =>
+        <TextureSelectUI
+            key={texture.type}
+            label={texture.label}
+            textureType={texture.type}
+            selectImageText={texture.selectImageText}
+            filePath={texture.filePath}
+        />
+    );
+};
 
 const SliderComponent = ({ react, slider, isRendered }) => {
     const [sliderValue, setSliderValue] = react.useState(0);
@@ -126,12 +148,7 @@ const $Counter = ({ react }) => {
             <$DropdownMod react={react} onSelectionChanged={onSelectionChanged1} selected={onSelectedPackDropdown} options={options} />
         </div>
 
-        <TextureSelectUI label="Grass Diffuse" textureType="gd" />
-        <TextureSelectUI label="Grass Normal" textureType="gn" />
-        <TextureSelectUI label="Dirt Diffuse" textureType="dd" />
-        <TextureSelectUI label="Dirt Normal" textureType="dn" />
-        <TextureSelectUI label="Cliff Diffuse" textureType="cd" />
-        <TextureSelectUI label="Cliff Normal" textureType="cn" />
+        <TextureSelectUIs react={react} />
 
         {sliders.map((slider, index) => <SliderComponent key={index} react={react} slider={slider} isRendered={slidersRendered} />)}
 
