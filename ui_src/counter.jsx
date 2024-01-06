@@ -17,12 +17,17 @@ const TextureSelectUI = ({ react, options, label, textureType, selectedImage, fi
             "value": "a",
             "label": textureType
         };
-        setLocalOptions([...options, newItem]);
+
+        // Filter out the option to be removed
+        let filteredOptions = options.filter(option => option.value !== 'loadzipfile');
+
+        setLocalOptions([...filteredOptions, newItem]);
         importedpacks = false;
     }, [importedpacks]);
 
+
     const onSelectionChanged = (selection) => {
-        if (selection == "loadfile") {
+        if (selection == "loadzipfile") {
             engine.trigger(`map_texture.open_image_${textureType}`);
         }
         else {
@@ -136,7 +141,7 @@ const $Counter = ({ react }) => {
 
     const [options, setOptions] = react.useState([
         { value: 'none', label: 'Default' },
-        { value: 'loadfile', label: 'Load from file...' },
+        { value: 'loadzipfile', label: 'Load from zip...' },
     ]);
 
     const [getDetectedPacks, setGetDetectedPacks] = react.useState()
@@ -163,7 +168,7 @@ const $Counter = ({ react }) => {
 
     const onSelectionChanged1 = (value) => {
         setOnSelectedPackDropdown(value);
-        if (value == "loadfile") {
+        if (value == "loadzipfile") {
             engine.trigger(`map_texture.open_texture_zip`);
         }
         else {
@@ -177,8 +182,7 @@ const $Counter = ({ react }) => {
         }
     };
 
-    //in general have variable to get filepath when adding files manually
-    //then find way to feed all three paramters on load to options const
+    //add zip file to general dropdown options
 
     react.useEffect(() => {
         if (texturePack && texturePack != ",") {
@@ -193,6 +197,7 @@ const $Counter = ({ react }) => {
             console.log(options);
 
             onSelectionChanged1(texturePack);
+            importedpacks = true;
         }
     }, [texturePack]);
 
