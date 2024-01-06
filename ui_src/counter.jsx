@@ -4,24 +4,56 @@ import $PanelMod from './panel_modified'
 import $SliderMod from './slider_modified'
 import $DropdownMod from './dropdown_modified'
 
-const TextureSelectUI = ({ label, textureType, selectImageText, filePath }) => (
-    <div className="field_MBO" style={{ minHeight: '52.5rem' }} >
-        <div className="label_DGc label_ZLb">{label}</div>
-        <button className="button_WWa button_SH8" style={{ width: '37.5%'}} onClick={() => engine.trigger(`map_texture.open_image_${textureType}`)}>{selectImageText}</button>
-        <button className="button_WWa button_SH8" onClick={() => engine.trigger(`map_texture.reset_texture_${textureType}`)}>Reset {filePath}</button>
-    </div>
-);
+var importedpacks = false;
 
-const TextureSelectUIs = ({ react }) => {
+const TextureSelectUI = ({ react, options, label, textureType, selectedImage, filePath }) => {
+    const [selectedDefault, setSelectedDefault] = react.useState("none");
+    const [localOptions, setLocalOptions] = react.useState([...options]);
 
-    const [textureTypes, setTextureTypes] = react.useState([
-        { label: "Grass Diffuse", type: "gd", selectImageText: "Select Image", filepath: "" },
-        { label: "Grass Normal", type: "gn", selectImageText: "Select Image", filepath: "" },
-        { label: "Dirt Diffuse", type: "dd", selectImageText: "Select Image", filepath: "" },
-        { label: "Dirt Normal", type: "dn", selectImageText: "Select Image", filepath: "" },
-        { label: "Cliff Diffuse", type: "cd", selectImageText: "Select Image", filepath: "" },
-        { label: "Cliff Normal", type: "cn", selectImageText: "Select Image", filepath: "" },
-    ]);
+
+    react.useEffect(() => {
+        console.log("importedpacksran!");
+        let newItem = {
+            "value": "a",
+            "label": textureType
+        };
+        setLocalOptions([...options, newItem]);
+        importedpacks = false;
+    }, [importedpacks]);
+
+    const onSelectionChanged = (selection) => {
+        if (selection == "loadfile") {
+            engine.trigger(`map_texture.open_image_${textureType}`);
+        }
+        else {
+            console.log("dropdownval: " + selection);
+            console.log(localOptions);
+            console.log(selectedDefault);
+        }
+    };
+
+    return (
+        <div className="field_MBO" style={{ minHeight: '52.5rem' }} >
+            <div className="label_DGc label_ZLb">{label}</div>
+            <$DropdownMod react={react} style={{ width: '40%' }} onSelectionChanged={onSelectionChanged} selected={selectedDefault} options={localOptions} />
+            <button className="button_WWa button_SH8" onClick={() => engine.trigger(`map_texture.reset_texture_${textureType}`)}>Reset {filePath}</button>
+        </div>
+    );
+};
+
+
+
+const TextureSelectUIs = ({ react, options }) => {
+
+    const labels = ["Grass Diffuse", "Grass Normal", "Dirt Diffuse", "Dirt Normal", "Cliff Diffuse", "Cliff Normal"];
+    const types = ["gd", "gn", "dd", "dn", "cd", "cn"];
+
+    const textureTypesData = labels.map((label, index) => {
+        return { label: label, type: types[index], selectedImage: "Select Image", filepath: "" };
+    });
+
+    const [textureTypes, setTextureTypes] = react.useState(textureTypesData);
+
 
     const [getTextureSelectData, setGetTextureSelectData] = react.useState();
     useDataUpdate(react, 'map_texture.get_texture_select_data', setGetTextureSelectData)
@@ -36,7 +68,7 @@ const TextureSelectUIs = ({ react }) => {
             const newTextureTypes = textureTypes.map((textureType, index) => {
                 return {
                     ...textureType,
-                    selectImageText: newitems[index]?.Key || textureType.selectImageText,
+                    selectedImage: newitems[index]?.Key || textureType.selectedImage,
                     filepath: newitems[index]?.Value || textureType.filepath
                 };
             });
@@ -49,8 +81,10 @@ const TextureSelectUIs = ({ react }) => {
             key={texture.type}
             label={texture.label}
             textureType={texture.type}
-            selectImageText={texture.selectImageText}
+            selectedImage={texture.selectedImage}
             filePath={texture.filePath}
+            react={react}
+            options={options}
         />
     );
 };
@@ -102,7 +136,7 @@ const $Counter = ({ react }) => {
 
     const [options, setOptions] = react.useState([
         { value: 'none', label: 'Default' },
-        { value: 'loadfile', label: 'Load from file...'},
+        { value: 'loadfile', label: 'Load from file...' },
     ]);
 
     const [getDetectedPacks, setGetDetectedPacks] = react.useState()
@@ -119,10 +153,11 @@ const $Counter = ({ react }) => {
                 };
                 options.splice(options.length - 1, 0, newItem);
             }
+            importedpacks = true;
         }
     }, [getDetectedPacks]);
 
-    
+
 
     const [onSelectedPackDropdown, setOnSelectedPackDropdown] = react.useState(options[0].value)
 
@@ -147,10 +182,10 @@ const $Counter = ({ react }) => {
 
     react.useEffect(() => {
         if (texturePack && texturePack != ",") {
-            setOptions(prevOptions => {               
+            setOptions(prevOptions => {
                 if (!prevOptions.some(option => option.value === texturePack)) {
                     let newOptions = [...prevOptions];
-                    newOptions.splice(newOptions.length - 1, 0, { value: texturePack, label: texturePack.split(",")[0]});
+                    newOptions.splice(newOptions.length - 1, 0, { value: texturePack, label: texturePack.split(",")[0] });
                     return newOptions;
                 }
                 return prevOptions;
@@ -166,10 +201,12 @@ const $Counter = ({ react }) => {
     return <$PanelMod react={react} title="Map Texture Replacer">
         <div className="field_MBO">
             <div className="label_DGc label_ZLb">Pack Loaded:</div>
-            <$DropdownMod react={react} onSelectionChanged={onSelectionChanged1} selected={onSelectedPackDropdown} options={options} />
+            <div style={{ width: '68%' }}>
+                <$DropdownMod react={react} onSelectionChanged={onSelectionChanged1} selected={onSelectedPackDropdown} options={options} />
+            </div>
         </div>
 
-        <TextureSelectUIs react={react} />
+        <TextureSelectUIs react={react} options={options} />
 
         {sliders.map((slider, index) => <SliderComponent key={index} react={react} slider={slider} isRendered={slidersRendered} />)}
 
@@ -178,7 +215,7 @@ const $Counter = ({ react }) => {
         </div>
 
     </$PanelMod>
-}     
+}
 
 //Registering the panel with HookUI so it shows up in the menu
 window._$hookui.registerPanel({

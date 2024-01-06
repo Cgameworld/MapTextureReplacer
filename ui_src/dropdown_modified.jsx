@@ -95,7 +95,7 @@ const $DropdownMod = ({ react, style, onSelectionChanged, selected, options }) =
         </div>
     ) : null;
 
-    return (<div style={{width: '230rem'}} >
+    return (<div>
         <div ref={pickerRef} className="dropdown-toggle_V9z dropdown-toggle_prl value-field_yJi value_PW_ dropdown_pJu item-states_QjV" onClick={onToggle} style={{ padding: '5rem', height: 'auto', backgroundColor: 'rgba(0, 0, 0, 0.15)', ...style }}>
             <div className="label_l_4">{options[selectedIndex].label}</div>
             <div className="tinted-icon_iKo indicator_Xmj" style={{ maskImage: 'url(Media/Glyphs/StrokeArrowDown.svg)' }}></div>
