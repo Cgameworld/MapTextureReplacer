@@ -32,15 +32,35 @@ const TextureSelectUI = ({ react, options, label, textureType, selectedImage, fi
 
 
     const onSelectionChanged = (selection) => {
-        if (selection == "loadzipfile") {
+        if (selection == "loadimage") {
             engine.trigger(`map_texture.open_image_${textureType}`);
+        }
+        else if (selection.startsWith("sel-")) {
+            console.log("temp import entry selected?");
+            //load from saved filepath!
+
         }
         else {
             console.log("dropdownval: " + selection);
-            console.log(localOptions);
-            console.log(selectedDefault);
+
         }
     };
+
+    //make new entry for imported image and select it
+    react.useEffect(() => {
+        if (selectedImage != "Select Image") {
+            let updatedOptions = localOptions.filter(item => !item.value.startsWith("sel-"));
+            let newItem = {
+                "value": "sel-" + selectedImage,
+                "label": selectedImage
+            };
+            setLocalOptions([newItem, ...updatedOptions]);
+            setSelectedDefault("sel-" + selectedImage);
+        }
+    }, [selectedImage]);
+                //there's a bug where if I import an image and try to change packs it crashes :(
+                //if i set the dropdown non custom image it works??
+                //there another big bug when importing a zip file and i close the window, when it reopenes it sets it to the zipped file?? 
 
     return (
         <div className="field_MBO" style={{ minHeight: '52.5rem' }} >
