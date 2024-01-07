@@ -13,17 +13,20 @@ const TextureSelectUI = ({ react, options, label, textureType, selectedImage, fi
 
     ///
     react.useEffect(() => {
-        console.log("packsrefreshedran!");
+        //console.log("packsrefreshedran!");
         let newItem = {
             "value": "loadimage",
             "label": "Load Image..."
         };
-        // Filter out the option to be removed
         let filteredOptions = options.filter(option => option.value !== 'loadzipfile');
 
         setLocalOptions([...filteredOptions, newItem]);
 
-        setSelectedDefault(currentpackdropdown);
+        //doesn't work immediately
+        setTimeout(() => {
+            setSelectedDefault(currentpackdropdown);
+        }, 250);
+
         packsrefreshed = false;
     }, [packsrefreshed]);
 
