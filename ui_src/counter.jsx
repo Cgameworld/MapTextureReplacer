@@ -4,7 +4,8 @@ import $PanelMod from './panel_modified'
 import $SliderMod from './slider_modified'
 import $DropdownMod from './dropdown_modified'
 
-var importedpacks = false;
+var packsrefreshed = false;
+var currentpackdropdown = "none";
 
 const TextureSelectUI = ({ react, options, label, textureType, selectedImage, filePath }) => {
     const [selectedDefault, setSelectedDefault] = react.useState("none");
@@ -12,18 +13,19 @@ const TextureSelectUI = ({ react, options, label, textureType, selectedImage, fi
 
 
     react.useEffect(() => {
-        console.log("importedpacksran!");
+        console.log("packsrefreshedran!");
         let newItem = {
-            "value": "a",
-            "label": textureType
+            "value": "loadimage",
+            "label": "Load Image..."
         };
-
         // Filter out the option to be removed
         let filteredOptions = options.filter(option => option.value !== 'loadzipfile');
 
         setLocalOptions([...filteredOptions, newItem]);
-        importedpacks = false;
-    }, [importedpacks]);
+
+        setSelectedDefault(currentpackdropdown);
+        packsrefreshed = false;
+    }, [packsrefreshed]);
 
 
     const onSelectionChanged = (selection) => {
@@ -158,7 +160,7 @@ const $Counter = ({ react }) => {
                 };
                 options.splice(options.length - 1, 0, newItem);
             }
-            importedpacks = true;
+            packsrefreshed = true;
         }
     }, [getDetectedPacks]);
 
@@ -168,12 +170,14 @@ const $Counter = ({ react }) => {
 
     const onSelectionChanged1 = (value) => {
         setOnSelectedPackDropdown(value);
+        currentpackdropdown = value;
         if (value == "loadzipfile") {
             engine.trigger(`map_texture.open_texture_zip`);
         }
         else {
             console.log("dropdownval: " + value);
             engine.trigger('map_texture.change_pack', value);
+            packsrefreshed = true;
             //hack to reset slider position
             setSlidersRendered(false);
             requestAnimationFrame(() => {
@@ -197,7 +201,7 @@ const $Counter = ({ react }) => {
             console.log(options);
 
             onSelectionChanged1(texturePack);
-            importedpacks = true;
+            packsrefreshed = true;
         }
     }, [texturePack]);
 
