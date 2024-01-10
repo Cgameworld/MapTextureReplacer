@@ -6,6 +6,7 @@ import $DropdownMod from './dropdown_modified'
 
 var packsrefreshed = false;
 var currentpackdropdown = "none";
+var zipFileSelected = false;
 
 const TextureSelectUI = ({ react, options, label, textureType, selectedImage, filePath }) => {
     const [selectedDefault, setSelectedDefault] = react.useState("none");
@@ -62,7 +63,6 @@ const TextureSelectUI = ({ react, options, label, textureType, selectedImage, fi
             setSelectedDefault("none");
         }
     }, [selectedImage]);
-                //there another big bug when importing a zip file and i close the window, when it reopenes it sets it to the zipped file?? 
 
     return (
         <div className="field_MBO" style={{ minHeight: '52.5rem' }} >
@@ -194,7 +194,6 @@ const $Main = ({ react }) => {
     const [onSelectedPackDropdown, setOnSelectedPackDropdown] = react.useState(options[0].value)
 
     const onSelectionChanged1 = (value) => {
-        console.log("ONSELECTIONCHANGED1 Called: " + value);
         //need to rewrite this
         engine.trigger('map_texture.reset_texture_select_data');
         document.body.style.cursor = "progress";
@@ -202,6 +201,7 @@ const $Main = ({ react }) => {
             setOnSelectedPackDropdown(value);
             currentpackdropdown = value;
             if (value == "loadzipfile") {
+                zipFileSelected = false;
                 engine.trigger(`map_texture.open_texture_zip`);
             }
             else {
@@ -217,7 +217,6 @@ const $Main = ({ react }) => {
         }, 100);
     };
 
-
     //add zip file to general dropdown options
 
     react.useEffect(() => {
@@ -231,8 +230,10 @@ const $Main = ({ react }) => {
                 return prevOptions;
             });
             console.log(options);
-
-            onSelectionChanged1(texturePack); //the issue is that this runs when I first open the window?
+            if (!zipFileSelected) {
+                onSelectionChanged1(texturePack);
+            }
+            zipFileSelected = true;
             packsrefreshed = true;
         }
     }, [texturePack]);
