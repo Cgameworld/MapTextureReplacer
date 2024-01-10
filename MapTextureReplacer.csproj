@@ -111,6 +111,6 @@
 		<Exec Command="if not exist &quot;$(Build_Location)\BepInEx\plugins\$(ProjectName)&quot; mkdir &quot;$(Build_Location)\BepInEx\plugins\$(ProjectName)&quot;&#xD;&#xA;copy /Y &quot;$(TargetDir)0Harmony.dll&quot; &quot;$(Build_Location)\BepInEx\plugins\$(ProjectName)\0Harmony.dll&quot;&#xD;&#xA;copy /Y &quot;$(TargetDir)$(ProjectName).dll&quot; &quot;$(Build_Location)\BepInEx\plugins\$(ProjectName)\$(ProjectName).dll&quot;" />
 	</Target>
 	<Target Name="PreBuild" BeforeTargets="PreBuildEvent">
-	  <Exec Command="npm install &amp;&amp; npx esbuild ui_src/counter.jsx --bundle --outfile=dist/bundle.js" />
+	  <Exec Command="npm install &amp;&amp; npx esbuild ui_src/main.jsx --bundle --outfile=dist/bundle.js" />
 	</Target>
 </Project>

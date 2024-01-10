@@ -136,7 +136,7 @@ const SliderComponent = ({ react, slider, isRendered }) => {
 }
 
 
-const $Counter = ({ react }) => {
+const $Main = ({ react }) => {
 
     const [texturePack, setTexturePack] = react.useState(0)
     const [openTextureZip, setOpenTextureZip] = react.useState(0)
@@ -194,6 +194,7 @@ const $Counter = ({ react }) => {
     const [onSelectedPackDropdown, setOnSelectedPackDropdown] = react.useState(options[0].value)
 
     const onSelectionChanged1 = (value) => {
+        console.log("ONSELECTIONCHANGED1 Called: " + value);
         //need to rewrite this
         engine.trigger('map_texture.reset_texture_select_data');
         document.body.style.cursor = "progress";
@@ -204,7 +205,6 @@ const $Counter = ({ react }) => {
                 engine.trigger(`map_texture.open_texture_zip`);
             }
             else {
-                console.log("dropdownval: " + value);
                 engine.trigger('map_texture.change_pack', value);
                 packsrefreshed = true;
                 //hack to reset slider position
@@ -216,6 +216,7 @@ const $Counter = ({ react }) => {
             document.body.style.cursor = "pointer";
         }, 100);
     };
+
 
     //add zip file to general dropdown options
 
@@ -231,7 +232,7 @@ const $Counter = ({ react }) => {
             });
             console.log(options);
 
-            onSelectionChanged1(texturePack);
+            onSelectionChanged1(texturePack); //the issue is that this runs when I first open the window?
             packsrefreshed = true;
         }
     }, [texturePack]);
@@ -269,5 +270,5 @@ window._$hookui.registerPanel({
     id: "example.map_texture",
     name: "Map Texture Replacer",
     icon: "Media/Game/Icons/MapTile.svg",
-    component: $Counter
+    component: $Main
 })
