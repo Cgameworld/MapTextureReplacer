@@ -14,7 +14,7 @@ const TextureSelectUI = ({ react, options, label, textureType, selectedImage, fi
 
     ///
     react.useEffect(() => {
-        //console.log("packsrefreshedran!");
+        console.log("packsrefreshedran!");
         let newItem = {
             "value": "loadimage",
             "label": "Load Image..."
@@ -49,7 +49,7 @@ const TextureSelectUI = ({ react, options, label, textureType, selectedImage, fi
 
     //make new entry for imported image and select it
     react.useEffect(() => {
-        console.log("selectedimage ran!");
+        //console.log("selectedimage ran!");
         if (selectedImage != "Select Image") {
             let updatedOptions = localOptions.filter(item => !item.value.startsWith("sel-"));
             let newItem = {
@@ -94,7 +94,7 @@ const TextureSelectUIs = ({ react, options }) => {
     react.useEffect(() => {
         if (getTextureSelectData) {
             var newitems = JSON.parse(getTextureSelectData);
-            console.log("getTextureSelectData updated!")
+            //console.log("getTextureSelectData updated!")
             console.log(newitems);
 
             const newTextureTypes = textureTypes.map((textureType, index) => {
@@ -191,7 +191,17 @@ const $Main = ({ react }) => {
 
 
 
+
     const [onSelectedPackDropdown, setOnSelectedPackDropdown] = react.useState(options[0].value)
+
+    react.useEffect(() => {
+        console.log("packsrefreshedran main!");
+        //doesn't work immediately
+        setTimeout(() => {
+            setOnSelectedPackDropdown(currentpackdropdown);
+        }, 250);
+
+    }, [packsrefreshed]);
 
     const onSelectionChanged1 = (value) => {
         //need to rewrite this
