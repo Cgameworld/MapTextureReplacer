@@ -4,6 +4,8 @@ import $PanelMod from './panel_modified'
 import $SliderMod from './slider_modified'
 import $DropdownMod from './dropdown_modified'
 
+//this file is a mess don't learn from
+
 var packsrefreshed = false;
 var currentpackdropdown = "none";
 var zipFileSelected = false;
@@ -34,22 +36,26 @@ const TextureSelectUI = ({ react, options, label, textureType, selectedImage, fi
 
     const onSelectionChanged = (selection) => {
         if (selection == "loadimage") {
-            engine.trigger(`map_texture.open_image_${textureType}`);
+            engine.trigger(`map_texture.open_image_${textureType}`, ``);
+        }
+        else if (selection == "none") {
+            engine.trigger(`map_texture.reset_texture_${textureType}`);
         }
         else if (selection.startsWith("sel-")) {
             console.log("temp import entry selected?");
-            //load from saved filepath!
 
         }
+        //figure out how to deal with Zip file handling!!!!
+        //fix bug that current selected pack is added a duplicate to top
+        //fix that on window reopen custom png selected not reflected!
         else {
             console.log("dropdownval: " + selection);
-
+            engine.trigger(`map_texture.open_image_${textureType}`, selection);
         }
     };
 
     //make new entry for imported image and select it
     react.useEffect(() => {
-        //console.log("selectedimage ran!");
         if (selectedImage != "Select Image") {
             let updatedOptions = localOptions.filter(item => !item.value.startsWith("sel-"));
             let newItem = {
@@ -252,7 +258,7 @@ const $Main = ({ react }) => {
 
     return <$PanelMod react={react} title="Map Texture Replacer">
         <div className="field_MBO">
-            <div className="label_DGc label_ZLb">Pack Loaded:</div>
+            <div className="label_DGc label_ZLb">Base Pack:</div>
             <div style={{ width: '68%' }}>
                 <$DropdownMod react={react} onSelectionChanged={onSelectionChanged1} selected={onSelectedPackDropdown} options={options} />
             </div>

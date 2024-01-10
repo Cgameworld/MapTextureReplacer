@@ -48,14 +48,19 @@ namespace MapTextureReplacer.Systems
             this.AddBinding(new TriggerBinding("map_texture", "open_texture_zip", this.systemManaged.GetTextureZip));
 
             this.AddBinding(new TriggerBinding<string>("map_texture", "change_pack", this.systemManaged.ChangePack));
-            
 
-            this.AddBinding(new TriggerBinding("map_texture", "open_image_gd", () => this.systemManaged.OpenImage("colossal_TerrainGrassDiffuse")));
-            this.AddBinding(new TriggerBinding("map_texture", "open_image_gn", () => this.systemManaged.OpenImage("colossal_TerrainGrassNormal")));
-            this.AddBinding(new TriggerBinding("map_texture", "open_image_dd", () => this.systemManaged.OpenImage("colossal_TerrainDirtDiffuse")));
-            this.AddBinding(new TriggerBinding("map_texture", "open_image_dn", () => this.systemManaged.OpenImage("colossal_TerrainDirtNormal")));
-            this.AddBinding(new TriggerBinding("map_texture", "open_image_cd", () => this.systemManaged.OpenImage("colossal_TerrainRockDiffuse")));
-            this.AddBinding(new TriggerBinding("map_texture", "open_image_cn", () => this.systemManaged.OpenImage("colossal_TerrainRockNormal")));
+
+            this.AddBinding(new TriggerBinding<string>("map_texture", "open_image_gd", (imageFile) => this.systemManaged.OpenImage("colossal_TerrainGrassDiffuse", imageFile)));
+         
+            this.AddBinding(new TriggerBinding<string>("map_texture", "open_image_gn", (imageFile) => this.systemManaged.OpenImage("colossal_TerrainGrassNormal", imageFile)));
+            
+            this.AddBinding(new TriggerBinding<string>("map_texture", "open_image_dd", (imageFile) => this.systemManaged.OpenImage("colossal_TerrainDirtDiffuse", imageFile)));
+    
+            this.AddBinding(new TriggerBinding<string>("map_texture", "open_image_dn", (imageFile) => this.systemManaged.OpenImage("colossal_TerrainDirtNormal", imageFile)));
+         
+            this.AddBinding(new TriggerBinding<string>("map_texture", "open_image_cd", (imageFile) => this.systemManaged.OpenImage("colossal_TerrainRockDiffuse", imageFile)));
+
+            this.AddBinding(new TriggerBinding<string>("map_texture", "open_image_cn", (imageFile) => this.systemManaged.OpenImage("colossal_TerrainRockNormal", imageFile)));
 
             //reset
             this.AddBinding(new TriggerBinding("map_texture", "reset_texture_gd", () => this.systemManaged.ResetTexture("colossal_TerrainGrassDiffuse")));

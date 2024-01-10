@@ -158,29 +158,51 @@ namespace MapTextureReplacer.Systems
             }
         }
 
-        public void OpenImage(string shaderProperty)
+        public void OpenImage(string shaderProperty, string packPath)
         {
-            var file = OpenFileDialog.ShowDialog("Image files\0*.jpg;*.png\0");
-
-            byte[] fileData;
-
-            if (!string.IsNullOrEmpty(file))
+            Debug.Log(packPath);
+            if (packPath == "")
             {
-                fileData = File.ReadAllBytes(file);
-                LoadTextureInGame(shaderProperty, fileData);
+                var file = OpenFileDialog.ShowDialog("Image files\0*.jpg;*.png\0");
 
-                int index = textureTypes.Keys.ToList().IndexOf(shaderProperty);
-                string fileName = Path.GetFileName(file);
-                if (fileName.Length > 15)
+                byte[] fileData;
+
+                if (!string.IsNullOrEmpty(file))
                 {
-                    fileName = fileName.Substring(0, 15);
+                    fileData = File.ReadAllBytes(file);
+                    LoadTextureInGame(shaderProperty, fileData);
+
+                    int index = textureTypes.Keys.ToList().IndexOf(shaderProperty);
+                    string fileName = Path.GetFileName(file);
+                    if (fileName.Length > 15)
+                    {
+                        fileName = fileName.Substring(0, 15);
+                    }
+                    textureSelectData[index] = new KeyValuePair<string, string>(fileName, file);
+                    textureSelectDataJsonString = JsonConvert.SerializeObject(textureSelectData);
                 }
-                textureSelectData[index] = new KeyValuePair<string, string>(fileName, file);
-                textureSelectDataJsonString = JsonConvert.SerializeObject(textureSelectData);
             }
+            else
+            {
+                var directory = Path.GetDirectoryName(packPath);
+                UnityEngine.Debug.Log("pack folder? " + directory);
 
+                var filename = "";
+                foreach (var item in textureTypes)
+                {
+                    if(item.Key == shaderProperty)
+                    {
+                        filename = item.Value;
+                        UnityEngine.Debug.Log("filename: " + filename);
 
+                    }
+                }
 
+                foreach (string filePath in Directory.GetFiles(directory))
+                {                   
+                    LoadImageFile(filePath, filename, shaderProperty);
+                }
+            }
         }
         public void GetTextureZip()
         {
