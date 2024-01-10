@@ -45,7 +45,6 @@ const TextureSelectUI = ({ react, options, label, textureType, selectedImage, fi
             console.log("temp import entry selected?");
 
         }
-        //figure out how to deal with Zip file handling!!!!
         //fix bug that current selected pack is added a duplicate to top
         //fix that on window reopen custom png selected not reflected!
         else {

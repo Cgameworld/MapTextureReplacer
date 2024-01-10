@@ -182,6 +182,23 @@ namespace MapTextureReplacer.Systems
                     textureSelectDataJsonString = JsonConvert.SerializeObject(textureSelectData);
                 }
             }
+            else if (packPath.EndsWith(".zip"))
+            {
+                var filenameTexture = "";
+                foreach (var item in textureTypes)
+                {
+                    if (item.Key == shaderProperty)
+                    {
+                        filenameTexture = item.Value;
+                        UnityEngine.Debug.Log("filenameTexture: " + filenameTexture);
+                    }
+                }
+
+                using (ZipArchive archive = ZipFile.Open(packPath.Split(',')[1], ZipArchiveMode.Read))
+                {
+                    ExtractEntry(archive, filenameTexture, shaderProperty);
+                }
+            }
             else
             {
                 var directory = Path.GetDirectoryName(packPath);
@@ -190,7 +207,7 @@ namespace MapTextureReplacer.Systems
                 var filename = "";
                 foreach (var item in textureTypes)
                 {
-                    if(item.Key == shaderProperty)
+                    if (item.Key == shaderProperty)
                     {
                         filename = item.Value;
                         UnityEngine.Debug.Log("filename: " + filename);
@@ -199,7 +216,7 @@ namespace MapTextureReplacer.Systems
                 }
 
                 foreach (string filePath in Directory.GetFiles(directory))
-                {                   
+                {
                     LoadImageFile(filePath, filename, shaderProperty);
                 }
             }
