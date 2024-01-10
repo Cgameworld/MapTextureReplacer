@@ -3,7 +3,7 @@ import ReactDOM from 'react-dom';
 
 //from legacyflavor
 
-const $DropdownMod = ({ react, style, onSelectionChanged, selected, options }) => {
+const $DropdownMod = ({ react, style, onSelectionChanged, selected, options, dropdownTextChar = null}) => {
     const [active, setActive] = react.useState(false);
     const [internalValue, setInternalValue] = react.useState(selected);
     const [portalContainer, setPortalContainer] = react.useState(null);
@@ -102,13 +102,20 @@ const $DropdownMod = ({ react, style, onSelectionChanged, selected, options }) =
         </div>
     ) : null;
 
-    return (<div>
-        <div ref={pickerRef} className="dropdown-toggle_V9z dropdown-toggle_prl value-field_yJi value_PW_ dropdown_pJu item-states_QjV" onClick={onToggle} style={{ padding: '5rem', height: 'auto', backgroundColor: 'rgba(0, 0, 0, 0.15)', ...style }}>
-            <div className="label_l_4">{options[selectedIndex].label}</div>
-            <div className="tinted-icon_iKo indicator_Xmj" style={{ maskImage: 'url(Media/Glyphs/StrokeArrowDown.svg)' }}></div>
-            {portalContainer && dropdownContent && ReactDOM.createPortal(dropdownContent, portalContainer)}
+    return (
+        <div>
+            <div ref={pickerRef} className="dropdown-toggle_V9z dropdown-toggle_prl value-field_yJi value_PW_ dropdown_pJu item-states_QjV" onClick={onToggle} style={{ padding: '5rem', height: 'auto', backgroundColor: dropdownTextChar != null ? 'rgba(0, 0, 0, 0.15)' : 'rgba(0, 0, 0, 0.6)', ...style }}>
+                <div className="label_l_4">
+                    {dropdownTextChar != null && options[selectedIndex].label.length >= dropdownTextChar
+                        ? options[selectedIndex].label.substring(0, dropdownTextChar) + "..."
+                        : options[selectedIndex].label}
+                </div>
+                <div className="tinted-icon_iKo indicator_Xmj" style={{ maskImage: 'url(Media/Glyphs/StrokeArrowDown.svg)' }}></div>
+                {portalContainer && dropdownContent && ReactDOM.createPortal(dropdownContent, portalContainer)}
+            </div>
         </div>
-    </div>);
+    );
+
 }
 
 export default $DropdownMod
