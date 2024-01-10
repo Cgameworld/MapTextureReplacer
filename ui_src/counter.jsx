@@ -194,21 +194,27 @@ const $Counter = ({ react }) => {
     const [onSelectedPackDropdown, setOnSelectedPackDropdown] = react.useState(options[0].value)
 
     const onSelectionChanged1 = (value) => {
-        setOnSelectedPackDropdown(value);
-        currentpackdropdown = value;
-        if (value == "loadzipfile") {
-            engine.trigger(`map_texture.open_texture_zip`);
-        }
-        else {
-            console.log("dropdownval: " + value);
-            engine.trigger('map_texture.change_pack', value);
-            packsrefreshed = true;
-            //hack to reset slider position
-            setSlidersRendered(false);
-            requestAnimationFrame(() => {
-                setSlidersRendered(true);
-            });
-        }
+        //need to rewrite this
+        engine.trigger('map_texture.reset_texture_select_data');
+        document.body.style.cursor = "progress";
+        setTimeout(() => {
+            setOnSelectedPackDropdown(value);
+            currentpackdropdown = value;
+            if (value == "loadzipfile") {
+                engine.trigger(`map_texture.open_texture_zip`);
+            }
+            else {
+                console.log("dropdownval: " + value);
+                engine.trigger('map_texture.change_pack', value);
+                packsrefreshed = true;
+                //hack to reset slider position
+                setSlidersRendered(false);
+                setTimeout(() => {
+                    setSlidersRendered(true);
+                }, 1);
+            }
+            document.body.style.cursor = "pointer";
+        }, 100);
     };
 
     //add zip file to general dropdown options

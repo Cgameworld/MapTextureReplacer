@@ -73,7 +73,14 @@ const $DropdownMod = ({ react, style, onSelectionChanged, selected, options }) =
         onSelectionChanged(value);
     };
 
-    const selectedIndex = options.findIndex(o => o.value === internalValue);
+    let selectedIndex = options.findIndex(o => o.value === internalValue);
+
+    if (selectedIndex === -1) {
+        // Handle error here
+        console.log('MapTextureReplacer - No matching option found for the given internal value.');
+        selectedIndex = 0;
+    } 
+
 
     // Define the dropdown content
     const dropdownContent = active ? (
