@@ -92,7 +92,6 @@ namespace MapTextureReplacer.Systems
         }
         public void ChangePack(string current)
         {
-            UnityEngine.Debug.Log(current);
 
             if (current == "none")
             {
@@ -160,7 +159,6 @@ namespace MapTextureReplacer.Systems
 
         public void OpenImage(string shaderProperty, string packPath)
         {
-            Debug.Log(packPath);
             if (packPath == "")
             {
                 var file = OpenFileDialog.ShowDialog("Image files\0*.jpg;*.png\0");
@@ -190,7 +188,6 @@ namespace MapTextureReplacer.Systems
                     if (item.Key == shaderProperty)
                     {
                         filenameTexture = item.Value;
-                        UnityEngine.Debug.Log("filenameTexture: " + filenameTexture);
                     }
                 }
 
@@ -202,7 +199,6 @@ namespace MapTextureReplacer.Systems
             else
             {
                 var directory = Path.GetDirectoryName(packPath);
-                UnityEngine.Debug.Log("pack folder? " + directory);
 
                 var filename = "";
                 foreach (var item in textureTypes)
@@ -210,8 +206,6 @@ namespace MapTextureReplacer.Systems
                     if (item.Key == shaderProperty)
                     {
                         filename = item.Value;
-                        UnityEngine.Debug.Log("filename: " + filename);
-
                     }
                 }
 

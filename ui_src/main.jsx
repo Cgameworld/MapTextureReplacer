@@ -9,11 +9,11 @@ import $DropdownMod from './dropdown_modified'
 var packsrefreshed = false;
 var currentpackdropdown = "none";
 var zipFileSelected = false;
+var addItemLocalImage = false;
 
 const TextureSelectUI = ({ react, options, label, textureType, selectedImage, filePath }) => {
     const [selectedDefault, setSelectedDefault] = react.useState("none");
     const [localOptions, setLocalOptions] = react.useState([...options]);
-
     ///
     react.useEffect(() => {
         console.log("packsrefreshedran!");
@@ -36,6 +36,7 @@ const TextureSelectUI = ({ react, options, label, textureType, selectedImage, fi
 
     const onSelectionChanged = (selection) => {
         if (selection == "loadimage") {
+            addItemLocalImage = true;
             engine.trigger(`map_texture.open_image_${textureType}`, ``);
         }
         else if (selection == "none") {
@@ -45,7 +46,6 @@ const TextureSelectUI = ({ react, options, label, textureType, selectedImage, fi
             console.log("temp import entry selected?");
 
         }
-        //fix bug that current selected pack is added a duplicate to top
         //fix that on window reopen custom png selected not reflected!
         else {
             console.log("dropdownval: " + selection);
@@ -55,17 +55,25 @@ const TextureSelectUI = ({ react, options, label, textureType, selectedImage, fi
 
     //make new entry for imported image and select it
     react.useEffect(() => {
-        if (selectedImage != "Select Image") {
-            let updatedOptions = localOptions.filter(item => !item.value.startsWith("sel-"));
-            let newItem = {
-                "value": "sel-" + selectedImage,
-                "label": selectedImage
-            };
-            setLocalOptions([newItem, ...updatedOptions]);
-            setSelectedDefault("sel-" + selectedImage);
+        console.log("selectImage " + selectedImage);
+        if (addItemLocalImage) {
+            if (selectedImage != "Select Image") {
+                let updatedOptions = localOptions.filter(item => !item.value.startsWith("sel-"));
+                let newItem = {
+                    "value": "sel-" + selectedImage,
+                    "label": selectedImage
+                };
+                setLocalOptions([newItem, ...updatedOptions]);
+                setSelectedDefault("sel-" + selectedImage);
+            }
+            else {
+                setSelectedDefault("none");
+            }
+
+            addItemLocalImage = false;
         }
         else {
-            setSelectedDefault("none");
+            console.log("additemLocalImage " + addItemLocalImage);
         }
     }, [selectedImage]);
 
