@@ -48,6 +48,7 @@ const TextureSelectUI = ({ react, options, label, textureType, selectedImage, fi
 
     //make new entry for imported image and select it
     react.useEffect(() => {
+        console.log("selectedimage ran!");
         if (selectedImage != "Select Image") {
             let updatedOptions = localOptions.filter(item => !item.value.startsWith("sel-"));
             let newItem = {
@@ -57,9 +58,10 @@ const TextureSelectUI = ({ react, options, label, textureType, selectedImage, fi
             setLocalOptions([newItem, ...updatedOptions]);
             setSelectedDefault("sel-" + selectedImage);
         }
+        else {
+            setSelectedDefault("none");
+        }
     }, [selectedImage]);
-                //there's a bug where if I import an image and try to change packs it crashes :(
-                //if i set the dropdown non custom image it works??
                 //there another big bug when importing a zip file and i close the window, when it reopenes it sets it to the zipped file?? 
 
     return (
@@ -245,6 +247,13 @@ const $Counter = ({ react }) => {
         <div className="field_MBO" style={{ minHeight: '52.5rem' }} >
             <button className="button_WWa button_SH8" onClick={handleButtonClick}>Reset Tiling</button>
         </div>
+
+        <div className="field_MBO" style={{ minHeight: '52.5rem' }} >
+            <button className="button_WWa button_SH8" onClick={() => engine.trigger('map_texture.reset_texture_select_data')}>reset_texture_select_data</button>
+
+        </div>
+
+        
 
     </$PanelMod>
 }

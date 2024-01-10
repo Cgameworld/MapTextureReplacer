@@ -258,5 +258,23 @@ namespace MapTextureReplacer.Systems
 
         }
 
+        public void ResetTextureSelectData()
+        {
+
+            Debug.Log("bf2: " + textureSelectDataJsonString);
+
+            textureSelectData = new List<KeyValuePair<string, string>>() {
+            new KeyValuePair<string, string>("Select Image", ""),
+            new KeyValuePair<string, string>("Select Image", ""),
+            new KeyValuePair<string, string>("Select Image", ""),
+            new KeyValuePair<string, string>("Select Image", ""),
+            new KeyValuePair<string, string>("Select Image", ""),
+            new KeyValuePair<string, string>("Select Image", ""),
+            };
+
+            textureSelectDataJsonString = JsonConvert.SerializeObject(textureSelectData);
+
+            Debug.Log("af2: " + textureSelectDataJsonString);
+        }
     }
 }

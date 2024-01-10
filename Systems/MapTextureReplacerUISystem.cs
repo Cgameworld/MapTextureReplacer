@@ -43,9 +43,12 @@ namespace MapTextureReplacer.Systems
                 return systemManaged.textureSelectDataJsonString;
             }));
 
+            this.AddBinding(new TriggerBinding("map_texture", "reset_texture_select_data", this.systemManaged.ResetTextureSelectData));
+
             this.AddBinding(new TriggerBinding("map_texture", "open_texture_zip", this.systemManaged.GetTextureZip));
 
             this.AddBinding(new TriggerBinding<string>("map_texture", "change_pack", this.systemManaged.ChangePack));
+            
 
             this.AddBinding(new TriggerBinding("map_texture", "open_image_gd", () => this.systemManaged.OpenImage("colossal_TerrainGrassDiffuse")));
             this.AddBinding(new TriggerBinding("map_texture", "open_image_gn", () => this.systemManaged.OpenImage("colossal_TerrainGrassNormal")));
