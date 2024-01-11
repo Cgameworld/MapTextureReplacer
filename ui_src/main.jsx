@@ -43,10 +43,9 @@ const TextureSelectUI = ({ react, options, label, textureType, selectedImage, fi
             engine.trigger(`map_texture.reset_texture_${textureType}`);
         }
         else if (selection.startsWith("sel-")) {
-            console.log("temp import entry selected?");
-
+            console.log("temp import entry selected? selection: " + selection);
+            engine.trigger(`map_texture.open_image_${textureType}`, selection.replace("sel-",""));
         }
-        //fix that on window reopen custom png selected not reflected!
         else {
             console.log("dropdownval: " + selection);
             engine.trigger(`map_texture.open_image_${textureType}`, selection);
@@ -60,7 +59,7 @@ const TextureSelectUI = ({ react, options, label, textureType, selectedImage, fi
             if (selectedImage != "Select Image") {
                 let updatedOptions = localOptions.filter(item => !item.value.startsWith("sel-"));
                 let newItem = {
-                    "value": "sel-" + selectedImage,
+                    "value": "sel-" + filePath,
                     "label": selectedImage
                 };
                 setLocalOptions([newItem, ...updatedOptions]);
@@ -81,7 +80,7 @@ const TextureSelectUI = ({ react, options, label, textureType, selectedImage, fi
         <div className="field_MBO" style={{ minHeight: '52.5rem' }} >
             <div className="label_DGc label_ZLb">{label}</div>
             <$DropdownMod react={react} style={{ width: '40%' }} onSelectionChanged={onSelectionChanged} selected={selectedDefault} options={localOptions} dropdownTextChar={11}/>
-            <button className="button_WWa button_SH8" onClick={() => engine.trigger(`map_texture.reset_texture_${textureType}`)}>Reset {filePath}</button>
+            <button className="button_WWa button_SH8" onClick={() => engine.trigger(`map_texture.reset_texture_${textureType}`)}>Reset</button>
         </div>
     );
 };
@@ -108,15 +107,17 @@ const TextureSelectUIs = ({ react, options }) => {
         if (getTextureSelectData) {
             var newitems = JSON.parse(getTextureSelectData);
             //console.log("getTextureSelectData updated!")
-            console.log(newitems);
+            //console.log(newitems);
 
             const newTextureTypes = textureTypes.map((textureType, index) => {
                 return {
                     ...textureType,
                     selectedImage: newitems[index]?.Key || textureType.selectedImage,
-                    filepath: newitems[index]?.Value || textureType.filepath
+                    filePath: newitems[index]?.Value || textureType.filepath
                 };
             });
+
+            console.log(newTextureTypes);
             setTextureTypes(newTextureTypes);
         }
     }, [getTextureSelectData]);

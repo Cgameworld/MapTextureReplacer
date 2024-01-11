@@ -159,6 +159,15 @@ namespace MapTextureReplacer.Systems
 
         public void OpenImage(string shaderProperty, string packPath)
         {
+            var filenameTexture = "";
+            foreach (var item in textureTypes)
+            {
+                if (item.Key == shaderProperty)
+                {
+                    filenameTexture = item.Value;
+                }
+            }
+
             if (packPath == "")
             {
                 var file = OpenFileDialog.ShowDialog("Image files\0*.jpg;*.png\0");
@@ -180,39 +189,27 @@ namespace MapTextureReplacer.Systems
                     textureSelectDataJsonString = JsonConvert.SerializeObject(textureSelectData);
                 }
             }
+
             else if (packPath.EndsWith(".zip"))
             {
-                var filenameTexture = "";
-                foreach (var item in textureTypes)
-                {
-                    if (item.Key == shaderProperty)
-                    {
-                        filenameTexture = item.Value;
-                    }
-                }
-
                 using (ZipArchive archive = ZipFile.Open(packPath.Split(',')[1], ZipArchiveMode.Read))
                 {
                     ExtractEntry(archive, filenameTexture, shaderProperty);
                 }
             }
-            else
+            else if (packPath.EndsWith(".json"))
             {
                 var directory = Path.GetDirectoryName(packPath);
 
-                var filename = "";
-                foreach (var item in textureTypes)
-                {
-                    if (item.Key == shaderProperty)
-                    {
-                        filename = item.Value;
-                    }
-                }
-
                 foreach (string filePath in Directory.GetFiles(directory))
                 {
-                    LoadImageFile(filePath, filename, shaderProperty);
+                    LoadImageFile(filePath, filenameTexture, shaderProperty);
                 }
+            }
+            else
+            {
+                byte[] data = File.ReadAllBytes(packPath);
+                LoadTextureInGame(shaderProperty, data);
             }
         }
         public void GetTextureZip()
