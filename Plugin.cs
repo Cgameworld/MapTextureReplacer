@@ -15,8 +15,10 @@ namespace MapTextureReplacer
     [BepInPlugin(MyPluginInfo.PLUGIN_GUID, MyPluginInfo.PLUGIN_NAME, MyPluginInfo.PLUGIN_VERSION)]
     public class Plugin : BaseUnityPlugin
     {
+        public static MapTextureReplacerMod _mod;
         private void Awake()
         {
+            _mod = new MapTextureReplacerMod();
             Logger.LogInfo($"Plugin {MyPluginInfo.PLUGIN_GUID} is loaded!");
 
             var harmony = Harmony.CreateAndPatchAll(Assembly.GetExecutingAssembly(), MyPluginInfo.PLUGIN_GUID + "_Cities2Harmony");
@@ -28,15 +30,16 @@ namespace MapTextureReplacer
             {
                 Logger.LogInfo($"Patched method: {patchedMethod.Module.Name}:{patchedMethod.Name}");
             }
+            _mod.OnLoad();
         }
     }
-    public class VehicleCounterUI : UIExtension
+    public class MapTextureReplacerUI : UIExtension
     {
         public new readonly string extensionID = "example.map_texture";
         public new readonly string extensionContent;
         public new readonly ExtensionType extensionType = ExtensionType.Panel;
 
-        public VehicleCounterUI()
+        public MapTextureReplacerUI()
         {
             this.extensionContent = this.LoadEmbeddedResource("MapTextureReplacer.dist.bundle.js");
         }

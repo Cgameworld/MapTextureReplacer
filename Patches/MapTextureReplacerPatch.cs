@@ -26,6 +26,15 @@ namespace MapTextureReplacer.Patches
         }
     }
 
+    [HarmonyPatch(typeof(SystemOrder), nameof(SystemOrder.Initialize))]
+    internal class InjectSystemsPatch
+    {
+        static void Postfix(UpdateSystem updateSystem)
+        {
+            MapTextureReplacerMod.Instance.OnCreateWorld(updateSystem);
+        }
+    }
+
     [HarmonyPatch(typeof(GameManager))]
     public static class SavePatch
     {

@@ -71,9 +71,6 @@ const TextureSelectUI = ({ react, options, label, textureType, selectedImage, fi
 
             addItemLocalImage = false;
         }
-        else {
-            console.log("additemLocalImage " + addItemLocalImage);
-        }
     }, [selectedImage]);
 
     return (
