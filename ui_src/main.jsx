@@ -90,7 +90,7 @@ const TextureSelectUIs = ({ react, options }) => {
     const types = ["gd", "gn", "dd", "dn", "cd", "cn"];
 
     const textureTypesData = labels.map((label, index) => {
-        return { label: label, type: types[index], selectedImage: "Select Image", filepath: "" };
+        return { label: label, type: types[index], selectedImage: "Select Image", filePath: "" };
     });
 
     const [textureTypes, setTextureTypes] = react.useState(textureTypesData);
@@ -110,7 +110,7 @@ const TextureSelectUIs = ({ react, options }) => {
                 return {
                     ...textureType,
                     selectedImage: newitems[index]?.Key || textureType.selectedImage,
-                    filePath: newitems[index]?.Value || textureType.filepath
+                    filePath: newitems[index]?.Value || textureType.filePath
                 };
             });
 

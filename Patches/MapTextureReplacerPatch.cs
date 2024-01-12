@@ -14,17 +14,6 @@ using UnityEngine;
 
 namespace MapTextureReplacer.Patches
 {
-    [HarmonyPatch(typeof(SystemOrder))]
-    public static class SystemOrderPatch
-    {
-        [HarmonyPatch("Initialize")]
-        [HarmonyPostfix]
-        public static void Postfix(UpdateSystem updateSystem)
-        {
-            updateSystem.UpdateAt<MapTextureReplacerSystem>(SystemUpdatePhase.PostSimulation);
-            updateSystem.UpdateAt<MapTextureReplacerUISystem>(SystemUpdatePhase.UIUpdate);
-        }
-    }
 
     [HarmonyPatch(typeof(SystemOrder), nameof(SystemOrder.Initialize))]
     internal class InjectSystemsPatch
@@ -32,6 +21,8 @@ namespace MapTextureReplacer.Patches
         static void Postfix(UpdateSystem updateSystem)
         {
             MapTextureReplacerMod.Instance.OnCreateWorld(updateSystem);
+            updateSystem.UpdateAt<MapTextureReplacerSystem>(SystemUpdatePhase.PostSimulation);
+            updateSystem.UpdateAt<MapTextureReplacerUISystem>(SystemUpdatePhase.UIUpdate);
         }
     }
 

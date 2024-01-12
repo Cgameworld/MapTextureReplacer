@@ -48,6 +48,20 @@ namespace MapTextureReplacer.Systems
         {
             base.OnCreate();
 
+            //initialize textureTypes
+            if (MapTextureReplacerMod.Options.TextureSelectData == null)
+            {
+                UnityEngine.Debug.Log("MapTextureReplacerMod.Options.TextureSelectData == null");
+            }
+            else
+            {
+                UnityEngine.Debug.Log("MapTextureReplacerMod.Options.TextureSelectData NOT null" + MapTextureReplacerMod.Options.TextureSelectData);
+
+                textureSelectData = JsonConvert.DeserializeObject<List<KeyValuePair<string, string>>>(MapTextureReplacerMod.Options.TextureSelectData);
+            }
+
+
+
             //cache original textures for reset function
             foreach (var item in textureTypes)
             {
@@ -137,7 +151,15 @@ namespace MapTextureReplacer.Systems
                 textureSelectData[i] = new KeyValuePair<string, string>(key, "");
                 //textureSelectData[i].Value
             }
+            SetTextureSelectDataJson();
+        }
+
+        private void SetTextureSelectDataJson()
+        {
+            Debug.Log("SetTextureSelectDataJson() Called");
             textureSelectDataJsonString = JsonConvert.SerializeObject(textureSelectData);
+            MapTextureReplacerMod.Options.TextureSelectData = textureSelectDataJsonString;
+            AssetDatabase.global.SaveSettingsNow();
         }
 
         public void SetTilingValues(string far, string close, string dirtClose)
@@ -187,7 +209,7 @@ namespace MapTextureReplacer.Systems
                         fileName = fileName.Substring(0, 15);
                     }
                     textureSelectData[index] = new KeyValuePair<string, string>(fileName, file);
-                    textureSelectDataJsonString = JsonConvert.SerializeObject(textureSelectData);
+                    SetTextureSelectDataJson();
                 }
             }
 
@@ -262,7 +284,7 @@ namespace MapTextureReplacer.Systems
             //reset neighboring button text to select image
             int index = textureTypes.Keys.ToList().IndexOf(shaderProperty);
             textureSelectData[index] = new KeyValuePair<string, string>("Select Image", "");
-            textureSelectDataJsonString = JsonConvert.SerializeObject(textureSelectData);
+            SetTextureSelectDataJson();
         }
 
         private static void ExtractEntry(ZipArchive archive, string entryName, string shaderProperty)
@@ -303,7 +325,7 @@ namespace MapTextureReplacer.Systems
             new KeyValuePair<string, string>("Select Image", ""),
             };
 
-            textureSelectDataJsonString = JsonConvert.SerializeObject(textureSelectData);
+            SetTextureSelectDataJson();
 
             Debug.Log("af2: " + textureSelectDataJsonString);
         }

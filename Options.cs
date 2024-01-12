@@ -36,6 +36,9 @@ namespace MapTextureReplacer
         [SettingsUIHidden]
         public string ActiveDropdown { get; set; }
 
+        [SettingsUIHidden]
+        public string TextureSelectData { get; set; }
+
         //sometimes saving doesn't happen when changing values to their default? - hack to guarantee
         [SettingsUIHidden]
         public int MakeSureSave { get; set; }
