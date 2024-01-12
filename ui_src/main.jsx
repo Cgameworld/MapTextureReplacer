@@ -149,10 +149,11 @@ const SliderComponent = ({ react, slider, isRendered }) => {
 
 const $Main = ({ react }) => {
 
-    //get stored value in COC file   
+    //get stored value in COC file and sets displayed dropdown values 
     const [getSavedActivePackDropdown, setGetSavedActivePackDropdown] = react.useState(0)
     useDataUpdate(react, 'map_texture.get_active_pack_dropdown', setGetSavedActivePackDropdown)
     react.useEffect(() => {
+        currentpackdropdown = getSavedActivePackDropdown;
         console.log("getSavedActivePackDropdown " + getSavedActivePackDropdown);
     }, [getSavedActivePackDropdown]);
 
@@ -218,6 +219,8 @@ const $Main = ({ react }) => {
         //doesn't work immediately
         setTimeout(() => {
             setOnSelectedPackDropdown(currentpackdropdown);
+            //save currentpackdropdown value to COC file
+            engine.trigger('map_texture.set_active_pack_dropdown', currentpackdropdown)
         }, 250);
 
     }, [packsrefreshed]);
