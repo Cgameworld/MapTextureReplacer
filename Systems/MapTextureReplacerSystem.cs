@@ -1,4 +1,5 @@
-﻿using Colossal.Json;
+﻿using Colossal.IO.AssetDatabase;
+using Colossal.Json;
 using Game;
 using Game.Notifications;
 using Game.UI;
@@ -305,6 +306,17 @@ namespace MapTextureReplacer.Systems
             textureSelectDataJsonString = JsonConvert.SerializeObject(textureSelectData);
 
             Debug.Log("af2: " + textureSelectDataJsonString);
+        }
+
+        public void SetActivePackDropdown(string data)
+        {
+            MapTextureReplacerMod.Options.ActiveDropdown = data;
+            AssetDatabase.global.SaveSettingsNow();
+        }
+
+        public string GetActivePackDropdown()
+        {
+            return MapTextureReplacerMod.Options.ActiveDropdown;
         }
     }
 }

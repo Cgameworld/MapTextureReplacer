@@ -49,6 +49,11 @@ namespace MapTextureReplacer.Systems
 
             this.AddBinding(new TriggerBinding<string>("map_texture", "change_pack", this.systemManaged.ChangePack));
 
+            //setter
+            this.AddUpdateBinding(new GetterValueBinding<string>("map_texture", "get_active_pack_dropdown", () => this.systemManaged.GetActivePackDropdown()));
+            //getter
+            this.AddBinding(new TriggerBinding<string>("map_texture", "set_active_pack_dropdown", this.systemManaged.SetActivePackDropdown));
+            
 
             this.AddBinding(new TriggerBinding<string>("map_texture", "open_image_gd", (imageFile) => this.systemManaged.OpenImage("colossal_TerrainGrassDiffuse", imageFile)));
          

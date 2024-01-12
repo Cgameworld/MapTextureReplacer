@@ -149,6 +149,14 @@ const SliderComponent = ({ react, slider, isRendered }) => {
 
 const $Main = ({ react }) => {
 
+    //get stored value in COC file   
+    const [getSavedActivePackDropdown, setGetSavedActivePackDropdown] = react.useState(0)
+    useDataUpdate(react, 'map_texture.get_active_pack_dropdown', setGetSavedActivePackDropdown)
+    react.useEffect(() => {
+        console.log("getSavedActivePackDropdown " + getSavedActivePackDropdown);
+    }, [getSavedActivePackDropdown]);
+
+
     const [texturePack, setTexturePack] = react.useState(0)
     const [openTextureZip, setOpenTextureZip] = react.useState(0)
     const [resetTiling, setResetTiling] = react.useState(0)
@@ -278,7 +286,7 @@ const $Main = ({ react }) => {
         </div>
 
         <div className="field_MBO" style={{ minHeight: '52.5rem' }} >
-            <button className="button_WWa button_SH8" onClick={() => engine.trigger('map_texture.reset_texture_select_data')}>reset_texture_select_data</button>
+            <button className="button_WWa button_SH8" onClick={() => engine.trigger('map_texture.set_active_pack_dropdown', currentpackdropdown)}>set activedropdown COC data</button>
 
         </div>
 
