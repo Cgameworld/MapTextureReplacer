@@ -11,6 +11,7 @@ using System.IO;
 using System.IO.Compression;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -138,17 +139,18 @@ namespace MapTextureReplacer.Systems
 
                     MapTextureConfig config = JsonConvert.DeserializeObject<MapTextureConfig>(File.ReadAllText(current));
                     SetTilingValues(config.far_tiling, config.close_tiling, config.close_dirt_tiling);                   
-                    SetSelectImageAllText(config.pack_name);
+                    SetSelectImageAllText(config.pack_name, current);
                 }
             }
         }
 
-        private void SetSelectImageAllText(string key)
+        private void SetSelectImageAllText(string key, string path)
         {
             //set select image text labels
             for (int i = 0; i < textureSelectData.Count; i++)
             {
-                textureSelectData[i] = new KeyValuePair<string, string>(key, "");
+                textureSelectData[i] = new KeyValuePair<string, string>(key, path);
+                Debug.Log("SETSELECTIMAGEALLTEXT key: " + key + "path: " + path);
                 //textureSelectData[i].Value
             }
             SetTextureSelectDataJson();
@@ -212,28 +214,39 @@ namespace MapTextureReplacer.Systems
                     SetTextureSelectDataJson();
                 }
             }
-
             else if (packPath.EndsWith(".zip"))
             {
+                int index = textureTypes.Keys.ToList().IndexOf(shaderProperty);
+                textureSelectData[index] = new KeyValuePair<string, string>(packPath.Split(',')[0],packPath);
+                SetTextureSelectDataJson();
+
                 using (ZipArchive archive = ZipFile.Open(packPath.Split(',')[1], ZipArchiveMode.Read))
                 {
                     ExtractEntry(archive, filenameTexture, shaderProperty);
                 }
             }
-            else if (packPath.EndsWith(".json"))
-            {
-                var directory = Path.GetDirectoryName(packPath);
-
-                foreach (string filePath in Directory.GetFiles(directory))
-                {
-                    LoadImageFile(filePath, filenameTexture, shaderProperty);
-                }
-            }
             else
             {
-                byte[] data = File.ReadAllBytes(packPath);
-                LoadTextureInGame(shaderProperty, data);
+                int index = textureTypes.Keys.ToList().IndexOf(shaderProperty);
+                textureSelectData[index] = new KeyValuePair<string, string>(importedPacks[packPath], packPath);
+                SetTextureSelectDataJson();
+
+                if (packPath.EndsWith(".json"))
+                {
+                    var directory = Path.GetDirectoryName(packPath);
+
+                    foreach (string filePath in Directory.GetFiles(directory))
+                    {
+                        LoadImageFile(filePath, filenameTexture, shaderProperty);
+                    }
+                }
+                else
+                {
+                    byte[] data = File.ReadAllBytes(packPath);
+                    LoadTextureInGame(shaderProperty, data);
+                }
             }
+            
         }
         public void GetTextureZip()
         {
@@ -324,6 +337,7 @@ namespace MapTextureReplacer.Systems
             new KeyValuePair<string, string>("Select Image", ""),
             new KeyValuePair<string, string>("Select Image", ""),
             };
+
 
             SetTextureSelectDataJson();
 
