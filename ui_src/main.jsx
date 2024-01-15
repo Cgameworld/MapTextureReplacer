@@ -15,6 +15,8 @@ const TextureSelectUI = ({ react, options, label, textureType, selectedImage, fi
     const [selectedDefault, setSelectedDefault] = react.useState("none");
     const [localOptions, setLocalOptions] = react.useState([...options]);
     ///
+
+
     react.useEffect(() => {
         console.log("packsrefreshedran!");
         let newItem = {
@@ -24,11 +26,6 @@ const TextureSelectUI = ({ react, options, label, textureType, selectedImage, fi
         let filteredOptions = options.filter(option => option.value !== 'loadzipfile');
 
         setLocalOptions([...filteredOptions, newItem]);
-
-        //doesn't work immediately
-        setTimeout(() => {
-            setSelectedDefault(currentpackdropdown);
-        }, 250);
 
         packsrefreshed = false;
     }, [packsrefreshed]);
@@ -71,6 +68,13 @@ const TextureSelectUI = ({ react, options, label, textureType, selectedImage, fi
 
             addItemLocalImage = false;
         }
+        else {
+            setTimeout(() => {
+                console.log("setselecteddefault - 250 called " + filePath);
+                setSelectedDefault(filePath);
+            }, 250);
+        }
+
     }, [selectedImage]);
 
     return (
@@ -103,8 +107,8 @@ const TextureSelectUIs = ({ react, options }) => {
     react.useEffect(() => {
         if (getTextureSelectData) {
             var newitems = JSON.parse(getTextureSelectData);
-            //console.log("getTextureSelectData updated!")
-            //console.log(newitems);
+            console.log("getTextureSelectData updated!")
+            console.log(newitems);
 
             const newTextureTypes = textureTypes.map((textureType, index) => {
                 return {

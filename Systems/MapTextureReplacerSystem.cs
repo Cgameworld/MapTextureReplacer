@@ -296,7 +296,7 @@ namespace MapTextureReplacer.Systems
             }
             //reset neighboring button text to select image
             int index = textureTypes.Keys.ToList().IndexOf(shaderProperty);
-            textureSelectData[index] = new KeyValuePair<string, string>("Select Image", "");
+            textureSelectData[index] = new KeyValuePair<string, string>("Default", "none");
             SetTextureSelectDataJson();
         }
 
@@ -330,12 +330,12 @@ namespace MapTextureReplacer.Systems
             Debug.Log("bf2: " + textureSelectDataJsonString);
 
             textureSelectData = new List<KeyValuePair<string, string>>() {
-            new KeyValuePair<string, string>("Select Image", ""),
-            new KeyValuePair<string, string>("Select Image", ""),
-            new KeyValuePair<string, string>("Select Image", ""),
-            new KeyValuePair<string, string>("Select Image", ""),
-            new KeyValuePair<string, string>("Select Image", ""),
-            new KeyValuePair<string, string>("Select Image", ""),
+            new KeyValuePair<string, string>("Default", "none"),
+            new KeyValuePair<string, string>("Default", "none"),
+            new KeyValuePair<string, string>("Default", "none"),
+            new KeyValuePair<string, string>("Default", "none"),
+            new KeyValuePair<string, string>("Default", "none"),
+            new KeyValuePair<string, string>("Default", "none"),
             };
 
 
