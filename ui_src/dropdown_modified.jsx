@@ -106,9 +106,11 @@ const $DropdownMod = ({ react, style, onSelectionChanged, selected, options, dro
         <div>
             <div ref={pickerRef} className="dropdown-toggle_V9z dropdown-toggle_prl value-field_yJi value_PW_ dropdown_pJu item-states_QjV" onClick={onToggle} style={{ padding: '5rem', height: 'auto', backgroundColor: dropdownTextChar != null ? 'rgba(0, 0, 0, 0.15)' : 'rgba(0, 0, 0, 0.6)', ...style }}>
                 <div className="label_l_4">
-                    {dropdownTextChar != null && options[selectedIndex].label.length >= dropdownTextChar
-                        ? options[selectedIndex].label.substring(0, dropdownTextChar) + "..."
-                        : options[selectedIndex].label}
+                    {selected === "Loading..."
+                        ? selected
+                        : dropdownTextChar != null && options[selectedIndex].label.length >= dropdownTextChar
+                            ? options[selectedIndex].label.substring(0, dropdownTextChar) + "..."
+                            : options[selectedIndex].label}
                 </div>
                 <div className="tinted-icon_iKo indicator_Xmj" style={{ maskImage: 'url(Media/Glyphs/StrokeArrowDown.svg)' }}></div>
                 {portalContainer && dropdownContent && ReactDOM.createPortal(dropdownContent, portalContainer)}

@@ -246,9 +246,8 @@ const $Main = ({ react }) => {
     const onSelectionChanged1 = (value) => {
         //need to rewrite this
         engine.trigger('map_texture.reset_texture_select_data');
-        document.body.style.cursor = "progress";
+        setOnSelectedPackDropdown("Loading...")
         setTimeout(() => {
-            setOnSelectedPackDropdown(value);
             currentpackdropdown = value;
             if (value == "loadzipfile") {
                 zipFileSelected = false;
@@ -263,7 +262,6 @@ const $Main = ({ react }) => {
                     setSlidersRendered(true);
                 }, 1);
             }
-            document.body.style.cursor = "pointer";
         }, 100);
     };
 
