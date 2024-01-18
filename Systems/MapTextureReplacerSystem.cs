@@ -205,11 +205,7 @@ namespace MapTextureReplacer.Systems
                     LoadTextureInGame(shaderProperty, fileData);
 
                     int index = textureTypes.Keys.ToList().IndexOf(shaderProperty);
-                    string fileName = Path.GetFileName(file);
-                    if (fileName.Length > 15)
-                    {
-                        fileName = fileName.Substring(0, 15);
-                    }
+                    string fileName = ShortenDisplayedFilename(file);
                     textureSelectData[index] = new KeyValuePair<string, string>(fileName, file);
                     SetTextureSelectDataJson();
                 }
@@ -228,7 +224,13 @@ namespace MapTextureReplacer.Systems
             else
             {
                 int index = textureTypes.Keys.ToList().IndexOf(shaderProperty);
-                textureSelectData[index] = new KeyValuePair<string, string>(importedPacks[packPath], packPath);
+
+                string labelName = importedPacks.TryGetValue(packPath, out string value) ? value :  ShortenDisplayedFilename(Path.GetFileName(packPath));
+
+                Debug.Log("packPath: " + packPath);
+                Debug.Log("importedPacks[packPath]:  " + labelName);
+
+                textureSelectData[index] = new KeyValuePair<string, string>(labelName, packPath);
                 SetTextureSelectDataJson();
 
                 if (packPath.EndsWith(".json"))
@@ -248,6 +250,18 @@ namespace MapTextureReplacer.Systems
             }
             
         }
+
+        private static string ShortenDisplayedFilename(string file)
+        {
+            string fileName = Path.GetFileName(file);
+            if (fileName.Length > 15)
+            {
+                fileName = fileName.Substring(0, 15);
+            }
+
+            return fileName;
+        }
+
         public void GetTextureZip()
         {
             var zipFilePath = OpenFileDialog.ShowDialog("Zip archives\0*.zip\0");

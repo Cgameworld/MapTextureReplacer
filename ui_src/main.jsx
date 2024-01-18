@@ -70,8 +70,25 @@ const TextureSelectUI = ({ react, options, label, textureType, selectedImage, fi
         }
         else {
             setTimeout(() => {
+                //problem is that the imported pack entries do not show up!
                 console.log("setselecteddefault - 250 called " + filePath);
-                setSelectedDefault(filePath);
+                if (filePath.endsWith(".png")) {
+                    console.log("png add?");
+                    let updatedOptions = localOptions.filter(item => !item.value.startsWith("sel-"));
+                    let newItem = {
+                        "value": "sel-" + filePath,
+                        "label": selectedImage
+                    };
+                    setLocalOptions([newItem, ...updatedOptions]);
+                    setSelectedDefault("sel-" + selectedImage);
+
+                    setTimeout(() => {
+
+                    }, 10);
+                }
+                else {
+                    setSelectedDefault(filePath);
+                }
             }, 250);
         }
 
