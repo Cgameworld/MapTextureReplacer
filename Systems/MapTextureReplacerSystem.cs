@@ -1,5 +1,6 @@
 ﻿using Colossal.IO.AssetDatabase;
 using Colossal.Json;
+using Colossal.Logging;
 using Game;
 using Game.Notifications;
 using Game.UI;
@@ -7,6 +8,7 @@ using MapTextureReplacer.Helpers;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.IO.Compression;
 using System.Linq;
@@ -123,6 +125,7 @@ namespace MapTextureReplacer.Systems
                 if (current.EndsWith(".zip"))
                 {
                     OpenTextureZip(current.Split(',')[1]);
+                    SetSelectImageAllText(current.Split(',')[0], current);
                 }
                 else if (current.EndsWith(".json"))
                 {
@@ -275,13 +278,34 @@ namespace MapTextureReplacer.Systems
             {
                 using (ZipArchive archive = ZipFile.Open(zipFilePath, ZipArchiveMode.Read))
                 {
-                    ExtractEntry(archive, "Grass_BaseColor.png", "colossal_TerrainGrassDiffuse");
-                    ExtractEntry(archive, "Grass_Normal.png", "colossal_TerrainGrassNormal");
-                    ExtractEntry(archive, "Dirt_BaseColor.png", "colossal_TerrainDirtDiffuse");
-                    ExtractEntry(archive, "Dirt_Normal.png", "colossal_TerrainDirtNormal");
-                    ExtractEntry(archive, "Cliff_BaseColor.png", "colossal_TerrainRockDiffuse");
-                    ExtractEntry(archive, "Cliff_Normal.png", "colossal_TerrainRockNormal");
+                    List<string> notFoundFiles = new List<string>();
+
+                    if (!ExtractEntry(archive, "Grass_BaseColor.png", "colossal_TerrainGrassDiffuse"))
+                        notFoundFiles.Add("Grass_BaseColor.png");
+                    if (!ExtractEntry(archive, "Grass_Normal.png", "colossal_TerrainGrassNormal"))
+                        notFoundFiles.Add("Grass_Normal.png");
+                    if (!ExtractEntry(archive, "Dirt_BaseColor.png", "colossal_TerrainDirtDiffuse"))
+                        notFoundFiles.Add("Dirt_BaseColor.png");
+                    if (!ExtractEntry(archive, "Dirt_Normal.png", "colossal_TerrainDirtNormal"))
+                        notFoundFiles.Add("Dirt_Normal.png");
+                    if (!ExtractEntry(archive, "Cliff_BaseColor.png", "colossal_TerrainRockDiffuse"))
+                        notFoundFiles.Add("Cliff_BaseColor.png");
+                    if (!ExtractEntry(archive, "Cliff_Normal.png", "colossal_TerrainRockNormal"))
+                        notFoundFiles.Add("Cliff_Normal.png");
+
+                    if (notFoundFiles.Count > 0)
+                    {
+                        string outputError = "Files not found in .zip file:\n";
+                        foreach (string file in notFoundFiles)
+                        {
+                            outputError = outputError + "\n" + file;
+                        }
+
+
+                        throw new Exception(outputError + "\n\n");
+                    }
                 }
+
             }
         }
         private static void CacheExistingTexture(string shaderProperty)
@@ -314,7 +338,7 @@ namespace MapTextureReplacer.Systems
             SetTextureSelectDataJson();
         }
 
-        private static void ExtractEntry(ZipArchive archive, string entryName, string shaderProperty)
+        private static bool ExtractEntry(ZipArchive archive, string entryName, string shaderProperty)
         {
             ZipArchiveEntry entry = archive.GetEntry(entryName);
 
@@ -326,6 +350,11 @@ namespace MapTextureReplacer.Systems
                     entryStream.Read(data, 0, data.Length);
                     LoadTextureInGame(shaderProperty, data);
                 }
+                return true;
+            }
+            else
+            {
+                return false;
             }
         }
 
