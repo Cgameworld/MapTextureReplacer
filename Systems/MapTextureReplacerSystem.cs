@@ -27,7 +27,7 @@ namespace MapTextureReplacer.Systems
         public string importedPacksJsonString;
         
         public string textureSelectDataJsonString;
-        private List<KeyValuePair<string, string>> textureSelectData = new List<KeyValuePair<string, string>>() {
+        public List<KeyValuePair<string, string>> textureSelectData = new List<KeyValuePair<string, string>>() {
             new KeyValuePair<string, string>("Select Image", ""),
             new KeyValuePair<string, string>("Select Image", ""),
             new KeyValuePair<string, string>("Select Image", ""),
@@ -38,7 +38,7 @@ namespace MapTextureReplacer.Systems
 
         static Dictionary<string, Texture> mapTextureCache = new Dictionary<string, Texture>();
        
-        static readonly Dictionary<string, string> textureTypes = new Dictionary<string, string>() {
+        public readonly Dictionary<string, string> textureTypes = new Dictionary<string, string>() {
             {"colossal_TerrainGrassDiffuse", "Grass_BaseColor.png"},
             {"colossal_TerrainGrassNormal", "Grass_Normal.png"},
             {"colossal_TerrainDirtDiffuse", "Dirt_BaseColor.png"},
@@ -387,8 +387,20 @@ namespace MapTextureReplacer.Systems
             Debug.Log("af2: " + textureSelectDataJsonString);
         }
 
-        public void SetActivePackDropdown(string data)
+        public void SetTexturesGameLoad()
         {
+            //change textures on load based on saved COC data
+            List<string> textureTypeKeys = new List<string>(textureTypes.Keys);
+            for (int i = 0; i < textureTypeKeys.Count; i++)
+            {
+                OpenImage(textureTypeKeys[i], textureSelectData[i].Value);
+                Debug.Log("textureTypeKeys[" + i + "] = " + textureTypeKeys[i]);
+                Debug.Log("textureSelectData[" + i + "].Value = " + textureSelectData[i].Value);
+            }
+        }
+
+            public void SetActivePackDropdown(string data)
+        { 
             MapTextureReplacerMod.Options.ActiveDropdown = data;
             AssetDatabase.global.SaveSettingsNow();
         }

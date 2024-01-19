@@ -1,6 +1,7 @@
 ﻿using Colossal.IO.AssetDatabase;
 using Game;
 using Game.Assets;
+using Game.Audio;
 using Game.Common;
 using Game.SceneFlow;
 using HarmonyLib;
@@ -10,6 +11,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
+using Unity.Entities;
 using UnityEngine;
 
 namespace MapTextureReplacer.Patches
@@ -23,6 +25,18 @@ namespace MapTextureReplacer.Patches
             MapTextureReplacerMod.Instance.OnCreateWorld(updateSystem);
             updateSystem.UpdateAt<MapTextureReplacerSystem>(SystemUpdatePhase.PostSimulation);
             updateSystem.UpdateAt<MapTextureReplacerUISystem>(SystemUpdatePhase.UIUpdate);
+        }
+    }
+
+    [HarmonyPatch(typeof(AudioManager), "OnGameLoadingComplete")]
+    internal class AudioManager_OnGameLoadingComplete
+    {  
+        static void Postfix(AudioManager __instance, Colossal.Serialization.Entities.Purpose purpose, GameMode mode)
+        {
+            if (!mode.IsGameOrEditor())
+                return;
+
+            __instance.World.GetOrCreateSystem<MapTextureReplacerInGameLoadedSystem>();
         }
     }
 
