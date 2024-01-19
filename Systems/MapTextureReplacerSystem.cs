@@ -329,15 +329,23 @@ namespace MapTextureReplacer.Systems
 
         public void ResetTexture(string shaderProperty)
         {
-            mapTextureCache.TryGetValue(shaderProperty, out Texture texture);
-            if (texture != null)
+            string currentPackPath = MapTextureReplacerMod.Options.ActiveDropdown;
+            if (currentPackPath != "none")
             {
-                Shader.SetGlobalTexture(Shader.PropertyToID(shaderProperty), texture);
+                OpenImage(shaderProperty, currentPackPath);
             }
-            //reset neighboring button text to select image
-            int index = textureTypes.Keys.ToList().IndexOf(shaderProperty);
-            textureSelectData[index] = new KeyValuePair<string, string>("Default", "none");
-            SetTextureSelectDataJson();
+            else
+            {
+                mapTextureCache.TryGetValue(shaderProperty, out Texture texture);
+                if (texture != null)
+                {
+                    Shader.SetGlobalTexture(Shader.PropertyToID(shaderProperty), texture);
+                }
+                //reset neighboring button text to select image
+                int index = textureTypes.Keys.ToList().IndexOf(shaderProperty);
+                textureSelectData[index] = new KeyValuePair<string, string>("Default", "none");
+                SetTextureSelectDataJson();
+            }
         }
 
         private static bool ExtractEntry(ZipArchive archive, string entryName, string shaderProperty)
