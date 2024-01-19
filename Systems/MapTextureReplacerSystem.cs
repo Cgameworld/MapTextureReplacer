@@ -28,15 +28,15 @@ namespace MapTextureReplacer.Systems
         
         public string textureSelectDataJsonString;
         public List<KeyValuePair<string, string>> textureSelectData = new List<KeyValuePair<string, string>>() {
-            new KeyValuePair<string, string>("Select Image", ""),
-            new KeyValuePair<string, string>("Select Image", ""),
-            new KeyValuePair<string, string>("Select Image", ""),
-            new KeyValuePair<string, string>("Select Image", ""),
-            new KeyValuePair<string, string>("Select Image", ""),
-            new KeyValuePair<string, string>("Select Image", ""),
-        };
+            new KeyValuePair<string, string>("Default", "none"),
+            new KeyValuePair<string, string>("Default", "none"),
+            new KeyValuePair<string, string>("Default", "none"),
+            new KeyValuePair<string, string>("Default", "none"),
+            new KeyValuePair<string, string>("Default", "none"),
+            new KeyValuePair<string, string>("Default", "none"),
+            };
 
-        static Dictionary<string, Texture> mapTextureCache = new Dictionary<string, Texture>();
+    static Dictionary<string, Texture> mapTextureCache = new Dictionary<string, Texture>();
        
         public readonly Dictionary<string, string> textureTypes = new Dictionary<string, string>() {
             {"colossal_TerrainGrassDiffuse", "Grass_BaseColor.png"},
@@ -55,6 +55,8 @@ namespace MapTextureReplacer.Systems
             if (MapTextureReplacerMod.Options.TextureSelectData == null)
             {
                 UnityEngine.Debug.Log("MapTextureReplacerMod.Options.TextureSelectData == null");
+                MapTextureReplacerMod.Options.ActiveDropdown = "none";
+                SetTextureSelectDataJson();
             }
             else
             {

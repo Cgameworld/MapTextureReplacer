@@ -30,7 +30,11 @@ namespace MapTextureReplacer.Systems
             List<string> textureTypeKeys = new List<string>(m_mapTextureReplacerSystem.textureTypes.Keys);
             for (int i = 0; i < textureTypeKeys.Count; i++)
             {
-                m_mapTextureReplacerSystem.OpenImage(textureTypeKeys[i], m_mapTextureReplacerSystem.textureSelectData[i].Value);
+                //if filepath none, don't reapply
+                if (m_mapTextureReplacerSystem.textureSelectData[i].Value != "none")
+                {
+                    m_mapTextureReplacerSystem.OpenImage(textureTypeKeys[i], m_mapTextureReplacerSystem.textureSelectData[i].Value);
+                }
             }
 
             yield break;
