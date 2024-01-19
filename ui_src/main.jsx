@@ -286,11 +286,9 @@ const $Main = ({ react }) => {
         }
     }, [texturePack]);
 
-
-
     return <$PanelMod react={react} title="Map Texture Replacer">
-        <div className="field_MBO">
-            <div className="label_DGc label_ZLb">Base Pack:</div>
+        <div className="field_MBO" style={{ minHeight: '52.5rem', marginTop: '8rem' }}>
+            <div className="label_DGc label_ZLb">Base Pack</div>
             <div style={{ width: '68%' }}>
                 <$DropdownMod react={react} onSelectionChanged={onSelectionChanged1} selected={onSelectedPackDropdown} options={options} />
             </div>
@@ -298,18 +296,13 @@ const $Main = ({ react }) => {
 
         <TextureSelectUIs react={react} options={options} />
 
+        {/* //todo: reload slider values from packs on gameload/window reopen */}
+
         {sliders.map((slider, index) => <SliderComponent key={index} react={react} slider={slider} isRendered={slidersRendered} />)}
 
         <div className="field_MBO" style={{ minHeight: '52.5rem' }} >
             <button className="button_WWa button_SH8" onClick={handleButtonClick}>Reset Tiling</button>
         </div>
-
-        <div className="field_MBO" style={{ minHeight: '52.5rem' }} >
-            <button className="button_WWa button_SH8" onClick={() => engine.trigger('map_texture.set_active_pack_dropdown', currentpackdropdown)}>set activedropdown COC data</button>
-
-        </div>
-
-        
 
     </$PanelMod>
 }
