@@ -329,13 +329,7 @@ namespace MapTextureReplacer.Systems
 
         public void ResetTexture(string shaderProperty)
         {
-            string currentPackPath = MapTextureReplacerMod.Options.ActiveDropdown;
-            if (currentPackPath != "none")
-            {
-                OpenImage(shaderProperty, currentPackPath);
-            }
-            else
-            {
+
                 mapTextureCache.TryGetValue(shaderProperty, out Texture texture);
                 if (texture != null)
                 {
@@ -345,7 +339,6 @@ namespace MapTextureReplacer.Systems
                 int index = textureTypes.Keys.ToList().IndexOf(shaderProperty);
                 textureSelectData[index] = new KeyValuePair<string, string>("Default", "none");
                 SetTextureSelectDataJson();
-            }
         }
 
         private static bool ExtractEntry(ZipArchive archive, string entryName, string shaderProperty)

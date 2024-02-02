@@ -84,9 +84,12 @@ const TextureSelectUI = ({ react, options, label, textureType, selectedImage, fi
                     setSelectedDefault("sel-" + selectedImage);
                 }
                 else {
-                    setSelectedDefault(filePath);
+                    if (filePath != "") {
+                            console.log(textureType + "  | " + filePath);
+                            setSelectedDefault(filePath);
+                    }
                 }
-            }, 250);
+            }, 300);
         }
 
     }, [selectedImage]);
