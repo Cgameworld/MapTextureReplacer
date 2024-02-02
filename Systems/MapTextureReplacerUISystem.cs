@@ -1,4 +1,5 @@
-﻿using Colossal.UI.Binding;
+﻿using Colossal.IO.AssetDatabase.Internal;
+using Colossal.UI.Binding;
 using Game;
 using Game.Common;
 using Game.Debug;
@@ -9,6 +10,7 @@ using Game.Simulation;
 using Game.Tools;
 using Game.UI;
 using Game.Vehicles;
+using MapTextureReplacer.Helpers;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -91,15 +93,8 @@ namespace MapTextureReplacer.Systems
                 return (int)Shader.GetGlobalVector(Shader.PropertyToID(shaderProperty))[vectorIndex];
             }));
 
-            this.AddBinding(new TriggerBinding<int>("map_texture", $"{sliderName}_UpdatedValue", (tileValue) => TileVectorChange(shaderProperty, vectorIndex, tileValue)));
+            this.AddBinding(new TriggerBinding<int>("map_texture", $"{sliderName}_UpdatedValue", (tileValue) => this.systemManaged.TileVectorChange(shaderProperty, vectorIndex, tileValue)));
         }
-
-        private void TileVectorChange(string shaderProperty, int vectorIndex, int tileValue)
-        {
-            int propertyID = Shader.PropertyToID(shaderProperty);
-            Vector4 currentVector = Shader.GetGlobalVector(propertyID);
-            currentVector[vectorIndex] = tileValue;
-            Shader.SetGlobalVector(propertyID, currentVector);
-        }
+ 
     }
 }

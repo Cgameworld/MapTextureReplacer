@@ -7,6 +7,9 @@ using Game;
 using System;
 using MapTextureReplacer.Systems;
 using Unity.Entities;
+using MapTextureReplacer.Helpers;
+using System.Collections.Generic;
+using UnityEngine;
 
 namespace MapTextureReplacer
 {
@@ -29,7 +32,7 @@ namespace MapTextureReplacer
             set
             {
                 persistentSettings = value;
-                MakeSureSave = new Random().Next();
+                MakeSureSave = new System.Random().Next();
             }
         }
 
@@ -38,6 +41,9 @@ namespace MapTextureReplacer
 
         [SettingsUIHidden]
         public string TextureSelectData { get; set; }
+
+        [SettingsUIHidden]
+        public Vector4 CurrentTilingVector { get; set; }
 
         //sometimes saving doesn't happen when changing values to their default? - hack to guarantee
         [SettingsUIHidden]

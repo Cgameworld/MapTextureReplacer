@@ -7,6 +7,7 @@ using Game.UI;
 using MapTextureReplacer.Helpers;
 using Newtonsoft.Json;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
@@ -37,7 +38,9 @@ namespace MapTextureReplacer.Systems
             };
 
     static Dictionary<string, Texture> mapTextureCache = new Dictionary<string, Texture>();
-       
+        
+        private static bool isOver;
+        
         public readonly Dictionary<string, string> textureTypes = new Dictionary<string, string>() {
             {"colossal_TerrainGrassDiffuse", "Grass_BaseColor.png"},
             {"colossal_TerrainGrassNormal", "Grass_Normal.png"},
@@ -412,5 +415,30 @@ namespace MapTextureReplacer.Systems
         {
             return MapTextureReplacerMod.Options.ActiveDropdown;
         }
+
+        public void TileVectorChange(string shaderProperty, int vectorIndex, int tileValue)
+        {
+            int propertyID = Shader.PropertyToID(shaderProperty);
+            Vector4 currentVector = Shader.GetGlobalVector(propertyID);
+            currentVector[vectorIndex] = tileValue;
+            Shader.SetGlobalVector(propertyID, currentVector);
+            MapTextureReplacerMod.Options.CurrentTilingVector = currentVector;
+            if (!isOver)
+            {
+                StaticCoroutine.Start(SaveSettingsOnceAfterDelay());
+            }
+            isOver = true;
+                        
+        }
+
+        static IEnumerator SaveSettingsOnceAfterDelay()
+        {
+            //instead of saving the settings file after each value in the slider changes, save it only once after delay
+            yield return new WaitForSeconds(2f);
+            AssetDatabase.global.SaveSettingsNow();
+            isOver = false;
+            yield break;
+        }
+
     }
 }
