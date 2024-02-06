@@ -37,6 +37,11 @@ namespace MapTextureReplacer.Patches
                 return;
 
             __instance.World.GetOrCreateSystem<MapTextureReplacerInGameLoadedSystem>();
+
+            if (mode.IsEditor())
+            {
+                __instance.World.GetOrCreateSystem<MapTextureReplacerEditorUISystem>();
+            }
         }
     }
 
