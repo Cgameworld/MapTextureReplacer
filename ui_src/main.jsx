@@ -317,3 +317,5 @@ window._$hookui.registerPanel({
     icon: "Media/Game/Icons/MapTile.svg",
     component: $Main
 })
+
+export default $Main

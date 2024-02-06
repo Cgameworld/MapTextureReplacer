@@ -3,6 +3,8 @@ import { createRoot } from 'react-dom/client';
 import { createPortal } from 'react-dom';
 import { useDataUpdate, $Panel } from 'hookui-framework'
 
+import $Main from './main'
+
 const Render = ({ react }) => {
     const [showCounter, setShowCounter] = react.useState(false);
 
@@ -11,25 +13,10 @@ const Render = ({ react }) => {
             <button id="MapTextureReplacer-EditorButton" className="button_M6C button_M6C button_wKY" onClick={() => setShowCounter(prevState => !prevState)}>
                 <img className="icon_PhD" src="Media/Game/Icons/MapTile.svg" />
             </button>
-            {showCounter && <$Counter react={react} />}
+            {showCounter && <$Main react={react} />}
         </div>
     );
 };
-
-const $Counter = ({ react }) => {
-    // This sets up the currentCount as local state
-    const [currentCount, setCurrentCount] = react.useState(0)
-
-    // useDataUpdate binds the result of the GetterValueBinding to currentCount
-    useDataUpdate(react, 'vehicle_counter.current_vehicle_count', setCurrentCount)
-
-    // Below, engine.trigger is responsible for triggering the TriggerBinding in the UI System
-    return (
-        <$Panel react={react} title="OK">
-           
-        </$Panel>
-    );
-}
 
 // Injection Script
 const injectionPoint = document.getElementsByClassName('inspector-modes_ur5')[0];
