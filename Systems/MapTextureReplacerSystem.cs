@@ -4,6 +4,7 @@ using Colossal.Logging;
 using Game;
 using Game.Notifications;
 using Game.UI;
+using Game.Vehicles;
 using MapTextureReplacer.Helpers;
 using Newtonsoft.Json;
 using System;
@@ -174,11 +175,19 @@ namespace MapTextureReplacer.Systems
 
         public void SetTilingValues(string far, string close, string dirtClose)
         {
-            Shader.SetGlobalVector(Shader.PropertyToID("colossal_TerrainTextureTiling"), new Vector4(float.Parse(far), float.Parse(close), float.Parse(dirtClose), 1f));
+            //Shader.SetGlobalVector(Shader.PropertyToID("colossal_TerrainTextureTiling"), new Vector4(float.Parse(far), float.Parse(close), float.Parse(dirtClose), 1f));
+
+            TileVectorChange("colossal_TerrainTextureTiling", 0, int.Parse(far));
+            TileVectorChange("colossal_TerrainTextureTiling", 1, int.Parse(close));
+            TileVectorChange("colossal_TerrainTextureTiling", 2, int.Parse(dirtClose));
         }
         public void SetTilingValueDefault()
         {
-            Shader.SetGlobalVector(Shader.PropertyToID("colossal_TerrainTextureTiling"), new Vector4(160f, 1600f, 2400f, 1f));
+            //Shader.SetGlobalVector(Shader.PropertyToID("colossal_TerrainTextureTiling"), new Vector4(160f, 1600f, 2400f, 1f));
+
+            TileVectorChange("colossal_TerrainTextureTiling", 0, 160);
+            TileVectorChange("colossal_TerrainTextureTiling", 1, 1600);
+            TileVectorChange("colossal_TerrainTextureTiling", 2, 2400);
         }
         private static void LoadImageFile(string filePath, string textureFile, string shaderProperty)
         {

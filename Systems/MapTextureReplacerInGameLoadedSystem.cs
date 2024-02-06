@@ -38,7 +38,11 @@ namespace MapTextureReplacer.Systems
             }
 
             //apply tiling values
-            Shader.SetGlobalVector(Shader.PropertyToID("colossal_TerrainTextureTiling"), MapTextureReplacerMod.Options.CurrentTilingVector);
+
+            if (MapTextureReplacerMod.Options.CurrentTilingVector != Vector4.zeroVector)
+            {
+                Shader.SetGlobalVector(Shader.PropertyToID("colossal_TerrainTextureTiling"), MapTextureReplacerMod.Options.CurrentTilingVector);
+            }
             
 
 
