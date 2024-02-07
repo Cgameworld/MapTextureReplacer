@@ -15,14 +15,12 @@ namespace MapTextureReplacer.Locale
 
         public IEnumerable<KeyValuePair<string, string>> ReadEntries(IList<IDictionaryEntryError> errors, Dictionary<string, int> indexCounts)
         {
-            // \n for making new lines doesn't work - hacky way to make new lines
-            string persistentSettingsDescription = "persistentSettingsDescription" + new string('\r', 210) + "Note: persistentSettingsDescription";
-
             return new Dictionary<string, string>
             {
                 { m_Setting.GetSettingsLocaleID(), "Map Texture Replacer" },
-                { m_Setting.GetOptionLabelLocaleID(nameof(MapTextureReplacerOptions.ResetModSettings)), "Reset Settings" },
-                { m_Setting.GetOptionDescLocaleID(nameof(MapTextureReplacerOptions.ResetModSettings)), persistentSettingsDescription}
+                { m_Setting.GetOptionLabelLocaleID(nameof(MapTextureReplacerOptions.ResetModSettings)), "Reset All Settings" },
+                { m_Setting.GetOptionDescLocaleID(nameof(MapTextureReplacerOptions.ResetModSettings)), "Reset Mod Settings to Default Values"},
+                { m_Setting.GetOptionWarningLocaleID(nameof(MapTextureReplacerOptions.ResetModSettings)), "Are you sure you want to reset all mod settings?"}
             };
 
         }
