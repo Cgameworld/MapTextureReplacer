@@ -16,8 +16,7 @@ namespace MapTextureReplacer
     [FileLocation(nameof(MapTextureReplacer))]
     public class MapTextureReplacerOptions : ModSetting
     {
-        //private MapTextureReplacerSystem m_MapTextureReplacerSystem;
-        private bool persistentSettings;
+        private MapTextureReplacerSystem m_MapTextureReplacerSystem;
 
         public MapTextureReplacerOptions(IMod mod)
             : base(mod)
@@ -25,14 +24,20 @@ namespace MapTextureReplacer
             SetDefaults();
         }
 
-        [SettingsUISection("PersistentSettings")]
-        public bool PersistentSettings
+        [SettingsUIButton]
+        [SettingsUIConfirmation]
+        public bool ResetModSettings
         {
-            get => persistentSettings;
             set
             {
-                persistentSettings = value;
                 MakeSureSave = new System.Random().Next();
+                TextureSelectData = "[{\"Key\":\"Default\",\"Value\":\"none\"},{\"Key\":\"Default\",\"Value\":\"none\"},{\"Key\":\"Default\",\"Value\":\"none\"},{\"Key\":\"Default\",\"Value\":\"none\"},{\"Key\":\"Default\",\"Value\":\"none\"},{\"Key\":\"Default\",\"Value\":\"none\"}]";
+                ActiveDropdown = "none";
+                CurrentTilingVector = Vector4.zero;
+
+                m_MapTextureReplacerSystem = World.DefaultGameObjectInjectionWorld?.GetOrCreateSystemManaged<MapTextureReplacerSystem>();
+                m_MapTextureReplacerSystem.ChangePack("none");
+
             }
         }
 
@@ -53,7 +58,6 @@ namespace MapTextureReplacer
         public override void SetDefaults()
         {
             MakeSureSave = 0;
-            PersistentSettings = true;
         }
     }
     public class MapTextureReplacerMod : IMod

@@ -21,8 +21,8 @@ namespace MapTextureReplacer.Locale
             return new Dictionary<string, string>
             {
                 { m_Setting.GetSettingsLocaleID(), "Map Texture Replacer" },
-                { m_Setting.GetOptionLabelLocaleID(nameof(MapTextureReplacerOptions.PersistentSettings)), "Save Configurations Between Game Loads" },
-                { m_Setting.GetOptionDescLocaleID(nameof(MapTextureReplacerOptions.PersistentSettings)), persistentSettingsDescription}
+                { m_Setting.GetOptionLabelLocaleID(nameof(MapTextureReplacerOptions.ResetModSettings)), "Reset Settings" },
+                { m_Setting.GetOptionDescLocaleID(nameof(MapTextureReplacerOptions.ResetModSettings)), persistentSettingsDescription}
             };
 
         }
