@@ -23,8 +23,8 @@ const injectionPoint = document.getElementsByClassName('inspector-modes_ur5')[0]
 
 // Create a new div element
 const newDiv = document.createElement('div');
-newDiv.className = 'eeee';
-injectionPoint.appendChild(newDiv);
+newDiv.className = 'maptexturereplacer_custom_container';
+injectionPoint.insertBefore(newDiv, injectionPoint.firstChild);
 
 const root = createRoot(newDiv);
 root.render(createPortal(<Render react={React} />, newDiv));
