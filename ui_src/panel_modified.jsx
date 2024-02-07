@@ -15,7 +15,7 @@ const $CloseButton = ({ onClick }) => {
     </button>
 }
 
-const $PanelMod = ({ title, children, react, style }) => {
+const $PanelMod = ({ title, children, react, style, whenClosed }) => {
     const [position, setPosition] = react.useState({ top: 100, left: 10 });
     const [dragging, setDragging] = react.useState(false);
     const [rel, setRel] = react.useState({ x: 0, y: 0 }); // Position relative to the cursor
@@ -82,6 +82,8 @@ const $PanelMod = ({ title, children, react, style }) => {
         };
     }, [dragging]); // Only re-run the effect if dragging state changes
 
+    const handleClose = whenClosed || onClose;
+
     return (
         <div className="panel_YqS" style={draggableStyle}>
             <div className="header_H_U header_Bpo child-opacity-transition_nkS"
@@ -89,7 +91,7 @@ const $PanelMod = ({ title, children, react, style }) => {
                 <div className="title-bar_PF4">
                     <div className="icon-space_h_f"></div>
                     <div className="title_SVH title_zQN">{title}</div>
-                    <$CloseButton onClick={onClose} />
+                    <$CloseButton onClick={handleClose} />
                 </div>
             </div>
             <div className="content_XD5 content_AD7 child-opacity-transition_nkS">

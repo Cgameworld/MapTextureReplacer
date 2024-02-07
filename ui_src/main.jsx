@@ -168,7 +168,7 @@ const SliderComponent = ({ react, slider, isRendered }) => {
 }
 
 
-const $Main = ({ react }) => {
+const $Main = ({ react, onClose }) => {
 
     //get stored value in COC file and sets displayed dropdown values 
     const [getSavedActivePackDropdown, setGetSavedActivePackDropdown] = react.useState(0)
@@ -289,7 +289,7 @@ const $Main = ({ react }) => {
         }
     }, [texturePack]);
 
-    return <$PanelMod react={react} title="Map Texture Replacer">
+    return <$PanelMod react={react} title="Map Texture Replacer" whenClosed={onClose}>
         <div className="field_MBO" style={{ minHeight: '52.5rem', marginTop: '8rem' }}>
             <div className="label_DGc label_ZLb">Base Pack</div>
             <div style={{ width: '68%' }}>

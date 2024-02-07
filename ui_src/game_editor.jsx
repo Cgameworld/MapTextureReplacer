@@ -8,12 +8,16 @@ import $Main from './main'
 const Render = ({ react }) => {
     const [showCounter, setShowCounter] = react.useState(false);
 
+    const handleClose = () => {
+        setShowCounter(false);
+    };
+
     return (
         <div>
             <button id="MapTextureReplacer-EditorButton" className="button_M6C button_M6C button_wKY" onClick={() => setShowCounter(prevState => !prevState)}>
                 <img className="icon_PhD" src="Media/Game/Icons/MapTile.svg" />
             </button>
-            {showCounter && <$Main react={react} />}
+            {showCounter && <$Main react={react} onClose={handleClose}/>}
         </div>
     );
 };
