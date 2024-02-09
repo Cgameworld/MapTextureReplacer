@@ -1,10 +1,10 @@
 {
   "name": "Map_Texture_Replacer",
-  "version_number": "1.0.1",
+  "version_number": "1.0.3",
   "website_url": "https://github.com/Cgameworld/MapTextureReplacer",
   "description": "Easily replace grass, dirt and cliff map textures in your game",
   "dependencies": [
     "BepInEx-BepInExPack-5.4.2100",
-    "CaptainOfCoit-HookUI-0.3.3"
+    "Cities2Modding-HookUI-0.3.9"
   ]
 }

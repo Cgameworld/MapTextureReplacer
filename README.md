@@ -38,6 +38,9 @@ Cliff_Normal.png
 
 # Changelog
 
+## 1.0.2/1.0.3
+- Update HookUI dependency 
+
 ## 1.0.1
 - Fix for set textures resetting after save/autosave
 
