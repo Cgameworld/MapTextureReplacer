@@ -84,7 +84,6 @@ namespace MapTextureReplacer
         }
         public void OnCreateWorld(UpdateSystem updateSystem)
         {
-            UnityEngine.Debug.Log("MapTextureReplacer Options Loaded");
             Options = new(this);
             Options.RegisterInOptionsUI();
             AssetDatabase.global.LoadSettings("MapTextureOptions", Options, new MapTextureReplacerOptions(this));

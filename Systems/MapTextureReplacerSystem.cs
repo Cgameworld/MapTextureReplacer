@@ -58,13 +58,13 @@ namespace MapTextureReplacer.Systems
             //initialize textureTypes
             if (MapTextureReplacerMod.Options.TextureSelectData == null)
             {
-                UnityEngine.Debug.Log("MapTextureReplacerMod.Options.TextureSelectData == null");
+                //UnityEngine.Debug.Log("MapTextureReplacerMod.Options.TextureSelectData == null");
                 MapTextureReplacerMod.Options.ActiveDropdown = "none";
                 SetTextureSelectDataJson();
             }
             else
             {
-                UnityEngine.Debug.Log("MapTextureReplacerMod.Options.TextureSelectData NOT null" + MapTextureReplacerMod.Options.TextureSelectData);
+                //UnityEngine.Debug.Log("MapTextureReplacerMod.Options.TextureSelectData NOT null" + MapTextureReplacerMod.Options.TextureSelectData);
 
                 textureSelectData = JsonConvert.DeserializeObject<List<KeyValuePair<string, string>>>(MapTextureReplacerMod.Options.TextureSelectData);
             }
@@ -136,7 +136,7 @@ namespace MapTextureReplacer.Systems
                 else if (current.EndsWith(".json"))
                 {
                     var directory = Path.GetDirectoryName(current);
-                    UnityEngine.Debug.Log("preloaded folder? " + directory);
+                    //UnityEngine.Debug.Log("preloaded folder? " + directory);
 
                     foreach (string filePath in Directory.GetFiles(directory))
                     {
@@ -159,15 +159,13 @@ namespace MapTextureReplacer.Systems
             for (int i = 0; i < textureSelectData.Count; i++)
             {
                 textureSelectData[i] = new KeyValuePair<string, string>(key, path);
-                Debug.Log("SETSELECTIMAGEALLTEXT key: " + key + "path: " + path);
-                //textureSelectData[i].Value
             }
             SetTextureSelectDataJson();
         }
 
         private void SetTextureSelectDataJson()
         {
-            Debug.Log("SetTextureSelectDataJson() Called");
+            //Debug.Log("SetTextureSelectDataJson() Called");
             textureSelectDataJsonString = JsonConvert.SerializeObject(textureSelectData);
             MapTextureReplacerMod.Options.TextureSelectData = textureSelectDataJsonString;
             AssetDatabase.global.SaveSettingsNow();
@@ -244,8 +242,8 @@ namespace MapTextureReplacer.Systems
 
                 string labelName = importedPacks.TryGetValue(packPath, out string value) ? value :  ShortenDisplayedFilename(Path.GetFileName(packPath));
 
-                Debug.Log("packPath: " + packPath);
-                Debug.Log("importedPacks[packPath]:  " + labelName);
+               //Debug.Log("packPath: " + packPath);
+                //Debug.Log("importedPacks[packPath]:  " + labelName);
 
                 textureSelectData[index] = new KeyValuePair<string, string>(labelName, packPath);
                 SetTextureSelectDataJson();
@@ -375,8 +373,8 @@ namespace MapTextureReplacer.Systems
 
         public void SetTile(int v)
         {
-            UnityEngine.Debug.Log("SetTile Pressed!");
-            UnityEngine.Debug.Log("BF colossal_TerrainTextureTiling: " + Shader.GetGlobalVector(Shader.PropertyToID("colossal_TerrainTextureTiling")));
+            //UnityEngine.Debug.Log("SetTile Pressed!");
+            //UnityEngine.Debug.Log("BF colossal_TerrainTextureTiling: " + Shader.GetGlobalVector(Shader.PropertyToID("colossal_TerrainTextureTiling")));
             Shader.SetGlobalVector(Shader.PropertyToID("colossal_TerrainTextureTiling"), new Vector4(new System.Random().Next(0, 10000), new System.Random().Next(0, 10000), new System.Random().Next(0, 10000), 1f));
 
 
@@ -384,9 +382,6 @@ namespace MapTextureReplacer.Systems
 
         public void ResetTextureSelectData()
         {
-
-            Debug.Log("bf2: " + textureSelectDataJsonString);
-
             textureSelectData = new List<KeyValuePair<string, string>>() {
             new KeyValuePair<string, string>("Default", "none"),
             new KeyValuePair<string, string>("Default", "none"),
@@ -398,8 +393,6 @@ namespace MapTextureReplacer.Systems
 
 
             SetTextureSelectDataJson();
-
-            Debug.Log("af2: " + textureSelectDataJsonString);
         }
 
         public void SetTexturesGameLoad()
@@ -409,8 +402,6 @@ namespace MapTextureReplacer.Systems
             for (int i = 0; i < textureTypeKeys.Count; i++)
             {
                 OpenImage(textureTypeKeys[i], textureSelectData[i].Value);
-                Debug.Log("textureTypeKeys[" + i + "] = " + textureTypeKeys[i]);
-                Debug.Log("textureSelectData[" + i + "].Value = " + textureSelectData[i].Value);
             }
         }
 

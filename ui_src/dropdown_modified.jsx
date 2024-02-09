@@ -77,7 +77,7 @@ const $DropdownMod = ({ react, style, onSelectionChanged, selected, options, dro
 
     if (selectedIndex === -1) {
         // Handle error here
-        console.log('MapTextureReplacer - No matching option found for the given internal value.');
+        //console.log('MapTextureReplacer - No matching option found for the given internal value.');
         selectedIndex = 0;
     } 
 

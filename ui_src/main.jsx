@@ -18,7 +18,7 @@ const TextureSelectUI = ({ react, options, label, textureType, selectedImage, fi
 
 
     react.useEffect(() => {
-        console.log("packsrefreshedran!");
+        //console.log("packsrefreshedran!");
         let newItem = {
             "value": "loadimage",
             "label": "Load Image..."
@@ -40,18 +40,18 @@ const TextureSelectUI = ({ react, options, label, textureType, selectedImage, fi
             engine.trigger(`map_texture.reset_texture_${textureType}`);
         }
         else if (selection.startsWith("sel-")) {
-            console.log("temp import entry selected? selection: " + selection);
+            //console.log("temp import entry selected? selection: " + selection);
             engine.trigger(`map_texture.open_image_${textureType}`, selection.replace("sel-",""));
         }
         else {
-            console.log("dropdownval: " + selection);
+            //console.log("dropdownval: " + selection);
             engine.trigger(`map_texture.open_image_${textureType}`, selection);
         }
     };
 
     //make new entry for imported image and select it
     react.useEffect(() => {
-        console.log("selectImage " + selectedImage);
+        //console.log("selectImage " + selectedImage);
         if (addItemLocalImage) {
             if (selectedImage != "Select Image") {
                 let updatedOptions = localOptions.filter(item => !item.value.startsWith("sel-"));
@@ -85,7 +85,7 @@ const TextureSelectUI = ({ react, options, label, textureType, selectedImage, fi
                 }
                 else {
                     if (filePath != "") {
-                            console.log(textureType + "  | " + filePath);
+                            //console.log(textureType + "  | " + filePath);
                             setSelectedDefault(filePath);
                     }
                 }
@@ -124,8 +124,8 @@ const TextureSelectUIs = ({ react, options }) => {
     react.useEffect(() => {
         if (getTextureSelectData) {
             var newitems = JSON.parse(getTextureSelectData);
-            console.log("getTextureSelectData updated!")
-            console.log(newitems);
+            //console.log("getTextureSelectData updated!")
+            //console.log(newitems);
 
             const newTextureTypes = textureTypes.map((textureType, index) => {
                 return {
@@ -135,7 +135,7 @@ const TextureSelectUIs = ({ react, options }) => {
                 };
             });
 
-            console.log(newTextureTypes);
+            //console.log(newTextureTypes);
             setTextureTypes(newTextureTypes);
         }
     }, [getTextureSelectData]);
@@ -175,7 +175,7 @@ const $Main = ({ react, onClose }) => {
     useDataUpdate(react, 'map_texture.get_active_pack_dropdown', setGetSavedActivePackDropdown)
     react.useEffect(() => {
         currentpackdropdown = getSavedActivePackDropdown;
-        console.log("getSavedActivePackDropdown " + getSavedActivePackDropdown);
+        //console.log("getSavedActivePackDropdown " + getSavedActivePackDropdown);
     }, [getSavedActivePackDropdown]);
 
 
@@ -236,7 +236,7 @@ const $Main = ({ react, onClose }) => {
     const [onSelectedPackDropdown, setOnSelectedPackDropdown] = react.useState(options[0].value)
 
     react.useEffect(() => {
-        console.log("packsrefreshedran main!");
+        //console.log("packsrefreshedran main!");
         //doesn't work immediately
         setTimeout(() => {
             setOnSelectedPackDropdown(currentpackdropdown);
@@ -280,7 +280,7 @@ const $Main = ({ react, onClose }) => {
                 }
                 return prevOptions;
             });
-            console.log(options);
+            //console.log(options);
             if (!zipFileSelected) {
                 onSelectionChanged1(texturePack);
             }
