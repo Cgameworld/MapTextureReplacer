@@ -115,7 +115,7 @@
 		as long as we're not in CI
 	-->
 	<Target Name="PostBuild" AfterTargets="PostBuildEvent" Condition="'$(CI)' != 'true'">
-		<Exec Command="if not exist &quot;$(Build_Location)\BepInEx\plugins\$(ProjectName)&quot; mkdir &quot;$(Build_Location)\BepInEx\plugins\$(ProjectName)&quot;&#xD;&#xA;copy /Y &quot;$(TargetDir)0Harmony.dll&quot; &quot;$(Build_Location)\BepInEx\plugins\$(ProjectName)\0Harmony.dll&quot;&#xD;&#xA;copy /Y &quot;$(TargetDir)$(ProjectName).dll&quot; &quot;$(Build_Location)\BepInEx\plugins\$(ProjectName)\$(ProjectName).dll&quot;" />
+		<Exec Command="if not exist &quot;$(Build_Location)\BepInEx\plugins\$(ProjectName)&quot; mkdir &quot;$(Build_Location)\BepInEx\plugins\$(ProjectName)&quot;&#xD;&#xA;copy /Y &quot;$(TargetDir)$(ProjectName).dll&quot; &quot;$(Build_Location)\BepInEx\plugins\$(ProjectName)\$(ProjectName).dll&quot;" />
 	</Target>
 	<Target Name="PreBuild" BeforeTargets="PreBuildEvent">
 	  <Exec Command="npm install &amp;&amp; npx esbuild ui_src/main.jsx --bundle --outfile=dist/bundle.js &amp;&amp; npx esbuild ui_src/game_editor.jsx --bundle --outfile=dist/game_editor.compiled.js" />
