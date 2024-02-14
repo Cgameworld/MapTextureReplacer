@@ -15,7 +15,7 @@ const Render = ({ react }) => {
     return (
         <div>
             <button id="MapTextureReplacer-EditorButton" className="button_M6C button_M6C button_wKY" onClick={() => setShowCounter(prevState => !prevState)}>
-                <img className="icon_PhD" src="Media/Game/Icons/MapTile.svg" />
+                <img className="icon_PhD" src="coui://mtr/map-icon.svg" />
             </button>
             {showCounter && <$Main react={react} onClose={handleClose}/>}
         </div>

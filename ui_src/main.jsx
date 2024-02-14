@@ -314,7 +314,7 @@ const $Main = ({ react, onClose }) => {
 window._$hookui.registerPanel({
     id: "example.map_texture",
     name: "Map Texture Replacer",
-    icon: "Media/Game/Icons/MapTile.svg",
+    icon: "coui://mtr/map-icon.svg",
     component: $Main
 })
 

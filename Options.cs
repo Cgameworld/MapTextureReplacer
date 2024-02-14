@@ -10,6 +10,9 @@ using Unity.Entities;
 using MapTextureReplacer.Helpers;
 using System.Collections.Generic;
 using UnityEngine;
+using Game.UI;
+using System.Reflection;
+using System.IO;
 
 namespace MapTextureReplacer
 {
@@ -84,6 +87,10 @@ namespace MapTextureReplacer
         }
         public void OnCreateWorld(UpdateSystem updateSystem)
         {
+            GameUIResourceHandler uiResourceHandler = GameManager.instance.userInterface.view.uiSystem.resourceHandler as GameUIResourceHandler;
+            uiResourceHandler?.HostLocationsMap.Add("mtr", new System.Collections.Generic.List<string> { Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location) });
+            Debug.Log("Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location): " + Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location));
+
             Options = new(this);
             Options.RegisterInOptionsUI();
             AssetDatabase.global.LoadSettings("MapTextureOptions", Options, new MapTextureReplacerOptions(this));
