@@ -6,7 +6,7 @@ This mod allows you to easily replace grass, dirt and cliff map textures in your
 
 The mod is intended to be used with map texture packs, go to the Map Texture Packs section to find packs to download. 
 
-This mod has many features including:
+Features include:
 - Dropdowns to easily change packs or individual textures
 - Persistent settings between game loads
 - Texture tiling adjustments
