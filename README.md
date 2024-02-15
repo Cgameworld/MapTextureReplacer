@@ -6,7 +6,7 @@ This mod allows you to easily replace grass, dirt and cliff map textures in your
 
 The mod is intended to be used with map texture packs, go to the Map Texture Packs section to find packs to download. 
 
-This mod has many features including:
+Features include:
 - Dropdowns to easily change packs or individual textures
 - Persistent settings between game loads
 - Texture tiling adjustments
@@ -22,11 +22,6 @@ This mod takes advantage of the fact that map textures are stored as standard un
 # Installation
 1) Download the mod from either [thunderstore.io](https://thunderstore.io/c/cities-skylines-ii/p/Cgameworld/Map_Texture_Replacer) or from the mod's releases page on [GitHub](https://github.com/Cgameworld/MapTextureReplacer/releases) 
 2) If installing installing manually, place MapTextureReplacer folder inside `BepInEx/plugins` and optionally download map themes from the thunderstore and place inside `BepInEx/plugins`
-
-# Instructions
-
-1. To open, click on the HookUI button near the top left of the screen and select the mod from the dropdown
-2. Click "Load Texture Pack" to load a texture pack or click on "Select Image" to replace an individual texture. 
 
 # Map Texture Packs
 
