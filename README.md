@@ -1,12 +1,19 @@
 # Map Texture Replacer
 
-![Mod Window Opened](https://raw.githubusercontent.com/Cgameworld/MapTextureReplacer/master/screenshot.jpg)
+![Mod Window Opened](https://raw.githubusercontent.com/Cgameworld/ModListingImageStore/main/maptexturereplacer-preview.gif)
 
 This mod allows you to easily replace grass, dirt and cliff map textures in your game.
 
-This mod takes advantage of the fact that map textures are stored as standard unity textures, making them straightforward to read and set. 
+The mod is intended to be used with map texture packs, go to the Map Texture Packs section to find packs to download. 
 
-Hopefully when the full official editor releases, it will include map theming tools, but in the meantime this mod makes basic theming possible.
+This mod has many features including:
+- Dropdowns to easily change packs or individual textures
+- Persistent settings between game loads
+- Texture tiling adjustments
+- Replacement of individual textures with any jpg/png from your computer 
+- Map editor support  
+
+This mod takes advantage of the fact that map textures are stored as standard unity textures, making them straightforward to read and set. 
 
 # Requirements
 - BepInEx 5
@@ -14,42 +21,26 @@ Hopefully when the full official editor releases, it will include map theming to
 
 # Installation
 1) Download the mod from either [thunderstore.io](https://thunderstore.io/c/cities-skylines-ii/p/Cgameworld/Map_Texture_Replacer) or from the mod's releases page on [GitHub](https://github.com/Cgameworld/MapTextureReplacer/releases) 
-2) If installing from GitHub, place MapTextureReplacer folder inside `BepInEx/plugins` and optionally download the example texture pack DesertMapTheme.zip
+2) If installing installing manually, place MapTextureReplacer folder inside `BepInEx/plugins` and optionally download map themes from the thunderstore and place inside `BepInEx/plugins`
 
 # Instructions
 
 1. To open, click on the HookUI button near the top left of the screen and select the mod from the dropdown
 2. Click "Load Texture Pack" to load a texture pack or click on "Select Image" to replace an individual texture. 
 
-# Texture Packs
+# Map Texture Packs
 
-This mod has support to load in texture packs via zip files. This mod includes one example texture pack, a desert map theme.
+Download texture packs here:
+
+[Desert Map Theme](https://thunderstore.io/c/cities-skylines-ii/p/Cgameworld/Desert_Map_Theme/)
+
+[Home of Chamëleon](https://thunderstore.io/c/cities-skylines-ii/p/Cgameworld/Home_Of_Chamëleon/)
 
 The vanilla game uses 4096x4096 sized map textures by default for grass, 2048x2048 for dirt and cliff though smaller scaled textures will successfully replace. For example, the example desert map theme pack uses 1024x1024 sized textures.
 
-To make your own pack, just compress some or all of the following filenames into a zip file
-
->Grass_BaseColor.png   
-Grass_Normal.png  
-Dirt_BaseColor.png  
-Dirt_Normal.png  
-Cliff_BaseColor.png  
-Cliff_Normal.png 
-
 # Changelog
 
-## 1.0.2/1.0.3
-- Update HookUI dependency 
-
-## 1.0.1
-- Fix for set textures resetting after save/autosave
-
-## 1.0.0 
-- Initial Release
-
-# Disclaimer
-
-This mod is experimental, so things might not work as expected. No settings are saved yet, so any changes are gone when you quit the game
+See the listing changelog tab
 
 # Acknowledgements
 

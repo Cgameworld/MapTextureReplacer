@@ -285,7 +285,7 @@ namespace MapTextureReplacer.Systems
         public void OpenTextureZip(string zipFilePath)
         {
             //var zipFilePath = OpenFileDialog.ShowDialog("Zip archives\0*.zip\0");
-
+            
             if (!string.IsNullOrEmpty(zipFilePath))
             {
                 using (ZipArchive archive = ZipFile.Open(zipFilePath, ZipArchiveMode.Read))
@@ -305,6 +305,7 @@ namespace MapTextureReplacer.Systems
                     if (!ExtractEntry(archive, "Cliff_Normal.png", "colossal_TerrainRockNormal"))
                         notFoundFiles.Add("Cliff_Normal.png");
 
+                    //change this!
                     if (notFoundFiles.Count > 0)
                     {
                         string outputError = "Files not found in .zip file:\n";
@@ -316,6 +317,8 @@ namespace MapTextureReplacer.Systems
 
                         throw new Exception(outputError + "\n\n");
                     }
+
+                    //add json file reading??
                 }
 
             }
