@@ -1,5 +1,8 @@
 # Changelog
 
+## 2.0.1
+- readme update
+
 ## 2.0
 - automatically loads packs from the bepinex plugin folder directly
 - dropdowns to easily change packs or individual textures

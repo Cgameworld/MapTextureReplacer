@@ -1,6 +1,6 @@
 {
   "name": "Map_Texture_Replacer",
-  "version_number": "2.0.0",
+  "version_number": "2.0.1",
   "website_url": "https://github.com/Cgameworld/MapTextureReplacer",
   "description": "Easily replace grass, dirt and cliff map textures in your game",
   "dependencies": [
