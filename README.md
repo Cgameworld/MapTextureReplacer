@@ -29,7 +29,7 @@ Download texture packs here:
 
 [Desert Map Theme](https://thunderstore.io/c/cities-skylines-ii/p/Cgameworld/Desert_Map_Theme/)
 
-[Home of Chamëleon](https://thunderstore.io/c/cities-skylines-ii/p/Cgameworld/Home_Of_Chamëleon/)
+[Home of ChamÃ«leon](https://thunderstore.io/c/cities-skylines-ii/p/Cgameworld/Home_Of_ChamÃ«leon/)
 
 The vanilla game uses 4096x4096 sized map textures by default for grass, 2048x2048 for dirt and cliff though smaller scaled textures will successfully replace. For example, the example desert map theme pack uses 1024x1024 sized textures.
 
