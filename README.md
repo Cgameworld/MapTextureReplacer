@@ -10,8 +10,8 @@ Features include:
 - Dropdowns to easily change packs or individual textures
 - Persistent settings between game loads
 - Texture tiling adjustments
-- Replacement of individual textures with any jpg/png from your computer 
-- Map editor support  
+- Replacement of individual textures with any jpg/png from your computer
+- Map editor support
 
 This mod takes advantage of the fact that map textures are stored as standard unity textures, making them straightforward to read and set. 
 
