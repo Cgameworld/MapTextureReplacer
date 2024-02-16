@@ -4,7 +4,7 @@
 
 This mod allows you to easily replace grass, dirt and cliff map textures in your game.
 
-The mod is intended to be used with map texture packs, go to the Map Texture Packs section to find packs to download. 
+The mod is intended to be used with map texture packs, go to the Map Texture Packs section to find packs on thunderstore to download. 
 
 Features include:
 - Dropdowns to easily change packs or individual textures
