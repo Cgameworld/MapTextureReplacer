@@ -409,9 +409,16 @@ namespace MapTextureReplacer.Systems
         }
 
             public void SetActivePackDropdown(string data)
-        { 
-            MapTextureReplacerMod.Options.ActiveDropdown = data;
-            AssetDatabase.global.SaveSettingsNow();
+        {
+            try
+            {
+                MapTextureReplacerMod.Options.ActiveDropdown = data;
+                AssetDatabase.global.SaveSettingsNow();
+            }
+            catch
+            {
+                Debug.Log("ActivePackDropdown Call Cancelled");
+            }
         }
 
         public string GetActivePackDropdown()

@@ -6,9 +6,10 @@ using MapTextureReplacer.Systems;
 using System;
 using System.Collections.Generic;
 using System.Text;
+using Unity.Entities;
 
 namespace MapTextureReplacer.Patches
-{   
+{
     [HarmonyPatch(typeof(SystemOrder), nameof(SystemOrder.Initialize))]
     internal class InjectSystemsPatch
     {
@@ -27,14 +28,14 @@ namespace MapTextureReplacer.Patches
     {
         static void Postfix(AudioManager __instance, Colossal.Serialization.Entities.Purpose purpose, GameMode mode)
         {
+
             if (!mode.IsGameOrEditor())
                 return;
-
-            __instance.World.GetOrCreateSystem<MapTextureReplacerInGameLoadedSystem>();
+            World.DefaultGameObjectInjectionWorld?.GetOrCreateSystemManaged<MapTextureReplacerInGameLoadedSystem>().RunAction();
 
             if (mode.IsEditor())
             {
-                __instance.World.GetOrCreateSystem<MapTextureReplacerEditorUISystem>();
+                World.DefaultGameObjectInjectionWorld?.GetOrCreateSystemManaged<MapTextureReplacerEditorUISystem>().CreateAssetEditorButton();
             }
         }
     }

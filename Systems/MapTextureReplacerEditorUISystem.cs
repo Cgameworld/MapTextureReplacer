@@ -16,7 +16,6 @@ namespace MapTextureReplacer.Systems
         protected override void OnCreate()
         {
             base.OnCreate();
-            CreateAssetEditorButton();
         }
 
         public void CreateAssetEditorButton()

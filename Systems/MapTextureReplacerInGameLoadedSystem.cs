@@ -14,13 +14,17 @@ namespace MapTextureReplacer.Systems
     {
         private MapTextureReplacerSystem m_mapTextureReplacerSystem;
         protected override void OnCreate()
+        {          
+        }
+
+        public void RunAction()
         {
             m_mapTextureReplacerSystem = World.GetOrCreateSystemManaged<MapTextureReplacerSystem>();
             base.OnCreate();
 
             StaticCoroutine.Start(ReapplyTexture(m_mapTextureReplacerSystem));
         }
-
+            
         static IEnumerator ReapplyTexture(MapTextureReplacerSystem m_mapTextureReplacerSystem)
         {
             //wait for the game world textures to show?
