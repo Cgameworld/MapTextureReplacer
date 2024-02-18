@@ -4,7 +4,7 @@
 
 This mod allows you to easily replace grass, dirt and cliff map textures in your game.
 
-The mod is intended to be used with map texture packs, go to the Map Texture Packs section to find packs on Thunderstore to download. 
+The mod is intended to be used with map texture packs, view this [modpack](https://thunderstore.io/c/cities-skylines-ii/p/Cgameworld/Map_Texture_Packs_Modpack/) for a list of all available map texture packs.
 
 Features include:
 - Dropdowns to easily change packs or individual textures
@@ -24,12 +24,13 @@ This mod takes advantage of the fact that map textures are stored as standard un
 2) If installing manually, place the MapTextureReplacer folder inside `BepInEx/plugins` and optionally download map themes from Thunderstore and also place them inside `BepInEx/plugins`
 
 # Map Texture Packs
-
-See this modpack for a list of all available map texture packs: 
-
-[Map Texture Packs Modpack](https://thunderstore.io/c/cities-skylines-ii/p/Cgameworld/Map_Texture_Packs_Modpack/)
+[List of Available Map Texture Packs](https://thunderstore.io/c/cities-skylines-ii/p/Cgameworld/Map_Texture_Packs_Modpack/)
 
 The vanilla game uses 4096x4096 sized map textures by default for grass, 2048x2048 for dirt and cliff though smaller scaled textures will successfully replace. For example, the example desert map theme pack uses 1024x1024 sized textures.
+
+# Video Walkthrough
+
+[![Map Texture Replacer Mod Tutorial - YouTube](https://raw.githubusercontent.com/Cgameworld/ModListingImageStore/main/yt-mtr-thumbnail-screenshot.jpg)](https://youtu.be/upqli5BWhro)
 
 # Changelog
 

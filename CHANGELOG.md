@@ -1,14 +1,14 @@
 # Changelog
 
 ## 2.0.1
-- readme update
+- Fix for textures resetting when loading another save in the same session 
 
 ## 2.0
-- automatically loads packs from the bepinex plugin folder directly
-- dropdowns to easily change packs or individual textures
-- persistent settings between game loads
-- tiling adjustments
-- dedicated map editor support/button 
+- Automatically loads packs from the bepinex plugin folder directly
+- Dropdowns to easily change packs or individual textures
+- Persistent settings between game loads
+- Tiling adjustments
+- Dedicated map editor support/button 
 
 ## 1.0.2/1.0.3
 - Update HookUI dependency 
