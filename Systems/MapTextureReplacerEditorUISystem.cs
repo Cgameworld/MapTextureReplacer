@@ -23,6 +23,9 @@ namespace MapTextureReplacer.Systems
             UnityEngine.Debug.Log("CreateAssetEditorButton() Loaded!");
             m_UIView = GameManager.instance.userInterface.view.View;
 
+            //cleanup injected react code if it exists
+            m_UIView.ExecuteScript("document.querySelector(\".maptexturereplacer_custom_container\")?.parentNode?.removeChild(document.querySelector(\".maptexturereplacer_custom_container\"));");
+
             //load custom react code
             using Stream embeddedStream = Assembly.GetExecutingAssembly().GetManifestResourceStream("MapTextureReplacer.dist.game_editor.compiled.js");
             using System.IO.StreamReader reader = new(embeddedStream);
