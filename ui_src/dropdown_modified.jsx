@@ -94,7 +94,7 @@ const $DropdownMod = ({ react, style, onSelectionChanged, selected, options, dro
                 <div className="dropdown-menu_jf2 dropdown-menu_Swd">
                     {
                         options.map((option) => (
-                            <button key={option.value} className="dropdown-item_sZT selected" style={{ padding: '5rem', height: 'auto' }} onClick={() => changeSelection(option.value)}>{option.label}</button>
+                            <button key={option.value} className="dropdown-item_sZT selected" style={{ padding: '5rem', height: 'auto', whiteSpace: 'pre-wrap' }} onClick={() => changeSelection(option.value)}>{option.label}</button>
                         ))
                     }
                 </div>
