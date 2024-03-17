@@ -1,5 +1,9 @@
 # Changelog
 
+## 2.0.2
+- Fix for pack name text overflowing inside UI dropdown
+- Fix for duplicate icon spawning bug
+
 ## 2.0.1
 - Fix for textures resetting when loading another save in the same session 
 
