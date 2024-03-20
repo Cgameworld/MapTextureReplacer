@@ -6,11 +6,10 @@ using System.Collections.Generic;
 using System.Text;
 using Unity.Entities.UniversalDelegates;
 using UnityEngine;
-using UnityEngine.InputSystem;
 
 namespace MapTextureReplacer.Systems
 {
-    public class MapTextureReplacerInGameLoadedSystem : GameSystemBase
+    public partial class MapTextureReplacerInGameLoadedSystem : GameSystemBase
     {
         private MapTextureReplacerSystem m_mapTextureReplacerSystem;
         protected override void OnCreate()
@@ -43,9 +42,9 @@ namespace MapTextureReplacer.Systems
 
             //apply tiling values
 
-            if (MapTextureReplacerMod.Options.CurrentTilingVector != Vector4.zeroVector)
+            if (Mod.Options.CurrentTilingVector != Vector4.zero)
             {
-                Shader.SetGlobalVector(Shader.PropertyToID("colossal_TerrainTextureTiling"), MapTextureReplacerMod.Options.CurrentTilingVector);
+                Shader.SetGlobalVector(Shader.PropertyToID("colossal_TerrainTextureTiling"), Mod.Options.CurrentTilingVector);
             }
             
 

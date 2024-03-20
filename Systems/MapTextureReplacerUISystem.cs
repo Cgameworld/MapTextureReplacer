@@ -19,7 +19,7 @@ using UnityEngine;
 
 namespace MapTextureReplacer.Systems
 {
-    public class MapTextureReplacerUISystem : UISystemBase
+    public partial class MapTextureReplacerUISystem : UISystemBase
     {
         public int current_vehicle_count = 0;
         public MapTextureReplacerSystem systemManaged;

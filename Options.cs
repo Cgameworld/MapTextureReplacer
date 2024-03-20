@@ -60,40 +60,4 @@ namespace MapTextureReplacer
             MakeSureSave = 0;
         }
     }
-    public class MapTextureReplacerMod : IMod
-    {
-        public static MapTextureReplacerOptions Options { get; set; }
-
-        public static MapTextureReplacerMod Instance { get; private set; }
-
-        public void OnDisable()
-        {
-        }
-
-        public void OnDispose()
-        {
-        }
-
-        public void OnEnable()
-        {
-        }
-
-        public void OnLoad()
-        {
-            Instance = this;
-        }
-        public void OnCreateWorld(UpdateSystem updateSystem)
-        {
-            Options = new(this);
-            Options.RegisterInOptionsUI();
-            AssetDatabase.global.LoadSettings("MapTextureOptions", Options, new MapTextureReplacerOptions(this));
-
-            foreach (var lang in GameManager.instance.localizationManager.GetSupportedLocales())
-            {
-                GameManager.instance.localizationManager.AddSource(lang, new LocaleEN(Options));
-            }
-
-            AssetDatabase.global.SaveSettingsNow();
-        }
-    }
 }

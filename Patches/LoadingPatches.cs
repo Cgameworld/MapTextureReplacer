@@ -17,7 +17,6 @@ namespace MapTextureReplacer.Patches
         [HarmonyBefore(new string[] { "Gooee_Cities2Harmony" })]
         static void Postfix(UpdateSystem updateSystem)
         {
-            MapTextureReplacerMod.Instance.OnCreateWorld(updateSystem);
             updateSystem.UpdateAt<MapTextureReplacerSystem>(SystemUpdatePhase.PostSimulation);
             updateSystem.UpdateAt<MapTextureReplacerUISystem>(SystemUpdatePhase.UIUpdate);
         }

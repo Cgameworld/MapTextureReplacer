@@ -9,9 +9,9 @@ using System.Text;
 
 namespace MapTextureReplacer.Systems
 {
-    public class MapTextureReplacerEditorUISystem : GameSystemBase
+    public partial class MapTextureReplacerEditorUISystem : GameSystemBase
     {
-        private View m_UIView;
+        private View? m_UIView;
 
         protected override void OnCreate()
         {

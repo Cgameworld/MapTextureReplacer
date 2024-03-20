@@ -10,18 +10,16 @@ using Newtonsoft.Json;
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Globalization;
 using System.IO;
 using System.IO.Compression;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using UnityEngine;
-using UnityEngine.InputSystem;
 
 namespace MapTextureReplacer.Systems
 {
-    public class MapTextureReplacerSystem : GameSystemBase
+    public partial class MapTextureReplacerSystem : GameSystemBase
     {
         public string PackImportedText = "";
 
@@ -55,18 +53,21 @@ namespace MapTextureReplacer.Systems
         {
             base.OnCreate();
 
+            Mod.log.Info("test");
+            Mod.log.Error("testerror");
+
             //initialize textureTypes
-            if (MapTextureReplacerMod.Options.TextureSelectData == null)
+            if (Mod.Options.TextureSelectData == null)
             {
                 //UnityEngine.Debug.Log("MapTextureReplacerMod.Options.TextureSelectData == null");
-                MapTextureReplacerMod.Options.ActiveDropdown = "none";
+                Mod.Options.ActiveDropdown = "none";
                 SetTextureSelectDataJson();
             }
             else
             {
-                //UnityEngine.Debug.Log("MapTextureReplacerMod.Options.TextureSelectData NOT null" + MapTextureReplacerMod.Options.TextureSelectData);
+                //UnityEngine.Debug.Log("Mod.Options.TextureSelectData NOT null" + Mod.Options.TextureSelectData);
 
-                textureSelectData = JsonConvert.DeserializeObject<List<KeyValuePair<string, string>>>(MapTextureReplacerMod.Options.TextureSelectData);
+                textureSelectData = JsonConvert.DeserializeObject<List<KeyValuePair<string, string>>>(Mod.Options.TextureSelectData);
             }
 
 
@@ -167,7 +168,7 @@ namespace MapTextureReplacer.Systems
         {
             //Debug.Log("SetTextureSelectDataJson() Called");
             textureSelectDataJsonString = JsonConvert.SerializeObject(textureSelectData);
-            MapTextureReplacerMod.Options.TextureSelectData = textureSelectDataJsonString;
+            Mod.Options.TextureSelectData = textureSelectDataJsonString;
             AssetDatabase.global.SaveSettingsNow();
         }
 
@@ -335,7 +336,7 @@ namespace MapTextureReplacer.Systems
         private static void LoadTextureInGame(string shaderProperty, byte[] fileData)
         {
             Texture2D newTexture = new Texture2D(4096, 4096);
-            newTexture.LoadImage(fileData);
+            newTexture.LoadRawTextureData(fileData);
             Shader.SetGlobalTexture(Shader.PropertyToID(shaderProperty), newTexture);
             Debug.Log("Replaced " + shaderProperty + " ingame");
         }
@@ -412,7 +413,7 @@ namespace MapTextureReplacer.Systems
         {
             try
             {
-                MapTextureReplacerMod.Options.ActiveDropdown = data;
+                Mod.Options.ActiveDropdown = data;
                 AssetDatabase.global.SaveSettingsNow();
             }
             catch
@@ -423,7 +424,7 @@ namespace MapTextureReplacer.Systems
 
         public string GetActivePackDropdown()
         {
-            return MapTextureReplacerMod.Options.ActiveDropdown;
+            return Mod.Options.ActiveDropdown;
         }
 
         public void TileVectorChange(string shaderProperty, int vectorIndex, int tileValue)
@@ -432,7 +433,7 @@ namespace MapTextureReplacer.Systems
             Vector4 currentVector = Shader.GetGlobalVector(propertyID);
             currentVector[vectorIndex] = tileValue;
             Shader.SetGlobalVector(propertyID, currentVector);
-            MapTextureReplacerMod.Options.CurrentTilingVector = currentVector;
+            Mod.Options.CurrentTilingVector = currentVector;
             if (!isOver)
             {
                 StaticCoroutine.Start(SaveSettingsOnceAfterDelay());
