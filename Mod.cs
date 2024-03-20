@@ -6,6 +6,7 @@ using MapTextureReplacer.Locale;
 using HarmonyLib;
 using Colossal.Logging;
 using System.IO;
+using MapTextureReplacer.Systems;
 
 namespace MapTextureReplacer
 {
@@ -14,7 +15,9 @@ namespace MapTextureReplacer
         private Harmony? _harmony;
         public static MapTextureReplacerOptions? Options { get; set; }
 
-        public static ILog log = LogManager.GetLogger($"{nameof(MapTextureReplacer)}.{nameof(Mod)}").SetShowsErrorsInUI(false);
+        public static ILog log = LogManager.GetLogger($"{nameof(MapTextureReplacer)}.{nameof(Mod)}").SetShowsErrorsInUI(true);
+
+        public static string ModPath = "";
 
         public void OnLoad(UpdateSystem updateSystem)
         {
@@ -31,8 +34,11 @@ namespace MapTextureReplacer
 
             if (GameManager.instance.modManager.TryGetExecutableAsset(this, out var asset))
             {
-                log.Info("DLLPATH!" + Path.GetDirectoryName(asset.path));
+                ModPath = asset.path; 
             }
+
+            updateSystem.UpdateAt<MapTextureReplacerSystem>(SystemUpdatePhase.PostSimulation);
+            updateSystem.UpdateAt<MapTextureReplacerUISystem>(SystemUpdatePhase.UIUpdate);
         }
 
         public void OnDispose()

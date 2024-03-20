@@ -24,6 +24,14 @@
 	<!--Imports must be after PropertyGroup block-->
 	<Import Project="$([System.Environment]::GetEnvironmentVariable('CSII_TOOLPATH', 'EnvironmentVariableTarget.User'))\Mod.props" />
 	<Import Project="$([System.Environment]::GetEnvironmentVariable('CSII_TOOLPATH', 'EnvironmentVariableTarget.User'))\Mod.targets" />
+	<ItemGroup>
+	  <None Remove="dist\game_editor.compiled.js" />
+	  <None Remove="ui_src\game_editor.jsx" />
+	</ItemGroup>
+	<ItemGroup>
+	  <EmbeddedResource Include="dist\game_editor.compiled.js" />
+	  <EmbeddedResource Include="ui_src\game_editor.jsx" />
+	</ItemGroup>
 
 	<ItemGroup>
 		<Reference Include="cohtml.Net">

@@ -1,5 +1,7 @@
 import React from 'react';
-import { useDataUpdate } from 'hookui-framework'
+
+import useDataUpdate from './use-data-update';
+
 import $PanelMod from './panel_modified'
 import $SliderMod from './slider_modified'
 import $DropdownMod from './dropdown_modified'
@@ -289,7 +291,7 @@ const $Main = ({ react, onClose }) => {
         }
     }, [texturePack]);
 
-    return <$PanelMod react={react} title="Map Texture Replacer" whenClosed={onClose}>
+    return <$PanelMod react={react} title="Map Texture Replacer PDXM ALPHA" whenClosed={onClose}>
         <div className="field_MBO" style={{ minHeight: '52.5rem', marginTop: '8rem' }}>
             <div className="label_DGc label_ZLb">Base Pack</div>
             <div style={{ width: '68%' }}>
@@ -298,7 +300,6 @@ const $Main = ({ react, onClose }) => {
         </div>
 
         <TextureSelectUIs react={react} options={options} />
-
         {/* //todo: reload slider values from packs on gameload/window reopen */}
 
         {sliders.map((slider, index) => <SliderComponent key={index} react={react} slider={slider} isRendered={slidersRendered} />)}
@@ -310,6 +311,7 @@ const $Main = ({ react, onClose }) => {
     </$PanelMod>
 }
 
+/*
 //Registering the panel with HookUI so it shows up in the menu
 window._$hookui.registerPanel({
     id: "example.map_texture",
@@ -317,5 +319,6 @@ window._$hookui.registerPanel({
     icon: "Media/Game/Icons/MapTile.svg",
     component: $Main
 })
+*/
 
 export default $Main

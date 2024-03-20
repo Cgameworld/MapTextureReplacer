@@ -3,6 +3,7 @@ using Colossal.Json;
 using Colossal.Logging;
 using Game;
 using Game.Notifications;
+using Game.SceneFlow;
 using Game.UI;
 using Game.Vehicles;
 using MapTextureReplacer.Helpers;
@@ -80,7 +81,7 @@ namespace MapTextureReplacer.Systems
 
             List<string> texturePackFolders = new List<string>();
 
-            DirectoryInfo modsFolderDirectory = Directory.GetParent(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location));
+            DirectoryInfo modsFolderDirectory = Directory.GetParent(Mod.ModPath);
 
             //find folders that contain pack config json files
             foreach (string filePath in Directory.GetFiles(modsFolderDirectory.FullName, "*.json", SearchOption.AllDirectories))

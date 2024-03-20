@@ -48,7 +48,7 @@ namespace MapTextureReplacer.Helpers
             ofn.maxFile = ofn.file.Length;
             ofn.fileTitle = new string(new char[64]);
             ofn.maxFileTitle = ofn.fileTitle.Length;
-            ofn.initialDir = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
+            ofn.initialDir = Path.GetDirectoryName(Mod.ModPath);
             ofn.title = "Open File";
             ofn.defExt = defaultExt;
 
