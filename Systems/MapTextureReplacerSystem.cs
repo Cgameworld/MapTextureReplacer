@@ -1,11 +1,5 @@
 ﻿using Colossal.IO.AssetDatabase;
-using Colossal.Json;
-using Colossal.Logging;
 using Game;
-using Game.Notifications;
-using Game.SceneFlow;
-using Game.UI;
-using Game.Vehicles;
 using MapTextureReplacer.Helpers;
 using Newtonsoft.Json;
 using System;
@@ -14,8 +8,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.IO.Compression;
 using System.Linq;
-using System.Reflection;
-using System.Runtime.CompilerServices;
 using UnityEngine;
 
 namespace MapTextureReplacer.Systems
@@ -337,7 +329,7 @@ namespace MapTextureReplacer.Systems
         private static void LoadTextureInGame(string shaderProperty, byte[] fileData)
         {
             Texture2D newTexture = new Texture2D(4096, 4096);
-            newTexture.LoadRawTextureData(fileData);
+            newTexture.LoadImage(fileData);
             Shader.SetGlobalTexture(Shader.PropertyToID(shaderProperty), newTexture);
             Debug.Log("Replaced " + shaderProperty + " ingame");
         }

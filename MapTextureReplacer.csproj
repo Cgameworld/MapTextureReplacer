@@ -79,6 +79,10 @@
 		<Reference Include="Unity.Mathematics">
 			<Private>false</Private>
 		</Reference>
+		<Reference Include="UnityEngine.ImageConversionModule">
+		  <HintPath>..\..\..\..\..\Program Files (x86)\Steam\steamapps\common\Cities Skylines II\Cities2_Data\Managed\UnityEngine.ImageConversionModule.dll</HintPath>
+		  <Private>False</Private>
+		</Reference>
 	</ItemGroup>
 
 	<ItemGroup>
