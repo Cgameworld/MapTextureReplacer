@@ -9,7 +9,7 @@ using System.Text;
 
 namespace MapTextureReplacer.Systems
 {
-    public partial class MapTextureReplacerEditorUISystem : GameSystemBase
+    public partial class MapTextureReplacerLegacyUIInjectSystem : GameSystemBase
     {
         private View? m_UIView;
 
@@ -18,20 +18,22 @@ namespace MapTextureReplacer.Systems
             base.OnCreate();
         }
 
-        public void CreateAssetEditorButton()
+        public void SpawnMainWindow()
         {
-            UnityEngine.Debug.Log("CreateAssetEditorButton() Loaded!");
+            View? m_UIView;
+            Mod.log.Info("SpawnMainWindow() Loaded!");
             m_UIView = GameManager.instance.userInterface.view.View;
 
             //cleanup injected react code if it exists
             m_UIView.ExecuteScript("document.querySelector(\".maptexturereplacer_custom_container\")?.parentNode?.removeChild(document.querySelector(\".maptexturereplacer_custom_container\"));");
 
-            //load custom react code
-            using Stream embeddedStream = Assembly.GetExecutingAssembly().GetManifestResourceStream("MapTextureReplacer.dist.game_editor.compiled.js");
+            //load custom react code (jsx)
+            using Stream embeddedStream = Assembly.GetExecutingAssembly().GetManifestResourceStream("MapTextureReplacer.dist.mainwindow.compiled.js");
             using System.IO.StreamReader reader = new(embeddedStream);
             {
                 m_UIView.ExecuteScript(reader.ReadToEnd());
             }
+
         }
 
         protected override void OnUpdate() { }

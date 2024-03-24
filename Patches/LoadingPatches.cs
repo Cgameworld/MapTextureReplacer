@@ -19,12 +19,8 @@ namespace MapTextureReplacer.Patches
 
             if (!mode.IsGameOrEditor())
                 return;
-            World.DefaultGameObjectInjectionWorld?.GetOrCreateSystemManaged<MapTextureReplacerInGameLoadedSystem>().RunAction();
+            World.DefaultGameObjectInjectionWorld?.GetOrCreateSystemManaged<MapTextureReplacerInGameLoadedSystem>().RunAction(); World.DefaultGameObjectInjectionWorld?.GetOrCreateSystemManaged<MapTextureReplacerLegacyUIInjectSystem>().SpawnMainWindow();
 
-            if (mode.IsEditor())
-            {
-                World.DefaultGameObjectInjectionWorld?.GetOrCreateSystemManaged<MapTextureReplacerEditorUISystem>().CreateAssetEditorButton();
-            }
         }
     }
 }

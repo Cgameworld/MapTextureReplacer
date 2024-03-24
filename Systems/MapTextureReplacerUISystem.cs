@@ -2,6 +2,7 @@
 using Colossal.IO.AssetDatabase.Internal;
 using Colossal.UI;
 using Colossal.UI.Binding;
+using Colossal.Win32;
 using Game;
 using Game.Common;
 using Game.Debug;
@@ -91,25 +92,15 @@ namespace MapTextureReplacer.Systems
 
 
             //Ui Button to jsx launch binding
-            this.AddBinding(new TriggerBinding("map_texture", "MainWindowCreate", SpawnMainWindow));
+            this.AddBinding(new TriggerBinding("map_texture", "MainWindowCreate", EnableMainWindow));
         }
 
-        public void SpawnMainWindow()
+        private void EnableMainWindow()
         {
-             View? m_UIView;
-                Mod.log.Info("SpawnMainWindow() Loaded!");
-                m_UIView = GameManager.instance.userInterface.view.View;
-
-                //cleanup injected react code if it exists
-                m_UIView.ExecuteScript("document.querySelector(\".maptexturereplacer_custom_container\")?.parentNode?.removeChild(document.querySelector(\".maptexturereplacer_custom_container\"));");
-
-                //load custom react code (jsx)
-                using Stream embeddedStream = Assembly.GetExecutingAssembly().GetManifestResourceStream("MapTextureReplacer.dist.mainwindow.compiled.js");
-                using System.IO.StreamReader reader = new(embeddedStream);
-                {
-                    m_UIView.ExecuteScript(reader.ReadToEnd());
-                }
-           
+            View? m_UIView;
+            Mod.log.Info("EnableMainWindow() called!");
+            m_UIView = GameManager.instance.userInterface.view.View;           
+            m_UIView.ExecuteScript("window.mapTextureReplacerShowWindow = true;window.dispatchEvent(new Event('mapTextureReplacerShowWindowChanged'));");         
         }
 
         private void AddSlider(string sliderName, string shaderProperty, int vectorIndex)
