@@ -73,11 +73,14 @@ namespace MapTextureReplacer.Systems
 
             List<string> texturePackFolders = new List<string>();
 
-            DirectoryInfo modsFolderDirectory = Directory.GetParent(Mod.ModPath);
+            DirectoryInfo modsFolderDirectory = Directory.GetParent(Directory.GetParent(Mod.ModPath).FullName);
+
+            Mod.log.Info("modsFolderDirectory.FullName: " + modsFolderDirectory.FullName);
 
             //find folders that contain pack config json files
             foreach (string filePath in Directory.GetFiles(modsFolderDirectory.FullName, "*.json", SearchOption.AllDirectories))
             {
+                Mod.log.Info($"{filePath}");
                 var filename = Path.GetFileName(filePath);              
                 if (filename == "maptextureconfig.json")
                 {            
