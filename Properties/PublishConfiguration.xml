@@ -20,13 +20,17 @@ Features include:
 
 This mod takes advantage of the fact that map textures are stored as standard unity textures, making them straightforward to read and set.
 
-# Requirements
-- BepInEx 5
-- HookUI
-
 # Map Texture Packs
 
-The vanilla game uses 4096x4096 sized map textures by default for grass, 2048x2048 for dirt and cliff though smaller scaled textures will successfully replace. For example, the example desert map theme pack uses 1024x1024 sized textures.
+The vanilla game uses 4096x4096 sized map textures by default for grass, 2048x2048 for dirt and cliff though smaller scaled textures will successfully replace. For example, the Desert Map Theme texture pack uses 1024x1024 sized textures.
+
+# Texture Pack Creation
+
+Details on how to publish new map texture packs on PDXmods will be on the mod's GitHub repo.
+
+# Donate
+
+If you want to support me, you can do so by buying me a super thanks in the YouTube tutorial video linked in the sidebar
 
 # Conclusion
 
@@ -35,15 +39,17 @@ If you like this mod be sure to leave an upvote! Thanks
 	<!--Thumbnail-->
 	<Thumbnail Value="Properties/Thumbnail.png" />
 	<!--Screenshot, can be set multiple times-->
-	<Screenshot Value="" />
+	<Screenshot Value="Properties/Gallery1.jpg" />
+  <Screenshot Value="Properties/Gallery2.jpg" />
+  <Screenshot Value="Properties/Gallery3.jpg" />
 	<!--Tag, can be set multiple times-->
-	<Tag Value="" />
+	<Tag Value="Code Mod" />
 	<!--Link to the forum post where the mod can be discussed-->
 	<ForumLink Value="" />
 	<!--Version of the mod-->
 	<ModVersion Value="1.0" />
 	<!--Recommended version of the base game to use the mod-->
-	<GameVersion Value="1.0.*" />
+	<GameVersion Value="1.*" />
 	<!--Dependency for the mod, can be set multiple times-->
 	<Dependency Id="" />
 	<!--Change log for new version. Single line or multi line. Supports minimal markdown subset-->
@@ -51,5 +57,6 @@ If you like this mod be sure to leave an upvote! Thanks
 	<!--ChangeLog>
 	</ChangeLog-->
 	<!--External link. supported types are discord, github, youtube, twitch, x, paypal, patreon-->
-	<ExternalLink Type="" Url="" />
+  <ExternalLink Type="youtube" Url="https://www.youtube.com/watch?v=upqli5BWhro" />
+  <ExternalLink Type="discord" Url="https://discord.gg/tDZhaMrgsQ" />
 </Publish>
