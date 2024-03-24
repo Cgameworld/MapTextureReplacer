@@ -25,12 +25,10 @@
 	<Import Project="$([System.Environment]::GetEnvironmentVariable('CSII_TOOLPATH', 'EnvironmentVariableTarget.User'))\Mod.props" />
 	<Import Project="$([System.Environment]::GetEnvironmentVariable('CSII_TOOLPATH', 'EnvironmentVariableTarget.User'))\Mod.targets" />
 	<ItemGroup>
-	  <None Remove="dist\game_editor.compiled.js" />
-	  <None Remove="ui_src\game_editor.jsx" />
+	  <None Remove="dist\mainwindow.compiled.js" />
 	</ItemGroup>
 	<ItemGroup>
-	  <EmbeddedResource Include="dist\game_editor.compiled.js" />
-	  <EmbeddedResource Include="ui_src\game_editor.jsx" />
+	  <EmbeddedResource Include="dist\mainwindow.compiled.js" />
 	</ItemGroup>
 
 	<ItemGroup>
@@ -107,7 +105,11 @@
 	</ItemGroup>
 
 <Target Name="PreBuild" BeforeTargets="PreBuildEvent">
-	  <Exec Command="npm install &amp;&amp; npx esbuild ui_src/main.jsx --bundle --outfile=dist/bundle.js &amp;&amp; npx esbuild ui_src/game_editor.jsx --bundle --outfile=dist/game_editor.compiled.js" />
+	  <Exec Command="npm install &amp;&amp; npx esbuild ui_src/mainwindow.jsx --bundle --outfile=dist/mainwindow.compiled.js" />
     </Target>
 	
+	<Target Name="BuildUI" AfterTargets="AfterBuild">
+    <Exec Command="npm run build" WorkingDirectory="$(ProjectDir)/UIMod" />
+</Target>
+
 </Project>

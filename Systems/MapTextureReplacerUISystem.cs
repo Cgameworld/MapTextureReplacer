@@ -1,10 +1,13 @@
-﻿using Colossal.IO.AssetDatabase.Internal;
+﻿using cohtml.Net;
+using Colossal.IO.AssetDatabase.Internal;
+using Colossal.UI;
 using Colossal.UI.Binding;
 using Game;
 using Game.Common;
 using Game.Debug;
 using Game.Prefabs;
 using Game.Routes;
+using Game.SceneFlow;
 using Game.Serialization;
 using Game.Simulation;
 using Game.Tools;
@@ -13,6 +16,8 @@ using Game.Vehicles;
 using MapTextureReplacer.Helpers;
 using System;
 using System.Collections.Generic;
+using System.IO;
+using System.Reflection;
 using System.Threading.Tasks;
 using Unity.Entities;
 using UnityEngine;
@@ -82,9 +87,30 @@ namespace MapTextureReplacer.Systems
             AddSlider("slider1", "colossal_TerrainTextureTiling", 0);
             AddSlider("slider2", "colossal_TerrainTextureTiling", 1);
             AddSlider("slider3", "colossal_TerrainTextureTiling", 2);
+
+
+
+            //Ui Button to jsx launch binding
+            this.AddBinding(new TriggerBinding("map_texture", "MainWindowCreate", SpawnMainWindow));
         }
 
+        public void SpawnMainWindow()
+        {
+             View? m_UIView;
+                Mod.log.Info("SpawnMainWindow() Loaded!");
+                m_UIView = GameManager.instance.userInterface.view.View;
 
+                //cleanup injected react code if it exists
+                m_UIView.ExecuteScript("document.querySelector(\".maptexturereplacer_custom_container\")?.parentNode?.removeChild(document.querySelector(\".maptexturereplacer_custom_container\"));");
+
+                //load custom react code (jsx)
+                using Stream embeddedStream = Assembly.GetExecutingAssembly().GetManifestResourceStream("MapTextureReplacer.dist.mainwindow.compiled.js");
+                using System.IO.StreamReader reader = new(embeddedStream);
+                {
+                    m_UIView.ExecuteScript(reader.ReadToEnd());
+                }
+           
+        }
 
         private void AddSlider(string sliderName, string shaderProperty, int vectorIndex)
         {
