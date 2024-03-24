@@ -42,7 +42,7 @@ namespace MapTextureReplacer.Helpers
             if (m_instance != null)
             { return m_instance; }
 
-            Debug.LogError("Build did not generate a replacement instance. Method Failed!");
+            Mod.log.Info("Build did not generate a replacement instance. Method Failed!");
 
             return null;
         }

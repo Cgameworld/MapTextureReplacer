@@ -46,9 +46,6 @@ namespace MapTextureReplacer.Systems
         {
             base.OnCreate();
 
-            Mod.log.Info("test");
-            Mod.log.Error("testerror");
-
             //initialize textureTypes
             if (Mod.Options.TextureSelectData == null)
             {
@@ -58,12 +55,10 @@ namespace MapTextureReplacer.Systems
             }
             else
             {
-                //UnityEngine.Debug.Log("Mod.Options.TextureSelectData NOT null" + Mod.Options.TextureSelectData);
+                //Mod.log.Info("Mod.Options.TextureSelectData NOT null" + Mod.Options.TextureSelectData);
 
                 textureSelectData = JsonConvert.DeserializeObject<List<KeyValuePair<string, string>>>(Mod.Options.TextureSelectData);
             }
-
-
 
             //cache original textures for reset function
             foreach (var item in textureTypes)
@@ -133,7 +128,7 @@ namespace MapTextureReplacer.Systems
                 else if (current.EndsWith(".json"))
                 {
                     var directory = Path.GetDirectoryName(current);
-                    //UnityEngine.Debug.Log("preloaded folder? " + directory);
+                    Mod.log.Info("loading (json) folder: " + directory);
 
                     foreach (string filePath in Directory.GetFiles(directory))
                     {
@@ -414,7 +409,7 @@ namespace MapTextureReplacer.Systems
             }
             catch
             {
-                Debug.Log("ActivePackDropdown Call Cancelled");
+                Mod.log.Info("ActivePackDropdown Call Cancelled");
             }
         }
 

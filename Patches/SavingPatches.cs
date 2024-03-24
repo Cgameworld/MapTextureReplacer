@@ -58,7 +58,7 @@ namespace MapTextureReplacer.Patches
             for (int i = 0; i < setTexturesCache.Length; i++)
             {
                 Shader.SetGlobalTexture(Shader.PropertyToID(propertyNames[i]), setTexturesCache[i]);
-                UnityEngine.Debug.Log("Map Textures Reapplied After Save");
+                Mod.log.Info("Map Textures Reapplied After Save");
             }
             yield break;
         }
