@@ -291,7 +291,7 @@ const $Main = ({ react, onClose }) => {
         }
     }, [texturePack]);
 
-    return <$PanelMod react={react} title="Map Texture Replacer PDXM ALPHA" whenClosed={onClose}>
+    return <$PanelMod react={react} title="Map Texture Replacer" whenClosed={onClose}>
         <div className="field_MBO" style={{ minHeight: '52.5rem', marginTop: '8rem' }}>
             <div className="label_DGc label_ZLb">Base Pack</div>
             <div style={{ width: '68%' }}>
