@@ -25,7 +25,6 @@ namespace MapTextureReplacer.Patches
             {
                 World.DefaultGameObjectInjectionWorld?.GetOrCreateSystemManaged<MapTextureReplacerEditorUISystem>().CreateAssetEditorButton();
             }
-
         }
     }
 }

@@ -1,62 +1,67 @@
 ﻿<Publish>
-	<!--Id must be set in order to update existed mod. it is not required for publishing mod for the first time-->
-	<ModId Value="" />
-	<!--Name of the mod to display to players-->
-	<DisplayName Value="Map Texture Replacer" />
-	<!--Short description of the mod-->
-	<ShortDescription Value="Map Texture Replacer" />
-	<!--Long description of the mod. Single line or multi line. Supports minimal markdown subset-->
-	<LongDescription>
-Map Texture Replacer allows you to easily replace grass, dirt and cliff map textures in your game.
+  <!--Id must be set in order to update existed mod. it is not required for publishing mod for the first time-->
+  <ModId Value="76050" />
+  <!--Name of the mod to display to players-->
+  <DisplayName Value="Map Texture Replacer" />
+  <!--Short description of the mod-->
+  <ShortDescription Value="Map Texture Replacer" />
+  <!--Long description of the mod. Single line or multi line. Supports minimal markdown subset-->
+  <LongDescription>
+    ## Intro
 
-The mod is intended to be used with map texture packs, currently, to find them search PDXMods for Map Texture Replacer. 
+    Map Texture Replacer allows you to easily replace grass, dirt and cliff map textures in your game.
 
-Features include:
-- Dropdowns to easily change packs or individual textures
-- Persistent settings between game loads
-- Texture tiling adjustments
-- Replacement of individual textures with any jpg/png from your computer
-- Map editor support
+    The mod is intended to be used with map texture packs, currently to find texture packs to use search "maptex" in PDX mods.
 
-This mod takes advantage of the fact that map textures are stored as standard unity textures, making them straightforward to read and set.
+    Features include:
+    - Dropdowns to easily change packs or individual textures
+    - Persistent settings between game loads
+    - Texture tiling adjustments
+    - Replacement of individual textures with any jpg/png from your computer
+    - Map editor support
 
-# Map Texture Packs
+    This mod takes advantage of the fact that map textures are stored as standard unity textures, making them straightforward to read and set.
 
-The vanilla game uses 4096x4096 sized map textures by default for grass, 2048x2048 for dirt and cliff though smaller scaled textures will successfully replace. For example, the Desert Map Theme texture pack uses 1024x1024 sized textures.
+    ## Map Texture Packs
 
-# Texture Pack Creation
+    The vanilla game uses 4096x4096 sized map textures by default for grass, 2048x2048 for dirt and cliff though smaller scaled textures will successfully replace. For example, the Desert Map Theme texture pack uses 1024x1024 sized textures.
 
-Details on how to publish new map texture packs on PDXmods will be on the mod's GitHub repo.
+    ## Texture Pack Creation
 
-# Donate
+    Details on how to publish new map texture packs on PDXmods will be on the mod's GitHub repo.
 
-If you want to support me, you can do so by buying me a super thanks in the YouTube tutorial video linked in the sidebar
+    ## Donate
 
-# Conclusion
+    If you want to support me, you can do so by buying me a super thanks in the YouTube tutorial video linked in the sidebar
 
-If you like this mod be sure to leave an upvote! Thanks
+    ## Conclusion
+
+    If you like this mod be sure to leave an upvote! Thanks
   </LongDescription>
-	<!--Thumbnail-->
-	<Thumbnail Value="Properties/Thumbnail.png" />
-	<!--Screenshot, can be set multiple times-->
-	<Screenshot Value="Properties/Gallery1.jpg" />
+  <!--Thumbnail-->
+  <Thumbnail Value="Properties/Thumbnail.png" />
+  <!--Screenshot, can be set multiple times-->
+  <Screenshot Value="Properties/Gallery1.jpg" />
   <Screenshot Value="Properties/Gallery2.jpg" />
   <Screenshot Value="Properties/Gallery3.jpg" />
-	<!--Tag, can be set multiple times-->
-	<Tag Value="Code Mod" />
-	<!--Link to the forum post where the mod can be discussed-->
-	<ForumLink Value="" />
-	<!--Version of the mod-->
-	<ModVersion Value="1.0" />
-	<!--Recommended version of the base game to use the mod-->
-	<GameVersion Value="1.*" />
-	<!--Dependency for the mod, can be set multiple times-->
-	<Dependency Id="" />
-	<!--Change log for new version. Single line or multi line. Supports minimal markdown subset-->
-	<ChangeLog Value="" />
-	<!--ChangeLog>
-	</ChangeLog-->
-	<!--External link. supported types are discord, github, youtube, twitch, x, paypal, patreon-->
+  <!--Tag, can be set multiple times-->
+  <Tag Value="Code Mod" />
+  <!--Link to the forum post where the mod can be discussed-->
+  <ForumLink Value="" />
+  <!--Version of the mod-->
+  <ModVersion Value="2.1" />
+  <!--Recommended version of the base game to use the mod-->
+  <GameVersion Value="1.*" />
+  <!--Dependency for the mod, can be set multiple times-->
+  <Dependency Id="" />
+  <!--Change log for new version. Single line or multi line. Supports minimal markdown subset-->
+  <ChangeLog>
+    # v2.1
+    *Migration to PDXMods
+    *Removed HookUI dependency
+    *Dedicated mod button in main game
+  </ChangeLog>
+  <!--External link. supported types are discord, github, youtube, twitch, x, paypal, patreon-->
   <ExternalLink Type="youtube" Url="https://www.youtube.com/watch?v=upqli5BWhro" />
   <ExternalLink Type="discord" Url="https://discord.gg/tDZhaMrgsQ" />
 </Publish>

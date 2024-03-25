@@ -1,5 +1,10 @@
 # Changelog
 
+## 2.1
+- Migration to PDXMods 
+- Removed HookUI dependency 
+- Dedicated mod button in main game
+
 ## 2.0.2
 - Fix for pack name text overflowing inside UI dropdown
 - Fix for duplicate icon spawning bug

@@ -53,8 +53,6 @@ namespace MapTextureReplacer
         //sometimes saving doesn't happen when changing values to their default? - hack to guarantee
         [SettingsUIHidden]
         public int MakeSureSave { get; set; }
-
-
         public override void SetDefaults()
         {
             MakeSureSave = 0;
