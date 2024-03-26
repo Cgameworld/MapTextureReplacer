@@ -7,36 +7,36 @@
   <ShortDescription Value="Map Texture Replacer" />
   <!--Long description of the mod. Single line or multi line. Supports minimal markdown subset-->
   <LongDescription>
-    ## Intro
+## Intro
 
-    Map Texture Replacer allows you to easily replace grass, dirt and cliff map textures in your game.
+Map Texture Replacer allows you to easily replace grass, dirt and cliff map textures in your game.
 
-    The mod is intended to be used with map texture packs, currently to find texture packs to use search "maptex" in PDX mods.
+The mod is intended to be used with map texture packs, currently to find texture packs to use search "maptex" in PDXMods.
 
-    Features include:
-    - Dropdowns to easily change packs or individual textures
-    - Persistent settings between game loads
-    - Texture tiling adjustments
-    - Replacement of individual textures with any jpg/png from your computer
-    - Map editor support
+Features include:
+* Dropdowns to easily change packs or individual textures
+* Persistent settings between game loads
+* Texture tiling adjustments
+* Replacement of individual textures with any jpg/png from your computer
+* Map editor support
 
-    This mod takes advantage of the fact that map textures are stored as standard unity textures, making them straightforward to read and set.
+This mod takes advantage of the fact that map textures are stored as standard unity textures, making them straightforward to read and set.
 
-    ## Map Texture Packs
+## Map Texture Packs
 
-    The vanilla game uses 4096x4096 sized map textures by default for grass, 2048x2048 for dirt and cliff though smaller scaled textures will successfully replace. For example, the Desert Map Theme texture pack uses 1024x1024 sized textures.
+The vanilla game uses 4096x4096 sized map textures by default for grass, 2048x2048 for dirt and cliff though smaller scaled textures will successfully replace. For example, the Desert Map Theme texture pack uses 1024x1024 sized textures.
 
-    ## Texture Pack Creation
+## Texture Pack Creation
 
-    Details on how to publish new map texture packs on PDXmods will be on the mod's GitHub repo.
+Details on how to publish new map texture packs on PDXmods will be on the mod's GitHub repo.
 
-    ## Donate
+## Donate
 
-    If you want to support me, you can do so by buying me a super thanks in the YouTube tutorial video linked in the sidebar
+If you want to support me, you can do so by buying me a super thanks in the YouTube tutorial video linked in the sidebar
 
-    ## Conclusion
+## Conclusion
 
-    If you like this mod be sure to leave an upvote! Thanks
+If you like this mod be sure to leave an upvote! Thanks
   </LongDescription>
   <!--Thumbnail-->
   <Thumbnail Value="Properties/Thumbnail.png" />
@@ -56,10 +56,10 @@
   <Dependency Id="" />
   <!--Change log for new version. Single line or multi line. Supports minimal markdown subset-->
   <ChangeLog>
-    # v2.1
-    *Migration to PDXMods
-    *Removed HookUI dependency
-    *Dedicated mod button in main game
+# v2.1
+* Migration to PDXMods
+* Removed HookUI dependency
+* Dedicated mod button in main game
   </ChangeLog>
   <!--External link. supported types are discord, github, youtube, twitch, x, paypal, patreon-->
   <ExternalLink Type="youtube" Url="https://www.youtube.com/watch?v=upqli5BWhro" />
