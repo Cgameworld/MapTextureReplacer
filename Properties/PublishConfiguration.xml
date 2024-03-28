@@ -28,7 +28,7 @@ The vanilla game uses 4096x4096 sized map textures by default for grass, 2048x20
 
 ## Texture Pack Creation
 
-Details on how to publish new map texture packs on PDXmods will be on the mod's GitHub repo.
+Details on how to publish new map texture packs on PDXmods are on the mod's GitHub repo in the README.
 
 ## Donate
 
@@ -49,19 +49,18 @@ If you like this mod be sure to leave an upvote! Thanks
   <!--Link to the forum post where the mod can be discussed-->
   <ForumLink Value="" />
   <!--Version of the mod-->
-  <ModVersion Value="2.1" />
+  <ModVersion Value="2.1.1" />
   <!--Recommended version of the base game to use the mod-->
   <GameVersion Value="1.*" />
   <!--Dependency for the mod, can be set multiple times-->
   <Dependency Id="" />
   <!--Change log for new version. Single line or multi line. Supports minimal markdown subset-->
   <ChangeLog>
-# v2.1
-* Migration to PDXMods
-* Removed HookUI dependency
-* Dedicated mod button in main game
+# v2.1.1
+* Fix for UI button icon scaling bug
   </ChangeLog>
   <!--External link. supported types are discord, github, youtube, twitch, x, paypal, patreon-->
   <ExternalLink Type="youtube" Url="https://www.youtube.com/watch?v=upqli5BWhro" />
   <ExternalLink Type="discord" Url="https://discord.gg/tDZhaMrgsQ" />
+  <ExternalLink Type="github" Url="https://github.com/Cgameworld/MapTextureReplacer" />
 </Publish>

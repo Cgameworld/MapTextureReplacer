@@ -1,5 +1,8 @@
 # Changelog
 
+## 2.1.1
+- Fix for UI button icon scaling bug
+
 ## 2.1
 - Migration to PDXMods 
 - Removed HookUI dependency 
