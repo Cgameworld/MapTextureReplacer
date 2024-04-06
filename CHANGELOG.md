@@ -1,5 +1,8 @@
 # Changelog
 
+## 2.1.2
+- Fix for slider thumb positioning on larger screen sizes
+
 ## 2.1.1
 - Fix for UI button icon scaling bug
 

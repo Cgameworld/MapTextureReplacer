@@ -49,15 +49,15 @@ If you like this mod be sure to leave an upvote! Thanks
   <!--Link to the forum post where the mod can be discussed-->
   <ForumLink Value="https://forum.paradoxplaza.com/forum/threads/map-texture-replacer.1644700/" />
   <!--Version of the mod-->
-  <ModVersion Value="2.1.1" />
+  <ModVersion Value="2.1.2" />
   <!--Recommended version of the base game to use the mod-->
   <GameVersion Value="1.*" />
   <!--Dependency for the mod, can be set multiple times-->
   <Dependency Id="" />
   <!--Change log for new version. Single line or multi line. Supports minimal markdown subset-->
   <ChangeLog>
-# v2.1.1
-* Fix for UI button icon scaling bug
+# v2.1.2
+* Fix for slider thumb positioning on larger screen sizes
   </ChangeLog>
   <!--External link. supported types are discord, github, youtube, twitch, x, paypal, patreon-->
   <ExternalLink Type="youtube" Url="https://www.youtube.com/watch?v=upqli5BWhro" />
