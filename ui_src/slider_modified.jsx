@@ -1,6 +1,5 @@
 import React from 'react'
 
-//rewrite this later with %, has issues with some screen sizes
 const $SliderMod = ({ react, title, min, max, sliderPos, onInputChange }) => {
     const [sliderWidth, setSliderWidth] = react.useState(0);
     const [inputValue, setInputValue] = react.useState(sliderPos);
@@ -73,7 +72,7 @@ const $SliderMod = ({ react, title, min, max, sliderPos, onInputChange }) => {
                     <div className="slider-container_Q_K">
                         <div className="slider_KXG slider_pUS horizontal slider_ROT">
                             <div className="track-bounds_H8_" ref={sliderRef}>
-                                <div className="range-bounds_lNt" style={{ width: `${sliderWidth}rem` }} onMouseDown={handleMouseDown}>
+                                <div className="range-bounds_lNt" style={{ width: `${(sliderWidth / (window.innerWidth / 1920))}rem` }} onMouseDown={handleMouseDown}>
                                     <div className="range_nHO range_iUN"></div>
                                     <div className="thumb-container_aso">
                                         <div className="thumb_kkL"></div>
