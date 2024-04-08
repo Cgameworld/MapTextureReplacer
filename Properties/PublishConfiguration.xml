@@ -28,7 +28,7 @@ The vanilla game uses 4096x4096 sized map textures by default for grass, 2048x20
 
 ## Texture Pack Creation
 
-Details on how to publish new map texture packs on PDXmods are on the mod's GitHub repo in the README.
+Watch the YouTube tutorial video linked in the sidebar starting at 3:46
 
 ## Donate
 
@@ -60,7 +60,7 @@ If you like this mod be sure to leave an upvote! Thanks
 * Fix for slider thumb positioning on larger screen sizes
   </ChangeLog>
   <!--External link. supported types are discord, github, youtube, twitch, x, paypal, patreon-->
-  <ExternalLink Type="youtube" Url="https://www.youtube.com/watch?v=upqli5BWhro" />
+  <ExternalLink Type="youtube" Url="https://www.youtube.com/watch?v=SVhGONBBeIw" />
   <ExternalLink Type="discord" Url="https://discord.gg/tDZhaMrgsQ" />
   <ExternalLink Type="github" Url="https://github.com/Cgameworld/MapTextureReplacer" />
 </Publish>
