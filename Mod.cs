@@ -37,7 +37,7 @@ namespace MapTextureReplacer
                 ModPath = asset.path; 
             }
 
-            updateSystem.UpdateAt<MapTextureReplacerSystem>(SystemUpdatePhase.PostSimulation);
+            updateSystem.UpdateAt<MapTextureReplacerSystem>(SystemUpdatePhase.PreSimulation);
             updateSystem.UpdateAt<MapTextureReplacerUISystem>(SystemUpdatePhase.UIUpdate);
         }
 

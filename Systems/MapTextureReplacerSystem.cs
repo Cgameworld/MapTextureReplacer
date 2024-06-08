@@ -91,8 +91,15 @@ namespace MapTextureReplacer.Systems
                     var filename = Path.GetFileName(filePath);
                     if (filename == "maptextureconfig.json")
                     {
-                        MapTextureConfig mapTheme = JsonConvert.DeserializeObject<MapTextureConfig>(File.ReadAllText(filePath));
-                        importedPacks.Add(filePath, mapTheme.pack_name);
+                        try
+                        {
+                            MapTextureConfig mapTheme = JsonConvert.DeserializeObject<MapTextureConfig>(File.ReadAllText(filePath));
+                            importedPacks.Add(filePath, mapTheme.pack_name);
+                        }
+                        catch (IOException ex)
+                        {
+                            Mod.log.Info($"Failed to read .json file {filePath} due to: {ex.Message}");
+                        }
                     }
                 }
             }
