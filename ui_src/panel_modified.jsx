@@ -6,7 +6,7 @@ import * as styles from './styles'
 const defaultStyle = {
     position: 'absolute',
     width: "400rem",
-    height: "650rem"
+    height: "670rem"
 }
 
 const $CloseButton = ({ onClick }) => {

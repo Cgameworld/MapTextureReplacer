@@ -29,6 +29,7 @@ namespace MapTextureReplacer.Systems
             //wait for the game world textures to show?
             yield return new WaitForEndOfFrame();
             yield return new WaitForEndOfFrame();
+            yield return new WaitForEndOfFrame();
 
             List<string> textureTypeKeys = new List<string>(m_mapTextureReplacerSystem.textureTypes.Keys);
             for (int i = 0; i < textureTypeKeys.Count; i++)

@@ -15,7 +15,7 @@ namespace MapTextureReplacer
         private Harmony? _harmony;
         public static MapTextureReplacerOptions? Options { get; set; }
 
-        public static ILog log = LogManager.GetLogger($"{nameof(MapTextureReplacer)}.{nameof(Mod)}").SetShowsErrorsInUI(true);
+        public static ILog log = LogManager.GetLogger($"{nameof(MapTextureReplacer)}.{nameof(Mod)}").SetShowsErrorsInUI(false);
 
         public static string ModPath = "";
 

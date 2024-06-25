@@ -105,7 +105,7 @@ const $DropdownMod = ({ react, style, onSelectionChanged, selected, options, dro
     return (
         <div>
             <div ref={pickerRef} className="dropdown-toggle_V9z dropdown-toggle_prl value-field_yJi value_PW_ dropdown_pJu item-states_QjV" onClick={onToggle} style={{ padding: '5rem', height: 'auto', backgroundColor: dropdownTextChar != null ? 'rgba(0, 0, 0, 0.15)' : 'rgba(0, 0, 0, 0.6)', ...style }}>
-                <div className="label_l_4">
+                <div className="label_l_4" style={{ position: 'relative', top: '1rem' }}>
                     {selected === "Loading..."
                         ? selected
                         : dropdownTextChar != null && options[selectedIndex].label.length >= dropdownTextChar

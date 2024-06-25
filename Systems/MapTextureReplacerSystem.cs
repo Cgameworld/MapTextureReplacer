@@ -98,7 +98,7 @@ namespace MapTextureReplacer.Systems
                         }
                         catch (IOException ex)
                         {
-                            Mod.log.Info($"Failed to read .json file {filePath} due to: {ex.Message}");
+                            Mod.log.Error($"Failed to read .json file {filePath} due to: {ex.Message}");
                         }
                     }
                 }

@@ -294,7 +294,7 @@ const $Main = ({ react, onClose }) => {
     return <$PanelMod react={react} title="Map Texture Replacer" whenClosed={onClose}>
         <div className="field_MBO" style={{ minHeight: '52.5rem', marginTop: '8rem' }}>
             <div className="label_DGc label_ZLb">Base Pack</div>
-            <div style={{ width: '68%' }}>
+            <div style={{ width: '67%', padddingRight: '3rem' }}>
                 <$DropdownMod react={react} onSelectionChanged={onSelectionChanged1} selected={onSelectedPackDropdown} options={options} />
             </div>
         </div>
