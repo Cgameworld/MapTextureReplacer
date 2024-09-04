@@ -14,6 +14,8 @@ namespace MapTextureReplacer.Systems
 {
     public partial class MapTextureReplacerSystem : GameSystemBase
     {
+        private MapTextureReplacerTextureCacheSystem m_mapTextureTextureCacheSystem;
+
         public string PackImportedText = "";
 
         private Dictionary<string, string> importedPacks = new Dictionary<string, string>();
@@ -28,8 +30,6 @@ namespace MapTextureReplacer.Systems
             new KeyValuePair<string, string>("Default", "none"),
             new KeyValuePair<string, string>("Default", "none"),
             };
-
-    static Dictionary<string, Texture> mapTextureCache = new Dictionary<string, Texture>();
         
         private static bool isOver;
         
@@ -46,6 +46,8 @@ namespace MapTextureReplacer.Systems
         {
             base.OnCreate();
 
+            m_mapTextureTextureCacheSystem = World.GetOrCreateSystemManaged<MapTextureReplacerTextureCacheSystem>();
+
             //initialize textureTypes
             if (Mod.Options.TextureSelectData == null)
             {
@@ -58,12 +60,6 @@ namespace MapTextureReplacer.Systems
                 //Mod.log.Info("Mod.Options.TextureSelectData NOT null" + Mod.Options.TextureSelectData);
 
                 textureSelectData = JsonConvert.DeserializeObject<List<KeyValuePair<string, string>>>(Mod.Options.TextureSelectData);
-            }
-
-            //cache original textures for reset function
-            foreach (var item in textureTypes)
-            {
-                CacheExistingTexture(item.Key);
             }
 
             List<string> texturePackFolders = new List<string>();
@@ -322,14 +318,7 @@ namespace MapTextureReplacer.Systems
 
             }
         }
-        private static void CacheExistingTexture(string shaderProperty)
-        {
-            var existingTexture = Shader.GetGlobalTexture(Shader.PropertyToID(shaderProperty));
-            if (!mapTextureCache.ContainsKey(shaderProperty))
-            {
-                mapTextureCache.Add(shaderProperty, existingTexture);
-            }
-        }
+        
 
         private static void LoadTextureInGame(string shaderProperty, byte[] fileData)
         {
@@ -341,9 +330,8 @@ namespace MapTextureReplacer.Systems
 
         public void ResetTexture(string shaderProperty)
         {
-
-                mapTextureCache.TryGetValue(shaderProperty, out Texture texture);
-                if (texture != null)
+            m_mapTextureTextureCacheSystem.mapTextureCache.TryGetValue(shaderProperty, out Texture texture);
+            if (texture != null)
                 {
                     Shader.SetGlobalTexture(Shader.PropertyToID(shaderProperty), texture);
                 }

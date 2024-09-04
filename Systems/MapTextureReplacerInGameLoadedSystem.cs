@@ -12,6 +12,7 @@ namespace MapTextureReplacer.Systems
     public partial class MapTextureReplacerInGameLoadedSystem : GameSystemBase
     {
         private MapTextureReplacerSystem m_mapTextureReplacerSystem;
+        private MapTextureReplacerTextureCacheSystem m_mapTextureTextureCacheSystem;
         protected override void OnCreate()
         {          
         }
@@ -19,8 +20,11 @@ namespace MapTextureReplacer.Systems
         public void RunAction()
         {
             m_mapTextureReplacerSystem = World.GetOrCreateSystemManaged<MapTextureReplacerSystem>();
+            m_mapTextureTextureCacheSystem = World.GetOrCreateSystemManaged<MapTextureReplacerTextureCacheSystem>();
+
             base.OnCreate();
 
+            m_mapTextureTextureCacheSystem.StartCache();
             StaticCoroutine.Start(ReapplyTexture(m_mapTextureReplacerSystem));
         }
             
