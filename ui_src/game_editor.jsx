@@ -9,6 +9,7 @@ const Render = ({ react }) => {
     const [showCounter, setShowCounter] = react.useState(false);
 
     const handleClose = () => {
+        engine.trigger("audio.playSound", "select-item", 1);
         setShowCounter(false);
     };
 
