@@ -11,7 +11,7 @@ const Render = ({ react }) => {
     react.useEffect(() => {
         const handleCustomEvent = () => {
             setShowCounter(window.mapTextureReplacerShowWindow);
-            console.log("window.maptexturereplacershowwindow updated!!");
+            console.log("window.maptexturereplacershowwindow updated");
         };
 
         window.addEventListener('mapTextureReplacerShowWindowChanged', handleCustomEvent);

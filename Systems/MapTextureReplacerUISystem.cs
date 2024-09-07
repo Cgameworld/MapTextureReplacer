@@ -1,26 +1,9 @@
 ﻿using cohtml.Net;
-using Colossal.IO.AssetDatabase.Internal;
-using Colossal.UI;
 using Colossal.UI.Binding;
-using Colossal.Win32;
-using Game;
-using Game.Common;
-using Game.Debug;
-using Game.Prefabs;
-using Game.Routes;
 using Game.SceneFlow;
-using Game.Serialization;
-using Game.Simulation;
-using Game.Tools;
 using Game.UI;
-using Game.Vehicles;
-using MapTextureReplacer.Helpers;
 using System;
 using System.Collections.Generic;
-using System.IO;
-using System.Reflection;
-using System.Threading.Tasks;
-using Unity.Entities;
 using UnityEngine;
 
 namespace MapTextureReplacer.Systems
@@ -90,9 +73,17 @@ namespace MapTextureReplacer.Systems
             AddSlider("slider3", "colossal_TerrainTextureTiling", 2);
 
 
+            //trigger legacy window container injection
+            this.AddBinding(new TriggerBinding("map_texture", "MapButtonLoaded", this.MapButtonLoaded));
 
             //Ui Button to jsx launch binding
             this.AddBinding(new TriggerBinding("map_texture", "MainWindowCreate", EnableMainWindow));
+
+        }
+
+        private void MapButtonLoaded()
+        {
+            World.GetOrCreateSystemManaged<MapTextureReplacerLegacyUIInjectSystem>().SpawnMainWindow();
         }
 
         private void EnableMainWindow()

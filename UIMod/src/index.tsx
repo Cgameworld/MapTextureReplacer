@@ -1,5 +1,6 @@
 import { ModRegistrar } from "cs2/modding";
 import { bindValue, trigger, useValue } from "cs2/api";
+import mod from "../mod.json";
 
 const register: ModRegistrar = (moduleRegistry) => {
 
@@ -12,7 +13,12 @@ const register: ModRegistrar = (moduleRegistry) => {
         </div>;
     }
 
+    //inject jsx window container
+    trigger("map_texture", "MapButtonLoaded");
+
     moduleRegistry.append('GameTopLeft', CustomMenuButton);
+
+    console.log(mod.id + " UI module registrations completed.");
 }
 
 export default register;

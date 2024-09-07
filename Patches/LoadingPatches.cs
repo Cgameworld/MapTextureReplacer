@@ -19,7 +19,7 @@ namespace MapTextureReplacer.Patches
 
             if (!mode.IsGameOrEditor())
                 return;
-            World.DefaultGameObjectInjectionWorld?.GetOrCreateSystemManaged<MapTextureReplacerInGameLoadedSystem>().RunAction(); World.DefaultGameObjectInjectionWorld?.GetOrCreateSystemManaged<MapTextureReplacerLegacyUIInjectSystem>().SpawnMainWindow();
+            World.DefaultGameObjectInjectionWorld?.GetOrCreateSystemManaged<MapTextureReplacerInGameLoadedSystem>().RunAction();
 
             if (mode.IsEditor())
             {
