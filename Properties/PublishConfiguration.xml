@@ -49,16 +49,17 @@ If you like this mod be sure to leave an upvote! Thanks
   <!--Link to the forum post where the mod can be discussed-->
   <ForumLink Value="https://forum.paradoxplaza.com/forum/threads/map-texture-replacer.1644700/" />
   <!--Version of the mod-->
-  <ModVersion Value="2.1.4" />
+  <ModVersion Value="2.1.5" />
   <!--Recommended version of the base game to use the mod-->
   <GameVersion Value="1.1.*" />
   <!--Dependency for the mod, can be set multiple times-->
   <Dependency Id="" />
   <!--Change log for new version. Single line or multi line. Supports minimal markdown subset-->
   <ChangeLog>
-# v2.1.4
-* Implemented more precise texure pack json searching
-* Fix for issue where default cached textures were sometimes not loading when selected
+# v2.1.5
+* Fixed issue where the options window would not open if the game UI was reloaded
+* Added mod button tooltip
+* Added missing UI sound feedback
   </ChangeLog>
   <!--External link. supported types are discord, github, youtube, twitch, x, paypal, patreon-->
   <ExternalLink Type="youtube" Url="https://www.youtube.com/watch?v=SVhGONBBeIw" />
