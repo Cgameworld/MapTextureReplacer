@@ -31,7 +31,7 @@ const $SliderMod = ({ react, title, min, max, sliderPos, onInputChange }) => {
         const handleMouseMove = (event) => {
             const scale = (max - min) / sliderRef.current.getBoundingClientRect().width;
             setScale(scale);
-            console.log(sliderRef.current.getBoundingClientRect().width);
+            //console.log(sliderRef.current.getBoundingClientRect().width);
             const newWidth = Math.min(Math.max(event.clientX - sliderRef.current.getBoundingClientRect().left, 0), sliderRef.current.getBoundingClientRect().width);
             setSliderWidth(newWidth);
             const newInputValue = Math.round(min + newWidth * scale);
@@ -69,7 +69,7 @@ const $SliderMod = ({ react, title, min, max, sliderPos, onInputChange }) => {
             <div className="row_d2o">
                 <div className="label_ZLb label_test2" style={{ width: '100rem', marginRight: '5rem' }} >{title}</div>
                 <div className="control_Hds" style={{ width: '67.5%', position: 'relative', left: '20rem' }}>
-                    <div className="slider-container_Q_K">
+                    <div className="slider-container_Q_K" style={{height: '10rem'} }>
                         <div className="slider_KXG slider_pUS horizontal slider_ROT">
                             <div className="track-bounds_H8_" ref={sliderRef}>
                                 <div className="range-bounds_lNt" style={{ width: `${(sliderWidth / (window.innerWidth / 1920))}rem` }} onMouseDown={handleMouseDown}>

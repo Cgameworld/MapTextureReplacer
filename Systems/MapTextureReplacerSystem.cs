@@ -163,7 +163,7 @@ namespace MapTextureReplacer.Systems
             //Debug.Log("SetTextureSelectDataJson() Called");
             textureSelectDataJsonString = JsonConvert.SerializeObject(textureSelectData);
             Mod.Options.TextureSelectData = textureSelectDataJsonString;
-            AssetDatabase.global.SaveSettingsNow();
+            AssetDatabase.global.SaveSettings();
         }
 
         public void SetTilingValues(string far, string close, string dirtClose)
@@ -400,7 +400,7 @@ namespace MapTextureReplacer.Systems
             try
             {
                 Mod.Options.ActiveDropdown = data;
-                AssetDatabase.global.SaveSettingsNow();
+                AssetDatabase.global.SaveSettings();
             }
             catch
             {
@@ -431,8 +431,9 @@ namespace MapTextureReplacer.Systems
         static IEnumerator SaveSettingsOnceAfterDelay()
         {
             //instead of saving the settings file after each value in the slider changes, save it only once after delay
+            Mod.log.Info("SaveSettingsOnceAfterDelay! Triggered");
             yield return new WaitForSeconds(2f);
-            AssetDatabase.global.SaveSettingsNow();
+            AssetDatabase.global.SaveSettings();
             isOver = false;
             yield break;
         }
