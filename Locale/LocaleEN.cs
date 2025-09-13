@@ -18,6 +18,8 @@ namespace MapTextureReplacer.Locale
             return new Dictionary<string, string>
             {
                 { m_Setting.GetSettingsLocaleID(), "Map Texture Replacer" },
+                { m_Setting.GetOptionLabelLocaleID(nameof(MapTextureReplacerOptions.ModVersion)), "Mod Version"},
+                { m_Setting.GetOptionDescLocaleID(nameof(MapTextureReplacerOptions.ModVersion)), "Installed version of mod"},
                 { m_Setting.GetOptionLabelLocaleID(nameof(MapTextureReplacerOptions.ResetModSettings)), "Reset All Settings" },
                 { m_Setting.GetOptionDescLocaleID(nameof(MapTextureReplacerOptions.ResetModSettings)), "Reset Mod Settings to Default Values"},
                 { m_Setting.GetOptionWarningLocaleID(nameof(MapTextureReplacerOptions.ResetModSettings)), "Are you sure you want to reset all mod settings?"}

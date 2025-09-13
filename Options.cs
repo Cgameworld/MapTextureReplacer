@@ -10,6 +10,7 @@ using Unity.Entities;
 using MapTextureReplacer.Helpers;
 using System.Collections.Generic;
 using UnityEngine;
+using System.Reflection;
 
 namespace MapTextureReplacer
 {
@@ -23,6 +24,8 @@ namespace MapTextureReplacer
         {
             SetDefaults();
         }
+
+        public string ModVersion => Assembly.GetExecutingAssembly().GetName().Version.ToString();
 
         [SettingsUIButton]
         [SettingsUIConfirmation]
