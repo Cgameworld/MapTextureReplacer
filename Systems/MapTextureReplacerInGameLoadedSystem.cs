@@ -2,6 +2,7 @@
 using Game;
 using Game.Prefabs;
 using Game.Prefabs.Terrain;
+using Game.UI.InGame;
 using MapTextureReplacer.Helpers;
 using Newtonsoft.Json;
 using System;
@@ -17,6 +18,8 @@ namespace MapTextureReplacer.Systems
     {
         private MapTextureReplacerSystem m_mapTextureReplacerSystem;
         private MapTextureReplacerTextureCacheSystem m_mapTextureTextureCacheSystem;
+        private PrefabSystem m_prefabSystem;
+
         protected override void OnCreate()
         {          
         }
@@ -25,6 +28,7 @@ namespace MapTextureReplacer.Systems
         {
             m_mapTextureReplacerSystem = World.GetOrCreateSystemManaged<MapTextureReplacerSystem>();
             m_mapTextureTextureCacheSystem = World.GetOrCreateSystemManaged<MapTextureReplacerTextureCacheSystem>();
+            m_prefabSystem = World.GetOrCreateSystemManaged<PrefabSystem>();
 
             base.OnCreate();
 
@@ -50,19 +54,14 @@ namespace MapTextureReplacer.Systems
         private void CheckPrefabs(PrefabAsset asset)
         {
             PrefabBase prefab = asset.Load<PrefabBase>(Array.Empty<IAssetDatabase>());
-            if (World.GetOrCreateSystemManaged<PrefabSystem>().TryGetEntity(prefab, out var entity))
-            {
-                if (World.GetOrCreateSystemManaged<PrefabSystem>().TryGetPrefab<TerrainRenderSettingsPrefab>(entity, out var settings) && settings != null)
-                {
-                    //Mod.log.Info(asset.path + " | " + settings.name + " | Far Tiling: " + settings.m_TerrainFarTiling);
-                    Mod.log.Info("prefab.name: " + prefab.name + "prefabID: " + prefab.GetPrefabID());
 
-                    World.GetOrCreateSystemManaged<MapTextureReplacerSystem>().importedPacks.TryAdd(asset.path, settings.name);
-                    World.GetOrCreateSystemManaged<MapTextureReplacerSystem>().importedPacksJsonString = JsonConvert.SerializeObject(World.GetOrCreateSystemManaged<MapTextureReplacerSystem>().importedPacks);
-                }
+            if (prefab is TerrainRenderSettingsPrefab settings && settings != null)
+            {
+                Mod.log.Info("prefab.name: " + prefab.name + "prefabID: " + prefab.GetPrefabID());
+
+                m_mapTextureReplacerSystem.importedPacks.TryAdd(asset.path, settings.name);
+                m_mapTextureReplacerSystem.importedPacksJsonString = JsonConvert.SerializeObject(m_mapTextureReplacerSystem.importedPacks);
             }
-            
-            //var a = World.GetOrCreateSystemManaged<PrefabSystem>().TryGetPrefab(), out TerrainRenderSettingsPrefab data);
         }
 
         static IEnumerator ReapplyTexture(MapTextureReplacerSystem m_mapTextureReplacerSystem)
