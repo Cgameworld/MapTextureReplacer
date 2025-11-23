@@ -68,7 +68,7 @@ const $SliderMod = ({ react, title, min, max, sliderPos, onInputChange }) => {
         <div className="field_MBO" style={{ minHeight: '52.5rem' }}>
             <div className="row_d2o">
                 <div className="label_ZLb label_test2" style={{ width: '100rem', marginRight: '5rem' }} >{title}</div>
-                <div className="control_Hds" style={{ width: '67.5%', position: 'relative', left: '20rem' }}>
+                <div style={{ flexGrow: '1', flexShrink: '1', display: 'flex', flexDirection: 'row', width: '65.25%', position: 'relative', left: '20rem', top: '5rem' }}>
                     <div className="slider-container_Q_K" style={{height: '10rem'} }>
                         <div className="slider_KXG slider_pUS horizontal slider_ROT">
                             <div className="track-bounds_H8_" ref={sliderRef}>
@@ -81,7 +81,7 @@ const $SliderMod = ({ react, title, min, max, sliderPos, onInputChange }) => {
                             </div>
                         </div>
                     </div>
-                    <input className="slider-input_DXM input_Wfi" type="text" value={inputValue} onChange={handleInputChange} />
+                    <input className="slider-input_DXM input_Wfi" style={{ marginTop: '-10rem' }} type="text" value={inputValue} onChange={handleInputChange} />
                 </div>
             </div>
         </div>
