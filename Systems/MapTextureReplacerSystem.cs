@@ -18,7 +18,7 @@ namespace MapTextureReplacer.Systems
 
         public string PackImportedText = "";
 
-        private Dictionary<string, string> importedPacks = new Dictionary<string, string>();
+        public Dictionary<string, string> importedPacks = new Dictionary<string, string>();
         public string importedPacksJsonString;
         
         public string textureSelectDataJsonString;
@@ -144,6 +144,10 @@ namespace MapTextureReplacer.Systems
                     MapTextureConfig config = JsonConvert.DeserializeObject<MapTextureConfig>(File.ReadAllText(current));
                     SetTilingValues(config.far_tiling, config.close_tiling, config.close_dirt_tiling);                   
                     SetSelectImageAllText(config.pack_name, current);
+                }
+                else if (current.EndsWith(".cok") || current.EndsWith(".Prefab"))
+                {
+
                 }
             }
         }
@@ -383,16 +387,6 @@ namespace MapTextureReplacer.Systems
 
 
             SetTextureSelectDataJson();
-        }
-
-        public void SetTexturesGameLoad()
-        {
-            //change textures on load based on saved COC data
-            List<string> textureTypeKeys = new List<string>(textureTypes.Keys);
-            for (int i = 0; i < textureTypeKeys.Count; i++)
-            {
-                OpenImage(textureTypeKeys[i], textureSelectData[i].Value);
-            }
         }
 
             public void SetActivePackDropdown(string data)

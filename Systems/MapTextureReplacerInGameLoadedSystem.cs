@@ -1,5 +1,9 @@
-﻿using Game;
+﻿using Colossal.IO.AssetDatabase;
+using Game;
+using Game.Prefabs;
+using Game.Prefabs.Terrain;
 using MapTextureReplacer.Helpers;
+using Newtonsoft.Json;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -24,10 +28,43 @@ namespace MapTextureReplacer.Systems
 
             base.OnCreate();
 
+            //grab asset packs
+
+            //check local 
+            foreach (PrefabAsset asset in AssetDatabase.user.GetAssets(default(SearchFilter<PrefabAsset>)))
+            {
+                CheckPrefabs(asset);
+            }
+
+            //check downloaded from paradox mods
+            foreach (PrefabAsset asset in AssetDatabase<ParadoxMods>.instance.GetAssets(default(SearchFilter<PrefabAsset>)))
+            {
+                CheckPrefabs(asset);
+            }
+
+
+            //cache existing textures?
             m_mapTextureTextureCacheSystem.StartCache();
             StaticCoroutine.Start(ReapplyTexture(m_mapTextureReplacerSystem));
         }
+        private void CheckPrefabs(PrefabAsset asset)
+        {
+            PrefabBase prefab = asset.Load<PrefabBase>(Array.Empty<IAssetDatabase>());
+            if (World.GetOrCreateSystemManaged<PrefabSystem>().TryGetEntity(prefab, out var entity))
+            {
+                if (World.GetOrCreateSystemManaged<PrefabSystem>().TryGetPrefab<TerrainRenderSettingsPrefab>(entity, out var settings) && settings != null)
+                {
+                    //Mod.log.Info(asset.path + " | " + settings.name + " | Far Tiling: " + settings.m_TerrainFarTiling);
+                    Mod.log.Info("prefab.name: " + prefab.name + "prefabID: " + prefab.GetPrefabID());
+
+                    World.GetOrCreateSystemManaged<MapTextureReplacerSystem>().importedPacks.TryAdd(asset.path, settings.name);
+                    World.GetOrCreateSystemManaged<MapTextureReplacerSystem>().importedPacksJsonString = JsonConvert.SerializeObject(World.GetOrCreateSystemManaged<MapTextureReplacerSystem>().importedPacks);
+                }
+            }
             
+            //var a = World.GetOrCreateSystemManaged<PrefabSystem>().TryGetPrefab(), out TerrainRenderSettingsPrefab data);
+        }
+
         static IEnumerator ReapplyTexture(MapTextureReplacerSystem m_mapTextureReplacerSystem)
         {
             //wait for the game world textures to show?
