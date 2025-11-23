@@ -57,9 +57,9 @@ namespace MapTextureReplacer.Systems
 
             if (prefab is TerrainRenderSettingsPrefab settings && settings != null)
             {
-                Mod.log.Info("prefab.name: " + prefab.name + "prefabID: " + prefab.GetPrefabID());
+                Mod.log.Info(prefab.GetPrefabID().ToString());
 
-                m_mapTextureReplacerSystem.importedPacks.TryAdd(asset.path, settings.name);
+                m_mapTextureReplacerSystem.importedPacks.TryAdd(prefab.GetPrefabID().ToString(), settings.name);
                 m_mapTextureReplacerSystem.importedPacksJsonString = JsonConvert.SerializeObject(m_mapTextureReplacerSystem.importedPacks);
             }
         }

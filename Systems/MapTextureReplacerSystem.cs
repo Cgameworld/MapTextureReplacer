@@ -1,5 +1,8 @@
 ﻿using Colossal.IO.AssetDatabase;
 using Game;
+using Game.Prefabs;
+using Game.Prefabs.Terrain;
+using Game.Routes;
 using MapTextureReplacer.Helpers;
 using Newtonsoft.Json;
 using System;
@@ -15,6 +18,7 @@ namespace MapTextureReplacer.Systems
     public partial class MapTextureReplacerSystem : GameSystemBase
     {
         private MapTextureReplacerTextureCacheSystem m_mapTextureTextureCacheSystem;
+        private PrefabSystem m_prefabSystem;
 
         public string PackImportedText = "";
 
@@ -47,6 +51,7 @@ namespace MapTextureReplacer.Systems
             base.OnCreate();
 
             m_mapTextureTextureCacheSystem = World.GetOrCreateSystemManaged<MapTextureReplacerTextureCacheSystem>();
+            m_prefabSystem = World.GetOrCreateSystemManaged<PrefabSystem>();
 
             //initialize textureTypes
             if (Mod.Options.TextureSelectData == null)
@@ -142,14 +147,33 @@ namespace MapTextureReplacer.Systems
                     }
 
                     MapTextureConfig config = JsonConvert.DeserializeObject<MapTextureConfig>(File.ReadAllText(current));
-                    SetTilingValues(config.far_tiling, config.close_tiling, config.close_dirt_tiling);                   
+                    SetTilingValues(config.far_tiling, config.close_tiling, config.close_dirt_tiling);
                     SetSelectImageAllText(config.pack_name, current);
                 }
-                else if (current.EndsWith(".cok") || current.EndsWith(".Prefab"))
+                else if (m_prefabSystem.TryGetPrefab(PrefabIDParse(current), out PrefabBase newPrefab))
                 {
-
+                    Mod.log.Info("loading " + PrefabIDParse(current));
+                    if (newPrefab is TerrainRenderSettingsPrefab terrainSettings)
+                    {
+                        TextureAsset textureAsset = terrainSettings.m_GrassDiffuse;
+                        Shader.SetGlobalTexture(Shader.PropertyToID("colossal_TerrainGrassDiffuse"), textureAsset.Load());
+                    }
                 }
+
             }
+
+            
+        }
+
+        public static PrefabID PrefabIDParse(string s)
+        {
+            var i = s.IndexOf(':');
+            var j = s.LastIndexOf(" (", StringComparison.Ordinal);
+            return new PrefabID(
+                s[..i],
+                s[(i + 1)..j],
+                Colossal.Hash128.Parse(s[(j + 2)..^1])
+            );
         }
 
         private void SetSelectImageAllText(string key, string path)
