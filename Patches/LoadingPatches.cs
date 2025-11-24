@@ -17,14 +17,11 @@ namespace MapTextureReplacer.Patches
         static void Postfix(AudioManager __instance, Colossal.Serialization.Entities.Purpose purpose, GameMode mode)
         {
 
-            if (!mode.IsGameOrEditor())
+            if (!mode.IsGame())
                 return;
             World.DefaultGameObjectInjectionWorld?.GetOrCreateSystemManaged<MapTextureReplacerInGameLoadedSystem>().RunAction();
 
-            if (mode.IsEditor())
-            {
-                World.DefaultGameObjectInjectionWorld?.GetOrCreateSystemManaged<MapTextureReplacerEditorUISystem>().CreateAssetEditorButton();
-            }
+
         }
     }
 }
