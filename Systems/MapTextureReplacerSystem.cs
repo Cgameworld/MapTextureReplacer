@@ -3,6 +3,7 @@ using Game;
 using Game.Prefabs;
 using Game.Prefabs.Terrain;
 using Game.Routes;
+using Game.Vehicles;
 using MapTextureReplacer.Helpers;
 using Newtonsoft.Json;
 using System;
@@ -155,25 +156,87 @@ namespace MapTextureReplacer.Systems
                     Mod.log.Info("loading " + PrefabIDParse(current));
                     if (newPrefab is TerrainRenderSettingsPrefab terrainSettings)
                     {
-                        TextureAsset textureAsset = terrainSettings.m_GrassDiffuse;
-                        Shader.SetGlobalTexture(Shader.PropertyToID("colossal_TerrainGrassDiffuse"), textureAsset.Load());
+                        List<string> textureTypeKeys = new List<string>(textureTypes.Keys);
+                        for (int i = 0; i < textureTypeKeys.Count; i++)
+                        {
+                            SetTextureTerrainPrefab(textureTypeKeys[i], terrainSettings);
+                            TileVectorChange("colossal_TerrainTextureTiling", 0, Convert.ToInt32(terrainSettings.m_TerrainFarTiling));
+                            TileVectorChange("colossal_TerrainTextureTiling", 1, Convert.ToInt32(terrainSettings.m_TerrainCloseTiling));
+                            TileVectorChange("colossal_TerrainTextureTiling", 2, Convert.ToInt32(terrainSettings.m_TerrainCloseDirtTiling));
+                            SetSelectImageAllText(PrefabIDParse(current).GetName(),current);
+                        }
                     }
                 }
 
+            }           
+        }
+
+        public void SetTextureTerrainPrefab(string shaderProperty, TerrainRenderSettingsPrefab terrainSettings)
+        {
+            TextureAsset textureAsset = null;
+            int propertyId = 0;
+
+            switch (shaderProperty)
+            {
+                case "colossal_TerrainGrassDiffuse":
+                    textureAsset = terrainSettings.m_GrassDiffuse;
+                    propertyId = Shader.PropertyToID("colossal_TerrainGrassDiffuse");
+                    break;
+
+                case "colossal_TerrainGrassNormal":
+                    textureAsset = terrainSettings.m_GrassNormal;
+                    propertyId = Shader.PropertyToID("colossal_TerrainGrassNormal");
+                    break;
+                case "colossal_TerrainDirtDiffuse":
+                    textureAsset = terrainSettings.m_DirtDiffuse;
+                    propertyId = Shader.PropertyToID("colossal_TerrainDirtDiffuse");
+                    break;
+                case "colossal_TerrainDirtNormal":
+                    textureAsset = terrainSettings.m_DirtNormal;
+                    propertyId = Shader.PropertyToID("colossal_TerrainDirtNormal");
+                    break;
+                case "colossal_TerrainRockDiffuse":
+                    textureAsset = terrainSettings.m_RockDiffuse;
+                    propertyId = Shader.PropertyToID("colossal_TerrainRockDiffuse");
+                    break;
+                case "colossal_TerrainRockNormal":
+                    textureAsset = terrainSettings.m_RockNormal;
+                    propertyId = Shader.PropertyToID("colossal_TerrainRockNormal");
+                    break;
+                default:
+                    Mod.log.Info("shaderproperty not passed");
+                    break;
             }
 
-            
+            if (textureAsset == null)
+            {
+                Mod.log.Info($"TextureAsset for {shaderProperty} was null");
+                return;
+            }
+
+            Shader.SetGlobalTexture(propertyId, textureAsset.Load());
+            Mod.log.Info("Set Texture" + shaderProperty);
         }
 
         public static PrefabID PrefabIDParse(string s)
         {
-            var i = s.IndexOf(':');
-            var j = s.LastIndexOf(" (", StringComparison.Ordinal);
-            return new PrefabID(
-                s[..i],
-                s[(i + 1)..j],
-                Colossal.Hash128.Parse(s[(j + 2)..^1])
-            );
+            try
+            {
+                var i = s.IndexOf(':');
+                var j = s.LastIndexOf(" (", StringComparison.Ordinal);
+                return new PrefabID(
+                    s[..i],
+                    s[(i + 1)..j],
+                    Colossal.Hash128.Parse(s[(j + 2)..^1])
+                );
+            }
+            catch
+            {
+                return new PrefabID(
+                    null,
+                    "empty"
+                );
+            }
         }
 
         private void SetSelectImageAllText(string key, string path)
@@ -251,7 +314,7 @@ namespace MapTextureReplacer.Systems
             else if (packPath.EndsWith(".zip"))
             {
                 int index = textureTypes.Keys.ToList().IndexOf(shaderProperty);
-                textureSelectData[index] = new KeyValuePair<string, string>(packPath.Split(',')[0],packPath);
+                textureSelectData[index] = new KeyValuePair<string, string>(packPath.Split(',')[0], packPath);
                 SetTextureSelectDataJson();
 
                 using (ZipArchive archive = ZipFile.Open(packPath.Split(',')[1], ZipArchiveMode.Read))
@@ -259,13 +322,21 @@ namespace MapTextureReplacer.Systems
                     ExtractEntry(archive, filenameTexture, shaderProperty);
                 }
             }
+            else if (m_prefabSystem.TryGetPrefab(PrefabIDParse(packPath), out PrefabBase newPrefab))
+            {
+                if (newPrefab is TerrainRenderSettingsPrefab terrainSettings)
+                {
+                    SetTextureTerrainPrefab(shaderProperty, terrainSettings);
+                }
+
+            }
             else
             {
                 int index = textureTypes.Keys.ToList().IndexOf(shaderProperty);
 
-                string labelName = importedPacks.TryGetValue(packPath, out string value) ? value :  ShortenDisplayedFilename(Path.GetFileName(packPath));
+                string labelName = importedPacks.TryGetValue(packPath, out string value) ? value : ShortenDisplayedFilename(Path.GetFileName(packPath));
 
-               //Debug.Log("packPath: " + packPath);
+                //Debug.Log("packPath: " + packPath);
                 //Debug.Log("importedPacks[packPath]:  " + labelName);
 
                 textureSelectData[index] = new KeyValuePair<string, string>(labelName, packPath);
