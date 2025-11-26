@@ -49,15 +49,17 @@ If you like this mod be sure to leave an upvote! Thanks
   <!--Link to the forum post where the mod can be discussed-->
   <ForumLink Value="https://forum.paradoxplaza.com/forum/threads/map-texture-replacer.1644700/" />
   <!--Version of the mod-->
-  <ModVersion Value="2.1.7" />
+  <ModVersion Value="2.2" />
   <!--Recommended version of the base game to use the mod-->
-  <GameVersion Value="1.1.*" />
+  <GameVersion Value="1.*" />
   <!--Dependency for the mod, can be set multiple times-->
   <Dependency Id="" />
   <!--Change log for new version. Single line or multi line. Supports minimal markdown subset-->
   <ChangeLog>
-# v2.1.7
-* 1.3.6f1 patch compatibility
+# v2.2
+* Added support for reading terrain render settings prefabs created in the updated editor!
+* Disabled loading of mod in editor
+* UI fixes
   </ChangeLog>
   <!--External link. supported types are discord, github, youtube, twitch, x, paypal, patreon-->
   <ExternalLink Type="youtube" Url="https://www.youtube.com/watch?v=SVhGONBBeIw" />

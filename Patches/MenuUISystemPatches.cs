@@ -14,6 +14,9 @@ public static class MenuUISystem_ExitToMainMenu_Prefix
     {
         var m_mapTextureReplacerSystem = World.DefaultGameObjectInjectionWorld?.GetOrCreateSystemManaged<MapTextureReplacerSystem>();
         var m_mapTextureReplacerTextureCacheSystem = World.DefaultGameObjectInjectionWorld?.GetOrCreateSystemManaged<MapTextureReplacerTextureCacheSystem>();
+        var m_mapTextureReplacerUISystem = World.DefaultGameObjectInjectionWorld?.GetOrCreateSystemManaged<MapTextureReplacerUISystem>();
+
+        m_mapTextureReplacerUISystem.DisableMainWindow();
 
         foreach (var item in m_mapTextureReplacerSystem.textureTypes)
         {

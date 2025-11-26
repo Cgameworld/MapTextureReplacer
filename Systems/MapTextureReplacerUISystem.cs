@@ -79,6 +79,8 @@ namespace MapTextureReplacer.Systems
             //Ui Button to jsx launch binding
             this.AddBinding(new TriggerBinding("map_texture", "MainWindowCreate", EnableMainWindow));
 
+            this.AddBinding(new TriggerBinding("map_texture", "MainWindowDisable", DisableMainWindow));
+
         }
 
         private void MapButtonLoaded()
@@ -92,6 +94,14 @@ namespace MapTextureReplacer.Systems
             Mod.log.Info("EnableMainWindow() called!");
             m_UIView = GameManager.instance.userInterface.view.View;           
             m_UIView.ExecuteScript("window.mapTextureReplacerShowWindow = true;window.dispatchEvent(new Event('mapTextureReplacerShowWindowChanged'));");         
+        }
+
+        public void DisableMainWindow()
+        {
+            View? m_UIView;
+            Mod.log.Info("EnableMainWindow() called!");
+            m_UIView = GameManager.instance.userInterface.view.View;
+            m_UIView.ExecuteScript("window.mapTextureReplacerShowWindow = false;window.dispatchEvent(new Event('mapTextureReplacerShowWindowChanged'));");
         }
 
         private void AddSlider(string sliderName, string shaderProperty, int vectorIndex)
