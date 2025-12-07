@@ -9,16 +9,15 @@
   <LongDescription>
 ## Intro
 
-Map Texture Replacer allows you to easily replace grass, dirt and cliff map textures in your game.
+Map Texture Replacer allows you to easily replace grass, dirt and cliff map textures ingame.
 
 The mod is intended to be used with map texture packs. To find texture packs that work with this mod, search "maptex" in the PDXMods search.
 
 Features include:
-* Dropdowns to easily change packs or individual textures
+* Dropdowns to easily change packs or individual textures on any map or savegame
 * Persistent settings between game loads
 * Texture tiling adjustments
 * Replacement of individual textures with any jpg/png from your computer
-* Map editor support
 
 This mod takes advantage of the fact that map textures are stored as standard unity textures, making them straightforward to read and set.
 
@@ -28,11 +27,15 @@ The vanilla game uses 4096x4096 sized map textures by default for grass, 2048x20
 
 ## Texture Pack Creation
 
-Watch the YouTube tutorial video linked in the sidebar starting at 3:46
+As of the 1.5.2f game patch, it's now possible to do this entirely in the vanilla editor!
 
-## Donate
+Workflow:
 
-If you want to support me, you can do so by buying me a super thanks in the YouTube tutorial video linked in the sidebar
+1) Click "Environment" and in the opened panel scroll down to terrain rendering settings
+2) Create a new terrain render settings prefab.
+3) Save the prefab package by clicking on the three dots next to "Environment" in the workspace window and click "Share Terrain Render Settings prefab".
+4) Name/save the asset and then build it. The last publishing step can be optionally skipped if you are not sharing to PDXMods.
+5) Restart the game and then a new entry will be selectable in the mod settings ingame
 
 ## Conclusion
 
@@ -57,7 +60,7 @@ If you like this mod be sure to leave an upvote! Thanks
   <!--Change log for new version. Single line or multi line. Supports minimal markdown subset-->
   <ChangeLog>
 # v2.2
-* Added support for reading terrain render settings prefabs created in the updated editor!
+* Added support for reading terrain render settings prefabs created in the updated editor
 * Disabled loading of mod in editor
 * UI fixes
   </ChangeLog>

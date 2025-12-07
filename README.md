@@ -1,12 +1,11 @@
 # Map Texture Replacer
-This mod allows you to easily replace grass, dirt and cliff map textures in your game.
+This mod allows you to easily replace grass, dirt and cliff map textures ingame.
 
 Features include:
-- Dropdowns to easily change packs or individual textures
+- Dropdowns to easily change packs or individual textures on any map or savegame
 - Persistent settings between game loads
 - Texture tiling adjustments
 - Replacement of individual textures with any jpg/png from your computer
-- Map editor support
 
 This mod takes advantage of the fact that map textures are stored as standard unity textures, making them straightforward to read and set. 
 
