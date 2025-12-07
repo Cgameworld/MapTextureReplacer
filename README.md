@@ -12,7 +12,6 @@ This mod takes advantage of the fact that map textures are stored as standard un
 # Resources
 
 ### [Publishing Map Texture Packs to PDXMods](https://github.com/Cgameworld/MapTextureReplacer/wiki/Publishing-Map-Texture-Packs-to-PDXMods)
-### [Changelog](https://github.com/Cgameworld/MapTextureReplacer/wiki/Changelog)
 
 # Installation
 1) Download the mod from [Paradox Mods](https://mods.paradoxplaza.com/mods/76050/Windows)
@@ -22,11 +21,11 @@ The vanilla game uses 4096x4096 sized map textures by default for grass, 2048x20
 
 # Video Walkthrough
 
-[![Map Texture Replacer Mod Tutorial - YouTube](https://raw.githubusercontent.com/Cgameworld/ModListingImageStore/main/yt-mtr-thumbnail-screenshot.jpg)](https://youtu.be/upqli5BWhro)
+[![Map Texture Replacer Mod Tutorial - YouTube](https://raw.githubusercontent.com/Cgameworld/ModListingImageStore/main/yt-mtr-thumbnail-screenshot.jpg)](https://youtu.be/SVhGONBBeIw)
 
 # Changelog
 
-See the listing changelog tab
+See the changelog on the PDXmods listing
 
 # Acknowledgements
 
@@ -34,5 +33,4 @@ Thanks to the Cities Skylines 2 modding community for making modding more access
 
 # Conclusion
 
-[Source Code](https://github.com/Cgameworld/MapTextureReplacer/)   
 [Discord](https://discord.gg/tDZhaMrgsQ)
