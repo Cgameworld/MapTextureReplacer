@@ -327,6 +327,10 @@ namespace MapTextureReplacer.Systems
                 if (newPrefab is TerrainRenderSettingsPrefab terrainSettings)
                 {
                     SetTextureTerrainPrefab(shaderProperty, terrainSettings);
+
+                    int index = textureTypes.Keys.ToList().IndexOf(shaderProperty);
+                    textureSelectData[index] = new KeyValuePair<string, string>(PrefabIDParse(packPath).GetName(), packPath);
+                    SetTextureSelectDataJson();
                 }
 
             }
