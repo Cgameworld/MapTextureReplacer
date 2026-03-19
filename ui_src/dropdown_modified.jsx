@@ -4,14 +4,27 @@ import ReactDOM from 'react-dom';
 // Scrollable container with custom scrollbar matching game UI
 const ScrollableDropdown = ({ react, children, maxHeight, itemCount }) => {
     const containerRef = react.useRef(null);
+    const innerRef = react.useRef(null);
     const scrollAreaRef = react.useRef(null);
     const scrollTopRef = react.useRef(0);
     const [scrollTop, setScrollTop] = react.useState(0);
+    const [measuredHeight, setMeasuredHeight] = react.useState(0);
     const [thumbHover, setThumbHover] = react.useState(false);
     const [thumbActive, setThumbActive] = react.useState(false);
 
-    const estimatedItemHeight = 30;
-    const contentHeight = estimatedItemHeight * itemCount;
+    // Estimate ensures scrollbar appears immediately; measurement refines scroll range
+    const estimatedHeight = 35 * itemCount;
+
+    // Measure actual content height via getBoundingClientRect after render
+    react.useEffect(() => {
+        if (!innerRef.current) return;
+        const h = innerRef.current.getBoundingClientRect().height;
+        if (h > measuredHeight + 1) {
+            setMeasuredHeight(h);
+        }
+    });
+
+    const contentHeight = measuredHeight > 0 ? Math.max(estimatedHeight, measuredHeight) : estimatedHeight;
     const needsScroll = contentHeight > maxHeight;
     const maxScroll = needsScroll ? contentHeight - maxHeight : 0;
     const clamped = Math.max(0, Math.min(scrollTop, maxScroll));
@@ -117,7 +130,7 @@ const ScrollableDropdown = ({ react, children, maxHeight, itemCount }) => {
     return (
         <div ref={containerRef}
             style={{ maxHeight: maxHeight + 'rem', overflow: 'hidden', position: 'relative' }}>
-            <div
+            <div ref={innerRef}
                 style={{
                     position: needsScroll ? 'relative' : undefined,
                     top: needsScroll ? (-clamped + 'rem') : undefined,
@@ -225,8 +238,8 @@ const $DropdownMod = ({ react, style, onSelectionChanged, selected, options, dro
     const getDropdownMaxHeight = () => {
         if (pickerRef.current) {
             const rect = pickerRef.current.getBoundingClientRect();
-            // Cap at 400rem so long lists scroll instead of overflowing off-screen
-            return Math.max(100, Math.min(400, window.innerHeight - rect.bottom - 200));
+            // Cap at 500rem height
+            return Math.max(100, Math.min(500, window.innerHeight - rect.bottom - 200));
         }
         return 300;
     };
@@ -263,7 +276,7 @@ const $DropdownMod = ({ react, style, onSelectionChanged, selected, options, dro
                     <ScrollableDropdown react={react} maxHeight={getDropdownMaxHeight()} itemCount={options.length}>
                         {
                             options.map((option) => (
-                                <button key={option.value} className="dropdown-item_sZT selected" style={{ padding: '5rem', height: 'auto', whiteSpace: 'pre-wrap' }} onClick={() => changeSelection(option.value)}>{option.label}</button>
+                                <button key={option.value} className="dropdown-item_sZT" style={{ padding: '5rem', height: 'auto', whiteSpace: 'pre-wrap' }} onClick={() => changeSelection(option.value)}>{option.label}</button>
                             ))
                         }
                     </ScrollableDropdown>
