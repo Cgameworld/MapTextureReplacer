@@ -19,10 +19,6 @@ This mod takes advantage of the fact that map textures are stored as standard un
 # Map Texture Packs
 The vanilla game uses 4096x4096 sized map textures by default for grass, 2048x2048 for dirt and cliff though smaller scaled textures will successfully replace. For example, the example desert map theme pack uses 1024x1024 sized textures.
 
-# Video Walkthrough
-
-[![Map Texture Replacer Mod Tutorial - YouTube](https://raw.githubusercontent.com/Cgameworld/ModListingImageStore/main/yt-mtr-thumbnail-screenshot.jpg)](https://youtu.be/SVhGONBBeIw)
-
 # Changelog
 
 See the changelog on the PDXmods listing
