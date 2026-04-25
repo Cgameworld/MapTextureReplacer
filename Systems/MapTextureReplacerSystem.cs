@@ -12,6 +12,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.IO.Compression;
 using System.Linq;
+using System.Text.RegularExpressions;
 using UnityEngine;
 
 namespace MapTextureReplacer.Systems
@@ -53,6 +54,8 @@ namespace MapTextureReplacer.Systems
 
             m_mapTextureTextureCacheSystem = World.GetOrCreateSystemManaged<MapTextureReplacerTextureCacheSystem>();
             m_prefabSystem = World.GetOrCreateSystemManaged<PrefabSystem>();
+
+            MigrateSavedPaths();
 
             //initialize textureTypes
             if (Mod.Options.TextureSelectData == null)
@@ -519,6 +522,38 @@ namespace MapTextureReplacer.Systems
             }
             isOver = true;
                         
+        }
+
+        private static void MigrateSavedPaths()
+        {
+            var pattern = new Regex(@"(Mods[\\/]+)mods_subscribed");
+            string replacement = "$1pdx_mods";
+            bool changed = false;
+
+            if (!string.IsNullOrEmpty(Mod.Options.ActiveDropdown))
+            {
+                string updated = pattern.Replace(Mod.Options.ActiveDropdown, replacement);
+                if (updated != Mod.Options.ActiveDropdown)
+                {
+                    Mod.Options.ActiveDropdown = updated;
+                    changed = true;
+                }
+            }
+
+            if (!string.IsNullOrEmpty(Mod.Options.TextureSelectData))
+            {
+                string updated = pattern.Replace(Mod.Options.TextureSelectData, replacement);
+                if (updated != Mod.Options.TextureSelectData)
+                {
+                    Mod.Options.TextureSelectData = updated;
+                    changed = true;
+                }
+            }
+
+            if (changed)
+            {
+                AssetDatabase.global.SaveSettings();
+            }
         }
 
         static IEnumerator SaveSettingsOnceAfterDelay()
