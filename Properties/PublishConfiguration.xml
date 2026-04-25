@@ -52,15 +52,17 @@ If you like this mod be sure to leave an upvote! Thanks
   <!--Link to the forum post where the mod can be discussed-->
   <ForumLink Value="https://forum.paradoxplaza.com/forum/threads/map-texture-replacer.1644700/" />
   <!--Version of the mod-->
-  <ModVersion Value="2.2.2" />
+  <ModVersion Value="2.2.3" />
   <!--Recommended version of the base game to use the mod-->
   <GameVersion Value="1.*" />
   <!--Dependency for the mod, can be set multiple times-->
   <Dependency Id="" />
   <!--Change log for new version. Single line or multi line. Supports minimal markdown subset-->
   <ChangeLog>
-# v2.2.2
-* Improved dropdown with overflow scrollbar and updated styling
+# v2.2.3
+* migrate saved file paths to new file path format?
+* added toggle to show mod button in universal mod menu
+
   </ChangeLog>
   <!--External link. supported types are discord, github, youtube, twitch, x, paypal, patreon-->
   <ExternalLink Type="youtube" Url="https://www.youtube.com/watch?v=SVhGONBBeIw" />

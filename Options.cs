@@ -24,6 +24,7 @@ namespace MapTextureReplacer
         {
             SetDefaults();
         }
+        public bool InUniversalModMenu { get; set; }
 
         public string ModVersion => Assembly.GetExecutingAssembly().GetName().Version.ToString();
 
@@ -59,6 +60,7 @@ namespace MapTextureReplacer
         public override void SetDefaults()
         {
             MakeSureSave = 0;
+            InUniversalModMenu = false;
         }
     }
 }
