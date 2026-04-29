@@ -18,13 +18,23 @@ namespace MapTextureReplacer
     public class MapTextureReplacerOptions : ModSetting
     {
         private MapTextureReplacerSystem m_MapTextureReplacerSystem;
+        private bool _InUniversalModMenu;
 
         public MapTextureReplacerOptions(IMod mod)
             : base(mod)
         {
             SetDefaults();
         }
-        public bool InUniversalModMenu { get; set; }
+        public bool InUniversalModMenu
+        {
+            get => _InUniversalModMenu;
+            set
+            {
+                if (_InUniversalModMenu == value) return;
+                _InUniversalModMenu = value;
+                GameManager.instance?.userInterface?.view?.View?.ExecuteScript("window.location.reload();");
+            }
+        }
 
         public string ModVersion => Assembly.GetExecutingAssembly().GetName().Version.ToString();
 

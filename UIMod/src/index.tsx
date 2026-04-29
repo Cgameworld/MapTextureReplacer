@@ -4,14 +4,13 @@ import mod from "../mod.json";
 import { VanillaComponentsResolver } from '../types/internal';
 import engine from "cohtml/cohtml";
 
-const inUniversalModMenu = bindValue<boolean>("map_texture", "in_univeral_mod_menu", true);
+const inUniversalModMenu = bindValue<boolean>("map_texture", "in_univeral_mod_menu");
 
 const register: ModRegistrar = (moduleRegistry) => {
 
     const { DescriptionTooltip } = VanillaComponentsResolver.instance;
 
-    // captured at startup, not reactive to later changes
-    const isInUniversalModMenu = inUniversalModMenu.value; 
+    const isInUniversalModMenu = inUniversalModMenu.value; //static 
 
     const CustomMenuButton = () => {
         return <DescriptionTooltip title="Map Texture Replacer" description="Replace grass, dirt and cliff map textures. Click to open options">

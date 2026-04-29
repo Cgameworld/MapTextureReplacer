@@ -19,7 +19,10 @@ namespace MapTextureReplacer.Systems
             this.systemManaged = this.World.GetExistingSystemManaged<MapTextureReplacerSystem>();
 
             base.OnCreate();
-            this.AddUpdateBinding(new GetterValueBinding<bool>("map_texture", "in_univeral_mod_menu", () => Mod.Options?.InUniversalModMenu ?? true));
+            this.AddUpdateBinding(new GetterValueBinding<bool>("map_texture", "in_univeral_mod_menu", () =>
+            {
+                return Mod.Options?.InUniversalModMenu ?? false;
+            }));
 
             this.AddUpdateBinding(new GetterValueBinding<string>("map_texture", "texture_pack", () =>
             {

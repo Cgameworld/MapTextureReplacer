@@ -24,7 +24,7 @@ namespace MapTextureReplacer.Locale
                 { m_Setting.GetOptionDescLocaleID(nameof(MapTextureReplacerOptions.ResetModSettings)), "Reset Mod Settings to Default Values"},
                 { m_Setting.GetOptionWarningLocaleID(nameof(MapTextureReplacerOptions.ResetModSettings)), "Are you sure you want to reset all mod settings?"},
                 { m_Setting.GetOptionLabelLocaleID(nameof(MapTextureReplacerOptions.InUniversalModMenu)), "Show Button in Universal Mod Menu" },
-                { m_Setting.GetOptionDescLocaleID(nameof(MapTextureReplacerOptions.InUniversalModMenu)), "When enabled, the mod button is placed inside the Universal Mod Menu Tray instead of the upper left hand corner. Game restart required to apply." }
+                { m_Setting.GetOptionDescLocaleID(nameof(MapTextureReplacerOptions.InUniversalModMenu)), "When enabled, the mod button is placed inside the Universal Mod Menu Tray instead of the upper left hand corner." }
             };
 
         }
