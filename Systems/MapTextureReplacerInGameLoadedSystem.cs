@@ -87,8 +87,8 @@ namespace MapTextureReplacer.Systems
             {
                 Shader.SetGlobalVector(Shader.PropertyToID("colossal_TerrainTextureTiling"), Mod.Options.CurrentTilingVector);
             }
-            
 
+            m_mapTextureReplacerSystem.RestoreFarTilingBreakpoints();
 
             yield break;
         }

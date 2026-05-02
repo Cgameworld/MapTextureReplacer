@@ -194,6 +194,9 @@ const $Main = ({ react, onClose }) => {
     useDataUpdate(react, 'map_texture.open_texture_zip', setOpenTextureZip)
     useDataUpdate(react, 'map_texture.reset_tiling', setResetTiling)
 
+    const [dynamicFarTiling, setDynamicFarTiling] = react.useState(false);
+    useDataUpdate(react, 'map_texture.dynamic_far_tiling_enabled', setDynamicFarTiling);
+
     const sliders = [
         { title: 'Far Tiling', min: 1, max: 250, pos: 'map_texture.slider1_Pos', update: 'map_texture.slider1_UpdatedValue' },
         { title: 'Close Tiling', min: 10, max: 3000, pos: 'map_texture.slider2_Pos', update: 'map_texture.slider2_UpdatedValue' },
@@ -305,7 +308,16 @@ const $Main = ({ react, onClose }) => {
         <TextureSelectUIs react={react} options={options} />
         {/* //todo: reload slider values from packs on gameload/window reopen */}
 
-        {sliders.map((slider, index) => <SliderComponent key={index} react={react} slider={slider} isRendered={slidersRendered} />)}
+        {sliders.map((slider, index) =>
+            (dynamicFarTiling && index === 0) ? (
+                <div key={index} className="field_MBO" style={{ minHeight: '52.5rem' }}>
+                    <div className="label_DGc label_ZLb">{slider.title}</div>
+                    <div style={{ width: '67%' }}>Breakpoints From Base Pack</div>
+                </div>
+            ) : (
+                <SliderComponent key={index} react={react} slider={slider} isRendered={slidersRendered} />
+            )
+        )}
 
         <div className="field_MBO" style={{ minHeight: '52.5rem' }} >
             <button className="button_WWa button_SH8" onClick={handleButtonClick}>Reset Tiling</button>
