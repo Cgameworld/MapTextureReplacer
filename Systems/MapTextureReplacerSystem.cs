@@ -1,4 +1,5 @@
 ﻿using Colossal.IO.AssetDatabase;
+using Colossal.PSI.Environment;
 using Game;
 using Game.Prefabs;
 using Game.Prefabs.Terrain;
@@ -36,8 +37,9 @@ namespace MapTextureReplacer.Systems
         public string PackImportedText = "";
 
         public Dictionary<string, string> importedPacks = new Dictionary<string, string>();
+        public Dictionary<string, string> packSources = new Dictionary<string, string>();
         public string importedPacksJsonString;
-        
+       
         public string textureSelectDataJsonString;
         public List<KeyValuePair<string, string>> textureSelectData = new List<KeyValuePair<string, string>>() {
             new KeyValuePair<string, string>("Default", "none"),
@@ -84,26 +86,36 @@ namespace MapTextureReplacer.Systems
                 textureSelectData = JsonConvert.DeserializeObject<List<KeyValuePair<string, string>>>(Mod.Options.TextureSelectData);
             }
 
-            List<string> texturePackFolders = new List<string>();
+            Dictionary<string, string> texturePackFolderSources = new Dictionary<string, string>();
 
-            DirectoryInfo modsFolderDirectory = Directory.GetParent(Directory.GetParent(Mod.ModPath).FullName);
-
-            Mod.log.Info("modsFolderDirectory.FullName: " + modsFolderDirectory.FullName);
+            string[] modsFolders =
+            {
+                Path.Combine(EnvPath.kCacheDataPath, "Mods", "pdx_mods"), //paradox mods download location
+                Path.Combine(EnvPath.kUserDataPath, "Mods"), //local mods folder
+            };
 
             //find folders that contain pack config json files
-            foreach (string filePath in Directory.GetFiles(modsFolderDirectory.FullName, "maptextureconfig.json", SearchOption.AllDirectories))
+            foreach (string modsFolder in modsFolders)
             {
-                Mod.log.Info($"{filePath}");
-                var filename = Path.GetFileName(filePath);              
-                if (filename == "maptextureconfig.json")
-                {            
-                    texturePackFolders.Add(Directory.GetParent(filePath).FullName);
+                if (!Directory.Exists(modsFolder))
+                {
+                    Mod.log.Info("Skipping missing mods folder: " + modsFolder);
+                    continue;
+                }
+                Mod.log.Info("Scanning mods folder: " + modsFolder);
+                string source = modsFolder == modsFolders[0] ? "pdx" : "local";
+                foreach (string filePath in Directory.GetFiles(modsFolder, "maptextureconfig.json", SearchOption.AllDirectories))
+                {
+                    Mod.log.Info($"{filePath}");
+                    texturePackFolderSources[Directory.GetParent(filePath).FullName] = source;
                 }
             }
 
             //read pack config json files in the folders that have them
-            foreach (var folder in texturePackFolders)
+            foreach (var entry in texturePackFolderSources)
             {
+                string folder = entry.Key;
+                string source = entry.Value;
                 foreach (string filePath in Directory.GetFiles(folder))
                 {
                     var filename = Path.GetFileName(filePath);
@@ -113,6 +125,7 @@ namespace MapTextureReplacer.Systems
                         {
                             MapTextureConfig mapTheme = JsonConvert.DeserializeObject<MapTextureConfig>(File.ReadAllText(filePath));
                             importedPacks.Add(filePath, mapTheme.pack_name);
+                            packSources[filePath] = source;
                         }
                         catch (IOException ex)
                         {
@@ -121,12 +134,27 @@ namespace MapTextureReplacer.Systems
                     }
                 }
             }
-            importedPacksJsonString = JsonConvert.SerializeObject(importedPacks);
+            SerializeImportedPacksWithSource();
 
             //populate string
             textureSelectDataJsonString = JsonConvert.SerializeObject(textureSelectData);
         }
-     
+
+        public void SerializeImportedPacksWithSource()
+        {
+            var payload = new Dictionary<string, object>(importedPacks.Count);
+            foreach (var entry in importedPacks)
+            {
+                payload[entry.Key] = new
+                {
+                    name = entry.Value,
+                    source = packSources.TryGetValue(entry.Key, out var s) ? s : "pdx", //if source unknown tag, no icon
+                };
+            }
+            importedPacksJsonString = JsonConvert.SerializeObject(payload);
+        }
+
+
         protected override void OnUpdate()
         {
             if (DynamicFarTilingEnabled

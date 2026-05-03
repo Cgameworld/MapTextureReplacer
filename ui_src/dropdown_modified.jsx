@@ -276,7 +276,12 @@ const $DropdownMod = ({ react, style, onSelectionChanged, selected, options, dro
                     <ScrollableDropdown react={react} maxHeight={getDropdownMaxHeight()} itemCount={options.length}>
                         {
                             options.map((option) => (
-                                <button key={option.value} className="dropdown-item_sZT" style={{ padding: '5rem', height: 'auto', whiteSpace: 'pre-wrap' }} onClick={() => changeSelection(option.value)}>{option.label}</button>
+                                <button key={option.value} className="dropdown-item_sZT" style={{ padding: '5rem', height: 'auto', whiteSpace: 'pre-wrap', display: 'flex', alignItems: 'center', gap: '4rem' }} onClick={() => changeSelection(option.value)}>
+                                    {option.source === "local" && (
+                                        <div className="tinted-icon_iKo" style={{ maskImage: 'url(Media/Glyphs/Save.svg)', width: '16rem', height: '16rem', flexShrink: 0 }} />
+                                    )}
+                                    <span>{option.label}</span>
+                                </button>
                             ))
                         }
                     </ScrollableDropdown>
@@ -288,6 +293,9 @@ const $DropdownMod = ({ react, style, onSelectionChanged, selected, options, dro
     return (
         <div>
             <div ref={pickerRef} className="dropdown-toggle_V9z dropdown-toggle_prl value-field_yJi value_PW_ dropdown_pJu item-states_QjV" onClick={onToggle} style={{ padding: '5rem', height: 'auto', backgroundColor: dropdownTextChar != null ? 'rgba(0, 0, 0, 0.15)' : 'rgba(0, 0, 0, 0.6)', ...style }}>
+                {selected !== "Loading..." && options[selectedIndex] && options[selectedIndex].source === "local" && (
+                    <div className="tinted-icon_iKo" style={{ maskImage: 'url(Media/Glyphs/Save.svg)', width: '16rem', height: '16rem', flexShrink: 0, marginRight: '4rem' }} />
+                )}
                 <div className="label_l_4" style={{ position: 'relative', top: '1rem' }}>
                     {selected === "Loading..."
                         ? selected
@@ -295,7 +303,7 @@ const $DropdownMod = ({ react, style, onSelectionChanged, selected, options, dro
                             ? options[selectedIndex].label.substring(0, dropdownTextChar) + "..."
                             : options[selectedIndex].label}
                 </div>
-                <div className="tinted-icon_iKo indicator_Xmj" style={{ maskImage: 'url(Media/Glyphs/StrokeArrowDown.svg)' }}></div>
+                <div className="tinted-icon_iKo indicator_Xmj" style={{ marginLeft: '0rem', maskImage: 'url(Media/Glyphs/StrokeArrowDown.svg)' }}></div>
                 {portalContainer && dropdownContent && ReactDOM.createPortal(dropdownContent, portalContainer)}
             </div>
         </div>

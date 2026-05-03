@@ -34,16 +34,16 @@ namespace MapTextureReplacer.Systems
 
             //grab asset packs
 
-            //check local 
+            //check local
             foreach (PrefabAsset asset in AssetDatabase.user.GetAssets(default(SearchFilter<PrefabAsset>)))
             {
-                CheckPrefabs(asset);
+                CheckPrefabs(asset, "local");
             }
 
             //check downloaded from paradox mods
             foreach (PrefabAsset asset in AssetDatabase<ParadoxMods>.instance.GetAssets(default(SearchFilter<PrefabAsset>)))
             {
-                CheckPrefabs(asset);
+                CheckPrefabs(asset, "pdx");
             }
 
 
@@ -51,7 +51,7 @@ namespace MapTextureReplacer.Systems
             m_mapTextureTextureCacheSystem.StartCache();
             StaticCoroutine.Start(ReapplyTexture(m_mapTextureReplacerSystem));
         }
-        private void CheckPrefabs(PrefabAsset asset)
+        private void CheckPrefabs(PrefabAsset asset, string source)
         {
             PrefabBase prefab = asset.Load<PrefabBase>(Array.Empty<IAssetDatabase>());
 
@@ -59,8 +59,12 @@ namespace MapTextureReplacer.Systems
             {
                 Mod.log.Info(prefab.GetPrefabID().ToString());
 
-                m_mapTextureReplacerSystem.importedPacks.TryAdd(prefab.GetPrefabID().ToString(), settings.name);
-                m_mapTextureReplacerSystem.importedPacksJsonString = JsonConvert.SerializeObject(m_mapTextureReplacerSystem.importedPacks);
+                string key = prefab.GetPrefabID().ToString();
+                if (m_mapTextureReplacerSystem.importedPacks.TryAdd(key, settings.name))
+                {
+                    m_mapTextureReplacerSystem.packSources[key] = source;
+                }
+                m_mapTextureReplacerSystem.SerializeImportedPacksWithSource();
             }
         }
 
