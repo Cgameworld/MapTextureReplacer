@@ -217,10 +217,18 @@ namespace MapTextureReplacer.Systems
                         }
                     }
 
-                    MapTextureConfig config = JsonConvert.DeserializeObject<MapTextureConfig>(File.ReadAllText(current));
-                    SetTilingValues(config.far_tiling, config.close_tiling, config.close_dirt_tiling);
-                    LoadBreakpointsFromConfig(config);
-                    SetSelectImageAllText(config.pack_name, current);
+                    try
+                    {
+                        MapTextureConfig config = JsonConvert.DeserializeObject<MapTextureConfig>(File.ReadAllText(current));
+                        SetTilingValues(config.far_tiling, config.close_tiling, config.close_dirt_tiling);
+                        LoadBreakpointsFromConfig(config);
+                        SetSelectImageAllText(config.pack_name, current);
+                    }
+                    catch (Exception ex)
+                    {
+                        Mod.errorLog.Error($"Malformed pack config '{Path.GetFileName(current)}', check the JSON file. {ex.Message}");
+                        ClearBreakpoints();
+                    }
                 }
                 else if (m_prefabSystem.TryGetPrefab(PrefabIDParse(current), out PrefabBase newPrefab))
                 {

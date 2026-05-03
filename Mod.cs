@@ -16,6 +16,7 @@ namespace MapTextureReplacer
         public static MapTextureReplacerOptions? Options { get; set; }
 
         public static ILog log = LogManager.GetLogger($"{nameof(MapTextureReplacer)}.{nameof(Mod)}").SetShowsErrorsInUI(false);
+        public static ILog errorLog = LogManager.GetLogger($"{nameof(MapTextureReplacer)}.UserError").SetShowsErrorsInUI(true);
 
         public static string ModPath = "";
 
