@@ -48,6 +48,8 @@ namespace MapTextureReplacer.Systems
 
             this.AddUpdateBinding(new GetterValueBinding<bool>("map_texture", "dynamic_far_tiling_enabled", () => systemManaged.DynamicFarTilingEnabled));
 
+            this.AddUpdateBinding(new GetterValueBinding<int>("map_texture", "dynamic_far_tiling_current", () => systemManaged.CurrentDynamicFarTiling));
+
             this.AddUpdateBinding(new GetterValueBinding<string>("map_texture", "get_active_pack_dropdown", () => this.systemManaged.GetActivePackDropdown()));
             this.AddBinding(new TriggerBinding<string>("map_texture", "set_active_pack_dropdown", this.systemManaged.SetActivePackDropdown));
             

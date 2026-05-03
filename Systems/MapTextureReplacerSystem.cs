@@ -31,6 +31,7 @@ namespace MapTextureReplacer.Systems
         private List<FarTilingBreakpoint> m_sortedBreakpoints;
         private int m_fallbackFarTiling;
         private int m_lastAppliedFar = -1;
+        public int CurrentDynamicFarTiling => m_lastAppliedFar;
 
         public string PackImportedText = "";
 
