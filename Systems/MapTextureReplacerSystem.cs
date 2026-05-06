@@ -144,7 +144,8 @@ namespace MapTextureReplacer.Systems
         public void SerializeImportedPacksWithSource()
         {
             var payload = new Dictionary<string, object>(importedPacks.Count);
-            foreach (var entry in importedPacks)
+            foreach (var entry in importedPacks.OrderBy(e =>
+                packSources.TryGetValue(e.Key, out var s) && s == "local" ? 1 : 0))
             {
                 payload[entry.Key] = new
                 {
