@@ -13,6 +13,8 @@ This mod takes advantage of the fact that map textures are stored as standard un
 
 ### [Publishing Map Texture Packs to PDXMods](https://github.com/Cgameworld/MapTextureReplacer/wiki/Publishing-Map-Texture-Packs-to-PDXMods)
 
+### [Far Tiling Breakpoints](https://github.com/Cgameworld/MapTextureReplacer/wiki/Far-Tiling-Breakpoints)
+
 # Installation
 1) Download the mod from [Paradox Mods](https://mods.paradoxplaza.com/mods/76050/Windows)
 

@@ -19,6 +19,8 @@ namespace MapTextureReplacer
     {
         private MapTextureReplacerSystem m_MapTextureReplacerSystem;
         private bool _InUniversalModMenu;
+        private bool _ShowDownloadedPacks;
+        private bool _ShowLocalPacks;
 
         public MapTextureReplacerOptions(IMod mod)
             : base(mod)
@@ -32,7 +34,35 @@ namespace MapTextureReplacer
             {
                 if (_InUniversalModMenu == value) return;
                 _InUniversalModMenu = value;
-                GameManager.instance?.userInterface?.view?.View?.ExecuteScript("window.location.reload();");
+                RefreshUI();
+            }
+        }
+
+        public bool ShowDownloadedPacks
+        {
+            get => _ShowDownloadedPacks;
+            set
+            {
+                if (_ShowDownloadedPacks == value) return;
+                _ShowDownloadedPacks = value;
+                World.DefaultGameObjectInjectionWorld?
+                    .GetExistingSystemManaged<MapTextureReplacerSystem>()?
+                    .SerializeImportedPacksWithSource();
+                RefreshUI();
+            }
+        }
+
+        public bool ShowLocalPacks
+        {
+            get => _ShowLocalPacks;
+            set
+            {
+                if (_ShowLocalPacks == value) return;
+                _ShowLocalPacks = value;
+                World.DefaultGameObjectInjectionWorld?
+                    .GetExistingSystemManaged<MapTextureReplacerSystem>()?
+                    .SerializeImportedPacksWithSource();
+                RefreshUI();
             }
         }
 
@@ -71,6 +101,12 @@ namespace MapTextureReplacer
         {
             MakeSureSave = 0;
             InUniversalModMenu = false;
+            ShowDownloadedPacks = true;
+            ShowLocalPacks = true;
+        }
+        private static void RefreshUI()
+        {
+            GameManager.instance?.userInterface?.view?.View?.ExecuteScript("window.location.reload();");
         }
     }
 }

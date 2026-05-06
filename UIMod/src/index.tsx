@@ -10,14 +10,15 @@ const register: ModRegistrar = (moduleRegistry) => {
 
     const { DescriptionTooltip } = VanillaComponentsResolver.instance;
 
-    const isInUniversalModMenu = inUniversalModMenu.value; //static 
+    const isInUniversalModMenu = inUniversalModMenu.value; //static
 
     const CustomMenuButton = () => {
+        const universalSize = `${32 * (isInUniversalModMenu ? parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--toolbarScale')) || 1 : 1)}rem`;
         return <DescriptionTooltip title="Map Texture Replacer" description="Replace grass, dirt and cliff map textures. Click to open options">
             <button id="MapTextureReplacer-MainGameButton" className="button_ke4 button_ke4 button_h9N" onClick={() => {
                 engine.trigger("audio.playSound", "select-item", 1); trigger("map_texture", "MainWindowCreate");
             }}>
-                <div className="tinted-icon_iKo icon_be5" style={{ backgroundImage: 'url(Media/Game/Icons/MapTile.svg)', backgroundPositionY: isInUniversalModMenu ? '-2rem' : '-1rem', backgroundColor: 'rgba(255,255,255,0)', backgroundSize: isInUniversalModMenu ? '32rem 32rem' : '40rem 40rem' }}>
+                <div className="tinted-icon_iKo icon_be5" style={{ backgroundImage: 'url(Media/Game/Icons/MapTile.svg)', backgroundPositionY: isInUniversalModMenu ? '-2rem' : '-1rem', backgroundColor: 'rgba(255,255,255,0)', backgroundSize: isInUniversalModMenu ? `${universalSize} ${universalSize}` : '40rem 40rem' }}>
                 </div>
             </button>
         </DescriptionTooltip>;

@@ -147,10 +147,13 @@ namespace MapTextureReplacer.Systems
             foreach (var entry in importedPacks.OrderBy(e =>
                 packSources.TryGetValue(e.Key, out var s) && s == "local" ? 1 : 0))
             {
+                var src = packSources.TryGetValue(entry.Key, out var s) ? s : "pdx"; //if source unknown tag, no icon
+                if ((src == "local" && !Mod.Options.ShowLocalPacks)
+                    || (src != "local" && !Mod.Options.ShowDownloadedPacks)) continue;
                 payload[entry.Key] = new
                 {
                     name = entry.Value,
-                    source = packSources.TryGetValue(entry.Key, out var s) ? s : "pdx", //if source unknown tag, no icon
+                    source = src,
                 };
             }
             importedPacksJsonString = JsonConvert.SerializeObject(payload);
