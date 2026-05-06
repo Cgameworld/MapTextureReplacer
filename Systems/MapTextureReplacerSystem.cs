@@ -127,9 +127,10 @@ namespace MapTextureReplacer.Systems
                             importedPacks.Add(filePath, mapTheme.pack_name);
                             packSources[filePath] = source;
                         }
-                        catch (IOException ex)
+                        catch (Exception ex)
                         {
-                            Mod.log.Error($"Failed to read .json file {filePath} due to: {ex.Message}");
+                            string packId = TryReadPackName(filePath) ?? Directory.GetParent(filePath).Name;
+                            Mod.errorLog.Error($"Malformed pack config '{packId}', check the JSON file: {ex.Message}");
                         }
                     }
                 }
@@ -176,8 +177,7 @@ namespace MapTextureReplacer.Systems
 
                 if (target != m_lastAppliedFar)
                 {
-                    Mod.log.Info($"[Breakpoints] heightAboveGround={heightAboveGround:F1} " +
-                                 $"far_tiling {m_lastAppliedFar} -> {target}");
+                    //Mod.log.Info($"[Breakpoints] heightAboveGround={heightAboveGround:F1} " + $"far_tiling {m_lastAppliedFar} -> {target}");
                     ApplyFarTilingShaderOnly(target);
                     m_lastAppliedFar = target;
                 }
@@ -226,7 +226,8 @@ namespace MapTextureReplacer.Systems
                     }
                     catch (Exception ex)
                     {
-                        Mod.errorLog.Error($"Malformed pack config '{Path.GetFileName(current)}', check the JSON file. {ex.Message}");
+                        string packId = TryReadPackName(current) ?? Directory.GetParent(current).Name;
+                        Mod.errorLog.Error($"Malformed pack config '{packId}', check the JSON file. {ex.Message}");
                         ClearBreakpoints();
                     }
                 }
@@ -601,6 +602,16 @@ namespace MapTextureReplacer.Systems
                         
         }
 
+        private static string TryReadPackName(string jsonPath)
+        {
+            try
+            {
+                var match = Regex.Match(File.ReadAllText(jsonPath), @"""pack_name""\s*:\s*""([^""]+)""");
+                return match.Success ? match.Groups[1].Value : null;
+            }
+            catch { return null; }
+        }
+
         private static void MigrateSavedPaths()
         {
             var pattern = new Regex(@"(Mods[\\/]+)mods_subscribed");
@@ -662,7 +673,7 @@ namespace MapTextureReplacer.Systems
 
             var entries = string.Join(", ",
                 m_sortedBreakpoints.Select(b => $"({b.height} -> {b.far_tiling})"));
-            Mod.log.Info($"[Breakpoints] enabled with {m_sortedBreakpoints.Count} entries, " +
+            Mod.log.Info($"Breakpoints enabled with {m_sortedBreakpoints.Count} entries, " +
                          $"fallback={m_fallbackFarTiling}: {entries}");
         }
 
@@ -675,7 +686,7 @@ namespace MapTextureReplacer.Systems
             }
             catch (Exception ex)
             {
-                Mod.log.Warn($"[Breakpoints] failed to load from {jsonPath}: {ex.Message}");
+                Mod.log.Warn($"Breakpoints failed to load from {jsonPath}: {ex.Message}");
                 ClearBreakpoints();
             }
         }
