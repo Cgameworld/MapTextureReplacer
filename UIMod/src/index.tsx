@@ -1,8 +1,9 @@
 import { ModRegistrar } from "cs2/modding";
-import { bindValue, trigger, useValue } from "cs2/api";
+import { bindValue, trigger } from "cs2/api";
 import mod from "../mod.json";
 import { VanillaComponentsResolver } from '../types/internal';
 import engine from "cohtml/cohtml";
+import CreatorToolsWindow from './components/CreatorToolsWindow';
 
 const inUniversalModMenu = bindValue<boolean>("map_texture", "in_univeral_mod_menu");
 
@@ -28,6 +29,7 @@ const register: ModRegistrar = (moduleRegistry) => {
     trigger("map_texture", "MapButtonLoaded");
 
     moduleRegistry.append(isInUniversalModMenu ? 'UniversalModMenu' : 'GameTopLeft', CustomMenuButton);
+    moduleRegistry.append('GameTopRight', CreatorToolsWindow);
 
     console.log(mod.id + " UI module registrations completed.");
 }

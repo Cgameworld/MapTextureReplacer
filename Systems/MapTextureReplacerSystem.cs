@@ -34,6 +34,8 @@ namespace MapTextureReplacer.Systems
         private int m_lastAppliedFar = -1;
         public int CurrentDynamicFarTiling => m_lastAppliedFar;
 
+        public float CurrentCameraHeightAboveGround { get; private set; }
+
         public string PackImportedText = "";
 
         public Dictionary<string, string> importedPacks = new Dictionary<string, string>();
@@ -162,28 +164,31 @@ namespace MapTextureReplacer.Systems
 
         protected override void OnUpdate()
         {
-            if (DynamicFarTilingEnabled
-                && m_cameraUpdateSystem?.activeCameraController != null
+            if (m_cameraUpdateSystem?.activeCameraController != null
                 && m_terrainSystem.GetHeightData().heights.IsCreated)
             {
                 TerrainHeightData heightData = m_terrainSystem.GetHeightData();
                 float3 camPos = m_cameraUpdateSystem.activeCameraController.position;
                 float groundY = TerrainUtils.SampleHeight(ref heightData, camPos);
                 float heightAboveGround = camPos.y - groundY;
+                CurrentCameraHeightAboveGround = heightAboveGround;
 
-                int target = m_fallbackFarTiling;
-                foreach (var breakpoints in m_sortedBreakpoints)
+                if (DynamicFarTilingEnabled)
                 {
-                    if (heightAboveGround <= breakpoints.height) { 
-                        target = breakpoints.far_tiling; break; 
+                    int target = m_fallbackFarTiling;
+                    foreach (var breakpoints in m_sortedBreakpoints)
+                    {
+                        if (heightAboveGround <= breakpoints.height) {
+                            target = breakpoints.far_tiling; break;
+                        }
                     }
-                }
 
-                if (target != m_lastAppliedFar)
-                {
-                    //Mod.log.Info($"[Breakpoints] heightAboveGround={heightAboveGround:F1} " + $"far_tiling {m_lastAppliedFar} -> {target}");
-                    ApplyFarTilingShaderOnly(target);
-                    m_lastAppliedFar = target;
+                    if (target != m_lastAppliedFar)
+                    {
+                        //Mod.log.Info($"[Breakpoints] heightAboveGround={heightAboveGround:F1} " + $"far_tiling {m_lastAppliedFar} -> {target}");
+                        ApplyFarTilingShaderOnly(target);
+                        m_lastAppliedFar = target;
+                    }
                 }
             }
         }

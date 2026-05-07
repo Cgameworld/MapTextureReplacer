@@ -1,4 +1,4 @@
-﻿using MapTextureReplacer.Locale;
+using MapTextureReplacer.Locale;
 using Colossal.IO.AssetDatabase;
 using Game.Modding;
 using Game.SceneFlow;
@@ -15,8 +15,13 @@ using System.Reflection;
 namespace MapTextureReplacer
 {
     [FileLocation(nameof(MapTextureReplacer))]
+    [SettingsUIShowGroupName(DisplayGroup, CreatorToolsGroup, OtherGroup)]
     public class MapTextureReplacerOptions : ModSetting
     {
+        public const string DisplayGroup = "DisplayGroup";
+        public const string CreatorToolsGroup = "CreatorToolsGroup";
+        public const string OtherGroup = "OtherGroup";
+
         private MapTextureReplacerSystem m_MapTextureReplacerSystem;
         private bool _InUniversalModMenu;
         private bool _ShowDownloadedPacks;
@@ -27,6 +32,8 @@ namespace MapTextureReplacer
         {
             SetDefaults();
         }
+
+        [SettingsUISection(DisplayGroup)]
         public bool InUniversalModMenu
         {
             get => _InUniversalModMenu;
@@ -38,6 +45,7 @@ namespace MapTextureReplacer
             }
         }
 
+        [SettingsUISection(DisplayGroup)]
         public bool ShowDownloadedPacks
         {
             get => _ShowDownloadedPacks;
@@ -52,6 +60,7 @@ namespace MapTextureReplacer
             }
         }
 
+        [SettingsUISection(DisplayGroup)]
         public bool ShowLocalPacks
         {
             get => _ShowLocalPacks;
@@ -66,10 +75,15 @@ namespace MapTextureReplacer
             }
         }
 
+        [SettingsUISection(CreatorToolsGroup)]
+        public bool ShowCameraHeight { get; set; }
+
+        [SettingsUISection(OtherGroup)]
         public string ModVersion => Assembly.GetExecutingAssembly().GetName().Version.ToString();
 
         [SettingsUIButton]
         [SettingsUIConfirmation]
+        [SettingsUISection(OtherGroup)]
         public bool ResetModSettings
         {
             set
@@ -103,6 +117,7 @@ namespace MapTextureReplacer
             InUniversalModMenu = false;
             ShowDownloadedPacks = true;
             ShowLocalPacks = true;
+            ShowCameraHeight = false;
         }
         private static void RefreshUI()
         {
