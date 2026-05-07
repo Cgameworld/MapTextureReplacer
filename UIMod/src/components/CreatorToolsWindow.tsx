@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import ReactDOM from 'react-dom';
 import { bindValue, useValue } from 'cs2/api';
 
@@ -40,10 +40,17 @@ const CreatorToolsPanel: React.FC = () => {
 
 const CreatorToolsWindow: React.FC = () => {
     const showCameraHeight = useValue(ShowCameraHeight$);
+    const [mainWindowOpen, setMainWindowOpen] = useState<boolean>(!!(window as any).mapTextureReplacerShowWindow);
+
+    useEffect(() => {
+        const handler = () => setMainWindowOpen(!!(window as any).mapTextureReplacerShowWindow);
+        window.addEventListener('mapTextureReplacerShowWindowChanged', handler);
+        return () => window.removeEventListener('mapTextureReplacerShowWindowChanged', handler);
+    }, []);
 
     useEffect(() => {
         const parentElement = document.querySelector('.main-container__E2');
-        if (showCameraHeight && parentElement) {
+        if (showCameraHeight && mainWindowOpen && parentElement) {
             const root = document.createElement('div');
             root.id = 'maptexturereplacer-creator-tools-root';
             root.style.width = '100%';
@@ -54,7 +61,7 @@ const CreatorToolsWindow: React.FC = () => {
                 parentElement.removeChild(root);
             };
         }
-    }, [showCameraHeight]);
+    }, [showCameraHeight, mainWindowOpen]);
 
     return null;
 };

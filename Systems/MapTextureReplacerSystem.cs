@@ -165,20 +165,22 @@ namespace MapTextureReplacer.Systems
         protected override void OnUpdate()
         {
             if (m_cameraUpdateSystem?.activeCameraController != null
-                && m_terrainSystem.GetHeightData().heights.IsCreated)
+                && m_terrainSystem.GetHeightData().heights.IsCreated && (DynamicFarTilingEnabled || (Mod.Options != null && Mod.Options.ShowCameraHeight)))
             {
+                Mod.log.Info("Grabbing Height Data");
                 TerrainHeightData heightData = m_terrainSystem.GetHeightData();
                 float3 camPos = m_cameraUpdateSystem.activeCameraController.position;
                 float groundY = TerrainUtils.SampleHeight(ref heightData, camPos);
                 float heightAboveGround = camPos.y - groundY;
                 CurrentCameraHeightAboveGround = heightAboveGround;
 
-                if (DynamicFarTilingEnabled)
+                if (DynamicFarTilingEnabled && m_sortedBreakpoints != null)
                 {
                     int target = m_fallbackFarTiling;
                     foreach (var breakpoints in m_sortedBreakpoints)
                     {
-                        if (heightAboveGround <= breakpoints.height) {
+                        if (heightAboveGround <= breakpoints.height)
+                        {
                             target = breakpoints.far_tiling; break;
                         }
                     }
@@ -190,6 +192,7 @@ namespace MapTextureReplacer.Systems
                         m_lastAppliedFar = target;
                     }
                 }
+
             }
         }
         public void ChangePack(string current)
