@@ -167,11 +167,12 @@ namespace MapTextureReplacer.Systems
             if (m_cameraUpdateSystem?.activeCameraController != null
                 && m_terrainSystem.GetHeightData().heights.IsCreated && (DynamicFarTilingEnabled || (Mod.Options != null && Mod.Options.ShowCameraHeight)))
             {
-                Mod.log.Info("Grabbing Height Data");
+                //Mod.log.Info("Grabbing Height Data");
                 TerrainHeightData heightData = m_terrainSystem.GetHeightData();
-                float3 camPos = m_cameraUpdateSystem.activeCameraController.position;
-                float groundY = TerrainUtils.SampleHeight(ref heightData, camPos);
-                float heightAboveGround = camPos.y - groundY;
+                IGameCameraController controller = m_cameraUpdateSystem.activeCameraController;
+                float3 pivot = controller.pivot;
+                float groundY = TerrainUtils.SampleHeight(ref heightData, pivot);
+                float heightAboveGround = (pivot.y - groundY) + controller.zoom;
                 CurrentCameraHeightAboveGround = heightAboveGround;
 
                 if (DynamicFarTilingEnabled && m_sortedBreakpoints != null)
