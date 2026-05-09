@@ -68,7 +68,8 @@ If you like this mod be sure to leave an upvote! Thanks
 * Fixed mod icon size not updating in Universal Mods menu when adjusting global toolbar scaling 
 * Added icon in dropdown for local texture packs
 * Added support to scan local Mods folder for legacy texture packs
-* Added settings toggle to optionally either show local or downloaded packs in dropdown 
+* Added settings toggles to filter local or downloaded packs in dropdown
+* Added settings toggle to enable window showing current camera height
   </ChangeLog>
   <!--External link. supported types are discord, github, youtube, twitch, x, paypal, patreon-->
   <ExternalLink Type="youtube" Url="https://www.youtube.com/watch?v=SVhGONBBeIw" />
