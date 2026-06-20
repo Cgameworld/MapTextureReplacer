@@ -171,20 +171,6 @@ const SliderComponent = ({ react, slider, isRendered }) => {
         <$SliderMod react={react} title={slider.title} min={slider.min} max={slider.max} sliderPos={sliderPos} onInputChange={handleInputChange} />
 }
 
-const DynamicFarTilingDisplay = ({ title, currentFarTiling }) => (
-    <div className="field_MBO" style={{ minHeight: '52.5rem' }}>
-        <div className="row_d2o">
-            <div className="label_ZLb label_test2" style={{ width: '100rem', marginRight: '5rem'}}>{title}</div>
-            <div style={{ flexGrow: '1', flexShrink: '1', display: 'flex', flexDirection: 'row', width: '65.25%', position: 'relative', left: '20rem', top: '-1rem' }}>
-                <div className="slider-container_Q_K" style={{display: 'flex', alignItems: 'center', marginTop: '1rem' }}>
-                    <div className="label_ZLb label_test2" style={{ opacity: 1, marginLeft: '-4rem', fontSize: 'var(--fontSizeM)'}}>Base Pack Breakpoints</div>
-                </div>
-                <input className="slider-input_DXM input_Wfi" type="text" value={currentFarTiling} disabled readOnly />
-            </div>
-        </div>
-    </div>
-);
-
 const $Main = ({ react, onClose }) => {
 
     //get stored value in COC file and sets displayed dropdown values 
@@ -206,12 +192,6 @@ const $Main = ({ react, onClose }) => {
     useDataUpdate(react, 'map_texture.texture_pack', setTexturePack)
     useDataUpdate(react, 'map_texture.open_texture_zip', setOpenTextureZip)
     useDataUpdate(react, 'map_texture.reset_tiling', setResetTiling)
-
-    const [dynamicFarTiling, setDynamicFarTiling] = react.useState(false);
-    useDataUpdate(react, 'map_texture.dynamic_far_tiling_enabled', setDynamicFarTiling);
-
-    const [currentFarTiling, setCurrentFarTiling] = react.useState(0);
-    useDataUpdate(react, 'map_texture.dynamic_far_tiling_current', setCurrentFarTiling);
 
     const sliders = [
         { title: 'Far Tiling', min: 1, max: 250, pos: 'map_texture.slider1_Pos', update: 'map_texture.slider1_UpdatedValue' },
@@ -327,11 +307,7 @@ const $Main = ({ react, onClose }) => {
         {/* //todo: reload slider values from packs on gameload/window reopen */}
 
         {sliders.map((slider, index) =>
-            (dynamicFarTiling && index === 0) ? (
-                <DynamicFarTilingDisplay key={index} title={slider.title} currentFarTiling={currentFarTiling} />
-            ) : (
-                <SliderComponent key={index} react={react} slider={slider} isRendered={slidersRendered} />
-            )
+            <SliderComponent key={index} react={react} slider={slider} isRendered={slidersRendered} />
         )}
 
         <div className="field_MBO" style={{ minHeight: '52.5rem' }} >

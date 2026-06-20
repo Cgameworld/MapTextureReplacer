@@ -46,10 +46,6 @@ namespace MapTextureReplacer.Systems
             this.AddBinding(new TriggerBinding<string>("map_texture", "change_pack", this.systemManaged.ChangePack));
 
 
-            this.AddUpdateBinding(new GetterValueBinding<bool>("map_texture", "dynamic_far_tiling_enabled", () => systemManaged.DynamicFarTilingEnabled));
-
-            this.AddUpdateBinding(new GetterValueBinding<int>("map_texture", "dynamic_far_tiling_current", () => systemManaged.CurrentDynamicFarTiling));
-
             this.AddUpdateBinding(new GetterValueBinding<bool>("map_texture", "show_camera_height", () => Mod.Options?.ShowCameraHeight ?? false));
 
             this.AddUpdateBinding(new GetterValueBinding<float>("map_texture", "camera_height", () => systemManaged.CurrentCameraHeightAboveGround));

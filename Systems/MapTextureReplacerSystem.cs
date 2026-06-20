@@ -28,12 +28,6 @@ namespace MapTextureReplacer.Systems
         private CameraUpdateSystem m_cameraUpdateSystem;
         private TerrainSystem m_terrainSystem;
 
-        public bool DynamicFarTilingEnabled { get; private set; }
-        private List<FarTilingBreakpoint> m_sortedBreakpoints;
-        private int m_fallbackFarTiling;
-        private int m_lastAppliedFar = -1;
-        public int CurrentDynamicFarTiling => m_lastAppliedFar;
-
         public float CurrentCameraHeightAboveGround { get; private set; }
 
         public string PackImportedText = "";
@@ -165,35 +159,14 @@ namespace MapTextureReplacer.Systems
         protected override void OnUpdate()
         {
             if (m_cameraUpdateSystem?.activeCameraController != null
-                && m_terrainSystem.GetHeightData().heights.IsCreated && (DynamicFarTilingEnabled || (Mod.Options != null && Mod.Options.ShowCameraHeight)))
+                && m_terrainSystem.GetHeightData().heights.IsCreated && Mod.Options != null && Mod.Options.ShowCameraHeight)
             {
-                //Mod.log.Info("Grabbing Height Data");
                 TerrainHeightData heightData = m_terrainSystem.GetHeightData();
                 IGameCameraController controller = m_cameraUpdateSystem.activeCameraController;
                 float3 pivot = controller.pivot;
                 float groundY = TerrainUtils.SampleHeight(ref heightData, pivot);
                 float heightAboveGround = (pivot.y - groundY) + controller.zoom;
                 CurrentCameraHeightAboveGround = heightAboveGround;
-
-                if (DynamicFarTilingEnabled && m_sortedBreakpoints != null)
-                {
-                    int target = m_fallbackFarTiling;
-                    foreach (var breakpoints in m_sortedBreakpoints)
-                    {
-                        if (heightAboveGround <= breakpoints.height)
-                        {
-                            target = breakpoints.far_tiling; break;
-                        }
-                    }
-
-                    if (target != m_lastAppliedFar)
-                    {
-                        //Mod.log.Info($"[Breakpoints] heightAboveGround={heightAboveGround:F1} " + $"far_tiling {m_lastAppliedFar} -> {target}");
-                        ApplyFarTilingShaderOnly(target);
-                        m_lastAppliedFar = target;
-                    }
-                }
-
             }
         }
         public void ChangePack(string current)
@@ -206,7 +179,6 @@ namespace MapTextureReplacer.Systems
                     ResetTexture(item.Key);
                 }
                 SetTilingValueDefault();
-                ClearBreakpoints();
                 //SetSelectImageAllText("Select Image");
             }
             else
@@ -215,7 +187,6 @@ namespace MapTextureReplacer.Systems
                 {
                     OpenTextureZip(current.Split(',')[1]);
                     SetSelectImageAllText(current.Split(',')[0], current);
-                    ClearBreakpoints();
                 }
                 else if (current.EndsWith(".json"))
                 {
@@ -234,14 +205,12 @@ namespace MapTextureReplacer.Systems
                     {
                         MapTextureConfig config = JsonConvert.DeserializeObject<MapTextureConfig>(File.ReadAllText(current));
                         SetTilingValues(config.far_tiling, config.close_tiling, config.close_dirt_tiling);
-                        LoadBreakpointsFromConfig(config);
                         SetSelectImageAllText(config.pack_name, current);
                     }
                     catch (Exception ex)
                     {
                         string packId = TryReadPackName(current) ?? Directory.GetParent(current).Name;
                         Mod.errorLog.Error($"Malformed pack config '{packId}', check the JSON file. {ex.Message}");
-                        ClearBreakpoints();
                     }
                 }
                 else if (m_prefabSystem.TryGetPrefab(PrefabIDParse(current), out PrefabBase newPrefab))
@@ -259,7 +228,6 @@ namespace MapTextureReplacer.Systems
                             SetSelectImageAllText(PrefabIDParse(current).GetName(),current);
                         }
                     }
-                    ClearBreakpoints();
                 }
 
             }
@@ -658,65 +626,6 @@ namespace MapTextureReplacer.Systems
         }
 
 
-        public void RestoreFarTilingBreakpoints()
-        {
-            if (!string.IsNullOrEmpty(Mod.Options.ActiveDropdown)
-                && Mod.Options.ActiveDropdown.EndsWith(".json")
-                && File.Exists(Mod.Options.ActiveDropdown))
-            {
-                LoadBreakpointsFromJsonFile(Mod.Options.ActiveDropdown);
-            }
-        }
-
-        private void LoadBreakpointsFromConfig(MapTextureConfig config)
-        {
-            if (config?.far_tiling_breakpoints == null || config.far_tiling_breakpoints.Count == 0)
-            {
-                ClearBreakpoints();
-                return;
-            }
-
-            m_sortedBreakpoints = config.far_tiling_breakpoints
-                .OrderBy(b => b.height)
-                .ToList();
-
-            m_fallbackFarTiling = int.Parse(config.far_tiling);
-            m_lastAppliedFar = -1;
-            DynamicFarTilingEnabled = true;
-
-            var entries = string.Join(", ",
-                m_sortedBreakpoints.Select(b => $"({b.height} -> {b.far_tiling})"));
-            Mod.log.Info($"Breakpoints enabled with {m_sortedBreakpoints.Count} entries, " +
-                         $"fallback={m_fallbackFarTiling}: {entries}");
-        }
-
-        private void LoadBreakpointsFromJsonFile(string jsonPath)
-        {
-            try
-            {
-                var config = JsonConvert.DeserializeObject<MapTextureConfig>(File.ReadAllText(jsonPath));
-                LoadBreakpointsFromConfig(config);
-            }
-            catch (Exception ex)
-            {
-                Mod.log.Warn($"Breakpoints failed to load from {jsonPath}: {ex.Message}");
-                ClearBreakpoints();
-            }
-        }
-        private void ClearBreakpoints()
-        {
-            DynamicFarTilingEnabled = false;
-            m_sortedBreakpoints = null;
-            m_lastAppliedFar = -1;
-        }
-
-        private static void ApplyFarTilingShaderOnly(int value)
-        {
-            int propertyID = Shader.PropertyToID("colossal_TerrainTextureTiling");
-            Vector4 v = Shader.GetGlobalVector(propertyID);
-            v[0] = value;
-            Shader.SetGlobalVector(propertyID, v);
-        }
         static IEnumerator SaveSettingsOnceAfterDelay()
         {
             //instead of saving the settings file after each value in the slider changes, save it only once after delay
