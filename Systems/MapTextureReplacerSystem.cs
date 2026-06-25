@@ -34,6 +34,8 @@ namespace MapTextureReplacer.Systems
 
         public Dictionary<string, string> importedPacks = new Dictionary<string, string>();
         public Dictionary<string, string> packSources = new Dictionary<string, string>();
+        //slot indices (into SlotOrder) each pack actually supplies a texture for; filters the per-slot dropdowns
+        public Dictionary<string, List<int>> packValidSlots = new Dictionary<string, List<int>>();
         public string importedPacksJsonString;
 
         //serialized float fields of the active terrain render settings prefab, sent to the slider UI
@@ -147,6 +149,7 @@ namespace MapTextureReplacer.Systems
                             MapTextureConfig mapTheme = JsonConvert.DeserializeObject<MapTextureConfig>(File.ReadAllText(filePath));
                             importedPacks.Add(filePath, mapTheme.pack_name);
                             packSources[filePath] = entry.Value;
+                            packValidSlots[filePath] = ValidSlotsForFolder(Directory.GetParent(filePath).FullName);
                         }
                         catch (Exception ex)
                         {
@@ -198,6 +201,7 @@ namespace MapTextureReplacer.Systems
                 {
                     name = entry.Value,
                     source = src,
+                    slots = packValidSlots.TryGetValue(entry.Key, out List<int> vs) ? vs : null,
                 };
             }
             importedPacksJsonString = JsonConvert.SerializeObject(payload);
@@ -328,6 +332,42 @@ namespace MapTextureReplacer.Systems
             AssetReference<TextureAsset> assetRef = (AssetReference<TextureAsset>)field.GetValue(prefab);
             TextureAsset asset = assetRef;
             return asset?.Load();
+        }
+
+        //slot indices a folder pack supplies a texture file for
+        private List<int> ValidSlotsForFolder(string directory)
+        {
+            List<int> slots = new List<int>();
+            for (int i = 0; i < SlotOrder.Length; i++)
+            {
+                if (File.Exists(Path.Combine(directory, textureTypes[SlotOrder[i]]))) slots.Add(i);
+            }
+            return slots;
+        }
+
+        //slot indices a prefab pack has a texture reference assigned for
+        public List<int> ValidSlotsForPrefab(TerrainRenderSettingsPrefab prefab)
+        {
+            List<int> slots = new List<int>();
+            for (int i = 0; i < SlotOrder.Length; i++)
+            {
+                if (PrefabHasSlot(prefab, SlotOrder[i])) slots.Add(i);
+            }
+            return slots;
+        }
+
+        private static bool PrefabHasSlot(TerrainRenderSettingsPrefab prefab, string shaderProperty)
+        {
+            FieldInfo field = typeof(TerrainRenderSettingsPrefab).GetField("m_" + SlotCore(shaderProperty),
+                BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
+            if (field == null) return false;
+            try
+            {
+                AssetReference<TextureAsset> assetRef = (AssetReference<TextureAsset>)field.GetValue(prefab);
+                TextureAsset asset = assetRef;
+                return asset != null;
+            }
+            catch { return false; }
         }
 
         // ----- pack selection (base-pack dropdown) -----
@@ -598,6 +638,13 @@ namespace MapTextureReplacer.Systems
             return "common";
         }
 
+        //parent Extra index (1-4) for an extra override field, else 0 — lets the UI nest each extra's sliders under its textures
+        private static int ExtraIndexOf(string fieldName)
+        {
+            Match m = Regex.Match(fieldName, "Extra([1-4])");
+            return m.Success ? int.Parse(m.Groups[1].Value) : 0;
+        }
+
         public void PrepareTextureFloatSliders()
         {
             var entries = new List<object>();
@@ -625,6 +672,7 @@ namespace MapTextureReplacer.Systems
                     min,
                     max,
                     group = GroupForField(entry.Key),
+                    extra = ExtraIndexOf(entry.Key),
                 });
             }
             textureFloatsJsonString = JsonConvert.SerializeObject(entries);

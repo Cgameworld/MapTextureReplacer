@@ -15,7 +15,6 @@ namespace MapTextureReplacer.Helpers
             { "FarTiling", (1f, 250f) },
             { "MidTiling", (5f, 1000f) },
             { "NearTiling", (10f, 3000f) },
-            { "BlurDepth", (1f, 20f) },
             { "DepthScale", (0.1f, 3.5f) },
             { "Triplanar", (0f, 1f) },
             { "SplatMultiplier", (0f, 10f) },

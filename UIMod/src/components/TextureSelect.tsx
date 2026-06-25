@@ -25,18 +25,25 @@ const TextureSelect: React.FC<TextureSelectProps> = ({ index, label, packOptions
     const currentValue = entry.Value;
     const isPack = packOptions.some(o => o.value === currentValue);
 
+    // For the extra slots (index >= 6) only list packs that actually ship that texture; always keep the current pick.
+    const visiblePacks = useMemo<DropdownOption[]>(() =>
+        index >= 6
+            ? packOptions.filter(o => (o.slots?.includes(index) ?? true) || o.value === currentValue)
+            : packOptions,
+        [packOptions, index, currentValue]);
+
     // Default + detected packs + Load Image..., plus a 'sel-' entry for a custom file selection.
     const options = useMemo<DropdownOption[]>(() => {
         const list: DropdownOption[] = [
             { value: 'none', label: 'Default' },
-            ...packOptions,
+            ...visiblePacks,
             { value: 'loadimage', label: 'Load Image...' },
         ];
         if (currentValue !== 'none' && !isPack) {
             list.unshift({ value: 'sel-' + currentValue, label: entry.Key });
         }
         return list;
-    }, [packOptions, currentValue, isPack, entry.Key]);
+    }, [visiblePacks, currentValue, isPack, entry.Key]);
 
     const selected = currentValue === 'none' ? 'none' : (isPack ? currentValue : 'sel-' + currentValue);
 

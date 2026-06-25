@@ -22,33 +22,40 @@ interface FloatEntry {
     min: number;
     max: number;
     group: string;
+    extra: number;  // parent Extra index (1-4), 0 for non-extra fields
 }
 
-type TilingSlidersProps = {
-    group: string;
-    resetLabel: string;
+const useFloats = (): FloatEntry[] => {
+    const raw = useValue(TextureFloats$);
+    try { return JSON.parse(raw || '[]'); } catch { return []; }
 };
 
-const TilingSliders: React.FC<TilingSlidersProps> = ({ group, resetLabel }) => {
-    const raw = useValue(TextureFloats$);
-    let floats: FloatEntry[] = [];
-    try { floats = JSON.parse(raw || '[]'); } catch { floats = []; }
+// sliders for a group, optionally narrowed to a single parent Extra index
+const TilingSliderList: React.FC<{ group: string; extra?: number }> = ({ group, extra }) => {
+    const matching = useFloats().filter(f => f.group === group && (extra === undefined || f.extra === extra));
+    return (
+        <>
+            {matching.map(f => (
+                <Slider key={f.name} title={f.label} min={f.min} max={f.max} value={f.value} onChange={(v) => ChangeFloatField(f.name, v)} />
+            ))}
+        </>
+    );
+};
 
-    const matching = floats.filter(f => f.group === group);
+const ResetTilingButton: React.FC<{ group: string; label: string }> = ({ group, label }) => (
+    <div className="field_MBO" style={{ minHeight: '52.5rem' }}>
+        <button className="button_WWa button_SH8" onClick={() => { ResetTiling(group); engine.trigger('audio.playSound', 'select-item', 1); }}>
+            Reset {label}
+        </button>
+    </div>
+);
 
-    if (matching.length === 0) return null;
-
+const TilingSliders: React.FC<{ group: string; resetLabel: string }> = ({ group, resetLabel }) => {
+    if (!useFloats().some(f => f.group === group)) return null;
     return (
         <div>
-            {matching.map(f => (
-                <Slider key={f.name} title={f.label} min={f.min} max={f.max} value={f.value} onChange={(v) => ChangeFloatField(f.name, v)}
-                />
-            ))}
-            <div className="field_MBO" style={{ minHeight: '52.5rem' }}>
-                <button className="button_WWa button_SH8" onClick={() => { ResetTiling(group); engine.trigger('audio.playSound', 'select-item', 1); }}>
-                    Reset {resetLabel}
-                </button>
-            </div>
+            <TilingSliderList group={group} />
+            <ResetTilingButton group={group} label={resetLabel} />
         </div>
     );
 };
@@ -83,7 +90,7 @@ const MapTextureReplacerWindow: React.FC = () => {
     const packOptions = useMemo<DropdownOption[]>(() => {
         try {
             const obj = JSON.parse(detected || '{}');
-            return Object.keys(obj).map(key => ({ value: key, label: obj[key].name, source: obj[key].source }));
+            return Object.keys(obj).map(key => ({ value: key, label: obj[key].name, source: obj[key].source, slots: obj[key].slots }));
         } catch {
             return [];
         }
@@ -149,15 +156,14 @@ const MapTextureReplacerWindow: React.FC = () => {
         {
             id: 'PAINTED', label: 'Painted', content: (
                 <>
-                    <TextureSelect index={6} label="Extra 1 Diffuse" packOptions={packOptions} />
-                    <TextureSelect index={7} label="Extra 1 Normal" packOptions={packOptions} />
-                    <TextureSelect index={8} label="Extra 2 Diffuse" packOptions={packOptions} />
-                    <TextureSelect index={9} label="Extra 2 Normal" packOptions={packOptions} />
-                    <TextureSelect index={10} label="Extra 3 Diffuse" packOptions={packOptions} />
-                    <TextureSelect index={11} label="Extra 3 Normal" packOptions={packOptions} />
-                    <TextureSelect index={12} label="Extra 4 Diffuse" packOptions={packOptions} />
-                    <TextureSelect index={13} label="Extra 4 Normal" packOptions={packOptions} />
-                    <TilingSliders group="extra" resetLabel="Painted" />
+                    {[1, 2, 3, 4].map(n => (
+                        <React.Fragment key={n}>
+                            <TextureSelect index={4 + n * 2} label={`Extra ${n} Diffuse`} packOptions={packOptions} />
+                            <TextureSelect index={5 + n * 2} label={`Extra ${n} Normal`} packOptions={packOptions} />
+                            <TilingSliderList group="extra" extra={n} />
+                        </React.Fragment>
+                    ))}
+                    <ResetTilingButton group="extra" label="Painted" />
                 </>
             )
         },

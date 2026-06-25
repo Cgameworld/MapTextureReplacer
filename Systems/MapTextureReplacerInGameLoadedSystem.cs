@@ -58,6 +58,7 @@ namespace MapTextureReplacer.Systems
                 if (m_mapTextureReplacerSystem.importedPacks.TryAdd(key, settings.name))
                 {
                     m_mapTextureReplacerSystem.packSources[key] = source;
+                    m_mapTextureReplacerSystem.packValidSlots[key] = m_mapTextureReplacerSystem.ValidSlotsForPrefab(settings);
                 }
                 m_mapTextureReplacerSystem.SerializeImportedPacksWithSource();
             }

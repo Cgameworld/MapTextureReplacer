@@ -6,6 +6,7 @@ export interface DropdownOption {
     value: string;
     label: string;
     source?: string;
+    slots?: number[];  // slot indices this pack supplies a texture for (per-slot dropdown filtering)
 }
 
 interface ScrollableDropdownProps {
