@@ -89,13 +89,12 @@ namespace MapTextureReplacer
             set
             {
                 MakeSureSave = new System.Random().Next();
-                TextureSelectData = "[{\"Key\":\"Default\",\"Value\":\"none\"},{\"Key\":\"Default\",\"Value\":\"none\"},{\"Key\":\"Default\",\"Value\":\"none\"},{\"Key\":\"Default\",\"Value\":\"none\"},{\"Key\":\"Default\",\"Value\":\"none\"},{\"Key\":\"Default\",\"Value\":\"none\"}]";
                 ActiveDropdown = "none";
                 TilingFloatData = "";
+                CurrentTilingVector = Vector4.zero;
 
                 m_MapTextureReplacerSystem = World.DefaultGameObjectInjectionWorld?.GetOrCreateSystemManaged<MapTextureReplacerSystem>();
-                m_MapTextureReplacerSystem.ChangePack("none");
-
+                m_MapTextureReplacerSystem.ResetAll();
             }
         }
 
@@ -109,6 +108,11 @@ namespace MapTextureReplacer
         [SettingsUIHidden]
         public string TilingFloatData { get; set; }
 
+        //migration-only: absorbs the old Vector4 tiling from pre-1.6.0 saves so it can be converted
+        //to TilingFloatData once on load, then zeroed and never written again
+        [SettingsUIHidden]
+        public Vector4 CurrentTilingVector { get; set; }
+
         //sometimes saving doesn't happen when changing values to their default? - hack to guarantee
         [SettingsUIHidden]
         public int MakeSureSave { get; set; }
@@ -119,6 +123,7 @@ namespace MapTextureReplacer
             ShowDownloadedPacks = true;
             ShowLocalPacks = true;
             ShowCameraHeight = false;
+            CurrentTilingVector = Vector4.zero;
         }
         private static void RefreshUI()
         {

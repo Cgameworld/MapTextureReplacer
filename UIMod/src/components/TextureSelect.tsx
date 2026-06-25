@@ -5,13 +5,12 @@ import Dropdown, { DropdownOption } from './Dropdown';
 import { TextureSelectData$, OpenImage, ResetTexture } from '../bindings';
 
 interface TextureSelectProps {
-    slot: string;   // gd | gn | dd | dn | cd | cn 
-    index: number;  // 0..5 index into textureSelectData
-    label: string;  // "Diffuse" / "Normal"
+    index: number;  // stable slot index into textureSelectData (0..13)
+    label: string;  // "Grass Diffuse" / "Extra 1 Normal" etc.
     packOptions: DropdownOption[];
 }
 
-const TextureSelect: React.FC<TextureSelectProps> = ({ slot, index, label, packOptions }) => {
+const TextureSelect: React.FC<TextureSelectProps> = ({ index, label, packOptions }) => {
     const raw = useValue(TextureSelectData$);
 
     const entry = useMemo<{ Key: string; Value: string }>(() => {
@@ -42,10 +41,10 @@ const TextureSelect: React.FC<TextureSelectProps> = ({ slot, index, label, packO
     const selected = currentValue === 'none' ? 'none' : (isPack ? currentValue : 'sel-' + currentValue);
 
     const onSelectionChanged = (value: string) => {
-        if (value === 'loadimage') OpenImage(slot, '');
-        else if (value === 'none') ResetTexture(slot);
-        else if (value.startsWith('sel-')) OpenImage(slot, value.replace('sel-', ''));
-        else OpenImage(slot, value);
+        if (value === 'loadimage') OpenImage(index, '');
+        else if (value === 'none') ResetTexture(index);
+        else if (value.startsWith('sel-')) OpenImage(index, value.replace('sel-', ''));
+        else OpenImage(index, value);
     };
 
     return (
@@ -54,7 +53,7 @@ const TextureSelect: React.FC<TextureSelectProps> = ({ slot, index, label, packO
             <div style={{ width: '45%' }}>
                 <Dropdown options={options} selected={selected} onSelectionChanged={onSelectionChanged} dropdownTextChar={11} />
             </div>
-            <button className="button_WWa button_SH8" onClick={() => { ResetTexture(slot); engine.trigger('audio.playSound', 'select-item', 1); }}>
+            <button className="button_WWa button_SH8" onClick={() => { ResetTexture(index); engine.trigger('audio.playSound', 'select-item', 1); }}>
                 Reset
             </button>
         </div>

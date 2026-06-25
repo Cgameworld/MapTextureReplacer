@@ -47,25 +47,14 @@ namespace MapTextureReplacer.Systems
             this.AddUpdateBinding(new GetterValueBinding<string>("map_texture", "get_active_pack_dropdown", () => this.systemManaged.GetActivePackDropdown()));
             this.AddBinding(new TriggerBinding<string>("map_texture", "set_active_pack_dropdown", this.systemManaged.SetActivePackDropdown));
 
-            this.AddBinding(new TriggerBinding<string>("map_texture", "open_image_gd", (imageFile) => this.systemManaged.OpenImage("colossal_TerrainGrassDiffuse", imageFile)));
-            this.AddBinding(new TriggerBinding<string>("map_texture", "open_image_gn", (imageFile) => this.systemManaged.OpenImage("colossal_TerrainGrassNormal", imageFile)));
-            this.AddBinding(new TriggerBinding<string>("map_texture", "open_image_dd", (imageFile) => this.systemManaged.OpenImage("colossal_TerrainDirtDiffuse", imageFile)));
-            this.AddBinding(new TriggerBinding<string>("map_texture", "open_image_dn", (imageFile) => this.systemManaged.OpenImage("colossal_TerrainDirtNormal", imageFile)));
-            this.AddBinding(new TriggerBinding<string>("map_texture", "open_image_cd", (imageFile) => this.systemManaged.OpenImage("colossal_TerrainRockDiffuse", imageFile)));
-            this.AddBinding(new TriggerBinding<string>("map_texture", "open_image_cn", (imageFile) => this.systemManaged.OpenImage("colossal_TerrainRockNormal", imageFile)));
-
-            //reset
-            this.AddBinding(new TriggerBinding("map_texture", "reset_texture_gd", () => this.systemManaged.ResetTexture("colossal_TerrainGrassDiffuse")));
-            this.AddBinding(new TriggerBinding("map_texture", "reset_texture_gn", () => this.systemManaged.ResetTexture("colossal_TerrainGrassNormal")));
-            this.AddBinding(new TriggerBinding("map_texture", "reset_texture_dd", () => this.systemManaged.ResetTexture("colossal_TerrainDirtDiffuse")));
-            this.AddBinding(new TriggerBinding("map_texture", "reset_texture_dn", () => this.systemManaged.ResetTexture("colossal_TerrainDirtNormal")));
-            this.AddBinding(new TriggerBinding("map_texture", "reset_texture_cd", () => this.systemManaged.ResetTexture("colossal_TerrainRockDiffuse")));
-            this.AddBinding(new TriggerBinding("map_texture", "reset_texture_cn", () => this.systemManaged.ResetTexture("colossal_TerrainRockNormal")));
+            //generic per-slot bindings keyed by slot index (scales to all texture slots incl. extras)
+            this.AddBinding(new TriggerBinding<int, string>("map_texture", "open_image", this.systemManaged.OpenImage));
+            this.AddBinding(new TriggerBinding<int>("map_texture", "reset_texture", this.systemManaged.ResetTexture));
 
             //tiling sliders (dynamically generated from the prefab's float fields)
             this.AddUpdateBinding(new GetterValueBinding<string>("map_texture", "get_texture_floats", () => systemManaged.textureFloatsJsonString));
             this.AddBinding(new TriggerBinding<string, float>("map_texture", "change_float_field", this.systemManaged.ChangeFloatField));
-            this.AddBinding(new TriggerBinding("map_texture", "reset_tiling", this.systemManaged.ResetTextureFloats));
+            this.AddBinding(new TriggerBinding<string>("map_texture", "reset_tiling", this.systemManaged.ResetTextureFloats));
 
             //window open/close state (read with useValue, toggled via trigger)
             m_WindowOpen = new ValueBinding<bool>("map_texture", "window_open", false);

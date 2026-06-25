@@ -17,17 +17,15 @@ namespace MapTextureReplacer.Systems
     public partial class MapTextureReplacerInGameLoadedSystem : GameSystemBase
     {
         private MapTextureReplacerSystem m_mapTextureReplacerSystem;
-        private MapTextureReplacerTextureCacheSystem m_mapTextureTextureCacheSystem;
         private PrefabSystem m_prefabSystem;
 
         protected override void OnCreate()
-        {          
+        {
         }
 
         public void RunAction()
         {
             m_mapTextureReplacerSystem = World.GetOrCreateSystemManaged<MapTextureReplacerSystem>();
-            m_mapTextureTextureCacheSystem = World.GetOrCreateSystemManaged<MapTextureReplacerTextureCacheSystem>();
             m_prefabSystem = World.GetOrCreateSystemManaged<PrefabSystem>();
 
             base.OnCreate();
@@ -46,9 +44,6 @@ namespace MapTextureReplacer.Systems
                 CheckPrefabs(asset, "pdx");
             }
 
-
-            //cache existing textures?
-            m_mapTextureTextureCacheSystem.StartCache();
             StaticCoroutine.Start(ReapplyTexture(m_mapTextureReplacerSystem));
         }
         private void CheckPrefabs(PrefabAsset asset, string source)
@@ -75,31 +70,16 @@ namespace MapTextureReplacer.Systems
             yield return new WaitForEndOfFrame();
             yield return new WaitForEndOfFrame();
 
-            //snapshot this map's float defaults (for Reset) and populate the slider data
-            //m_mapTextureReplacerSystem.CaptureFloatDefaults();
+            //snapshot this map's pristine float defaults (for Reset) before applying any saved tiling
+            m_mapTextureReplacerSystem.CaptureFloatDefaults();
+            m_mapTextureReplacerSystem.ApplySavedTiling();
             m_mapTextureReplacerSystem.PrepareTextureFloatSliders();
 
-            //apply saved float fields first: ChangeFloatField ends in ApplyTerrainTextures(), which
-            //re-applies the prefab's textures, so the custom textures below must be applied after
-            if (!string.IsNullOrEmpty(Mod.Options.TilingFloatData))
+            for (int i = 0; i < m_mapTextureReplacerSystem.textureSelectData.Count; i++)
             {
-                var savedFloats = JsonConvert.DeserializeObject<Dictionary<string, float>>(Mod.Options.TilingFloatData);
-                if (savedFloats != null)
-                {
-                    foreach (var kv in savedFloats)
-                    {
-                        m_mapTextureReplacerSystem.ChangeFloatField(kv.Key, kv.Value);
-                    }
-                }
-            }
-
-            List<string> textureTypeKeys = new List<string>(m_mapTextureReplacerSystem.textureTypes.Keys);
-            for (int i = 0; i < textureTypeKeys.Count; i++)
-            {
-                //if filepath none, don't reapply
                 if (m_mapTextureReplacerSystem.textureSelectData[i].Value != "none")
                 {
-                    m_mapTextureReplacerSystem.OpenImage(textureTypeKeys[i], m_mapTextureReplacerSystem.textureSelectData[i].Value);
+                    m_mapTextureReplacerSystem.OpenImage(i, m_mapTextureReplacerSystem.textureSelectData[i].Value);
                 }
             }
 

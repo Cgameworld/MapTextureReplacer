@@ -47,7 +47,7 @@ const TilingSliders: React.FC<TilingSlidersProps> = ({ namesToShow }) => {
                 />
             ))}
             <div className="field_MBO" style={{ minHeight: '52.5rem' }}>
-                <button className="button_WWa button_SH8" onClick={() => { ResetTiling(); engine.trigger('audio.playSound', 'select-item', 1); }}>
+                <button className="button_WWa button_SH8" onClick={() => { ResetTiling(namesToShow.join(',')); engine.trigger('audio.playSound', 'select-item', 1); }}>
                     Reset Tiling
                 </button>
             </div>
@@ -134,8 +134,8 @@ const MapTextureReplacerWindow: React.FC = () => {
         {
             id: 'GRASS', label: 'Grass', content: (
                 <>
-                    <TextureSelect slot="gd" index={0} label="Grass Diffuse" packOptions={packOptions} />
-                    <TextureSelect slot="gn" index={1} label="Grass Normal" packOptions={packOptions} />
+                    <TextureSelect index={0} label="Grass Diffuse" packOptions={packOptions} />
+                    <TextureSelect index={1} label="Grass Normal" packOptions={packOptions} />
                     <TilingSliders namesToShow={['grass']} />
                 </>
             )
@@ -143,8 +143,8 @@ const MapTextureReplacerWindow: React.FC = () => {
         {
             id: 'DIRT', label: 'Dirt', content: (
                 <>
-                    <TextureSelect slot="dd" index={2} label="Dirt Diffuse" packOptions={packOptions} />
-                    <TextureSelect slot="dn" index={3} label="Dirt Normal" packOptions={packOptions} />
+                    <TextureSelect index={2} label="Dirt Diffuse" packOptions={packOptions} />
+                    <TextureSelect index={3} label="Dirt Normal" packOptions={packOptions} />
                     <TilingSliders namesToShow={['dirt']} />
                 </>
             )
@@ -152,15 +152,25 @@ const MapTextureReplacerWindow: React.FC = () => {
         {
             id: 'ROCK', label: 'Rock', content: (
                 <>
-                    <TextureSelect slot="cd" index={4} label="Rock Diffuse" packOptions={packOptions} />
-                    <TextureSelect slot="cn" index={5} label="Rock Normal" packOptions={packOptions} />
+                    <TextureSelect index={4} label="Rock Diffuse" packOptions={packOptions} />
+                    <TextureSelect index={5} label="Rock Normal" packOptions={packOptions} />
                     <TilingSliders namesToShow={['rock']} />
                 </>
             )
         },
         {
             id: 'PAINTED', label: 'Painted', content: (
-                <TilingSliders namesToShow={['extra']} />
+                <>
+                    <TextureSelect index={6} label="Extra 1 Diffuse" packOptions={packOptions} />
+                    <TextureSelect index={7} label="Extra 1 Normal" packOptions={packOptions} />
+                    <TextureSelect index={8} label="Extra 2 Diffuse" packOptions={packOptions} />
+                    <TextureSelect index={9} label="Extra 2 Normal" packOptions={packOptions} />
+                    <TextureSelect index={10} label="Extra 3 Diffuse" packOptions={packOptions} />
+                    <TextureSelect index={11} label="Extra 3 Normal" packOptions={packOptions} />
+                    <TextureSelect index={12} label="Extra 4 Diffuse" packOptions={packOptions} />
+                    <TextureSelect index={13} label="Extra 4 Normal" packOptions={packOptions} />
+                    <TilingSliders namesToShow={['extra']} />
+                </>
             )
         },
         {
@@ -190,14 +200,10 @@ const MapTextureReplacerWindow: React.FC = () => {
                     ))}
                 </TabBar>
 
-                <Scrollable vertical trackVisibility="scrollable" style={{ maxHeight: '420rem', marginTop: '8rem' }}>
+                <Scrollable vertical trackVisibility="scrollable" style={{ maxHeight: '570rem', marginTop: '8rem' }}>
                     {activeContent}
                 </Scrollable>
 
-                {/* DEBUG: all slider names */}
-                <div className="label_DGc" style={{ marginTop: '8rem', opacity: 0.6, fontSize: '9rem', wordBreak: 'break-all' }}>
-                    sliders: {debugSliderNames || '(none)'}
-                </div>
             </div>
         </DraggablePanel>
     );

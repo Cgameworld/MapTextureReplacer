@@ -1,16 +1,12 @@
-﻿using cohtml.Net;
 using Colossal.IO.AssetDatabase;
 using Colossal.PSI.Environment;
 using Game;
 using Game.Prefabs;
 using Game.Prefabs.Terrain;
 using Game.Rendering;
-using Game.Routes;
 using Game.Simulation;
-using Game.Vehicles;
 using MapTextureReplacer.Helpers;
 using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -27,7 +23,6 @@ namespace MapTextureReplacer.Systems
 {
     public partial class MapTextureReplacerSystem : GameSystemBase
     {
-        private MapTextureReplacerTextureCacheSystem m_mapTextureTextureCacheSystem;
         private PrefabSystem m_prefabSystem;
         private CameraUpdateSystem m_cameraUpdateSystem;
         private TerrainSystem m_terrainSystem;
@@ -43,65 +38,89 @@ namespace MapTextureReplacer.Systems
 
         //serialized float fields of the active terrain render settings prefab, sent to the slider UI
         public string textureFloatsJsonString = "[]";
-        //per-field default values captured for the active map, used by ResetTextureFloats()
+        //pristine per-field float defaults per prefab, captured once before the mod mutates them
+        private readonly Dictionary<string, Dictionary<string, float>> m_defaultsByPrefab = new Dictionary<string, Dictionary<string, float>>();
         private Dictionary<string, float> m_defaultFloats;
 
         public string textureSelectDataJsonString;
-        public List<KeyValuePair<string, string>> textureSelectData = new List<KeyValuePair<string, string>>() {
-            new KeyValuePair<string, string>("Default", "none"),
-            new KeyValuePair<string, string>("Default", "none"),
-            new KeyValuePair<string, string>("Default", "none"),
-            new KeyValuePair<string, string>("Default", "none"),
-            new KeyValuePair<string, string>("Default", "none"),
-            new KeyValuePair<string, string>("Default", "none"),
-            };
-        
-        private static bool isOver;
-        
-        public readonly Dictionary<string, string> textureTypes = new Dictionary<string, string>() {
+        public List<KeyValuePair<string, string>> textureSelectData;
+
+        //runtime shader-global texture overrides; key = shader property, value = (texture, isLegacyFormat)
+        //re-asserted after every game ApplyRenderSettings via the Harmony postfix so they stay durable
+        private readonly Dictionary<string, (Texture tex, bool legacy)> m_overrides = new Dictionary<string, (Texture, bool)>();
+
+        private bool m_tilingSaveScheduled;
+
+        //ordered slot list; index is the stable id used by the UI and by textureSelectData
+        public static readonly string[] SlotOrder = new string[]
+        {
+            "colossal_TerrainGrassDiffuse",
+            "colossal_TerrainGrassNormal",
+            "colossal_TerrainDirtDiffuse",
+            "colossal_TerrainDirtNormal",
+            "colossal_TerrainRockDiffuse",
+            "colossal_TerrainRockNormal",
+            "colossal_TerrainExtra1Diffuse",
+            "colossal_TerrainExtra1Normal",
+            "colossal_TerrainExtra2Diffuse",
+            "colossal_TerrainExtra2Normal",
+            "colossal_TerrainExtra3Diffuse",
+            "colossal_TerrainExtra3Normal",
+            "colossal_TerrainExtra4Diffuse",
+            "colossal_TerrainExtra4Normal",
+        };
+
+        //shader property -> expected pack filename
+        public readonly Dictionary<string, string> textureTypes = new Dictionary<string, string>()
+        {
             {"colossal_TerrainGrassDiffuse", "Grass_BaseColor.png"},
             {"colossal_TerrainGrassNormal", "Grass_Normal.png"},
             {"colossal_TerrainDirtDiffuse", "Dirt_BaseColor.png"},
             {"colossal_TerrainDirtNormal", "Dirt_Normal.png"},
             {"colossal_TerrainRockDiffuse", "Cliff_BaseColor.png"},
             {"colossal_TerrainRockNormal", "Cliff_Normal.png"},
+            {"colossal_TerrainExtra1Diffuse", "Extra1_BaseColor.png"},
+            {"colossal_TerrainExtra1Normal", "Extra1_Normal.png"},
+            {"colossal_TerrainExtra2Diffuse", "Extra2_BaseColor.png"},
+            {"colossal_TerrainExtra2Normal", "Extra2_Normal.png"},
+            {"colossal_TerrainExtra3Diffuse", "Extra3_BaseColor.png"},
+            {"colossal_TerrainExtra3Normal", "Extra3_Normal.png"},
+            {"colossal_TerrainExtra4Diffuse", "Extra4_BaseColor.png"},
+            {"colossal_TerrainExtra4Normal", "Extra4_Normal.png"},
         };
 
         protected override void OnCreate()
         {
             base.OnCreate();
 
-            m_mapTextureTextureCacheSystem = World.GetOrCreateSystemManaged<MapTextureReplacerTextureCacheSystem>();
             m_prefabSystem = World.GetOrCreateSystemManaged<PrefabSystem>();
             m_cameraUpdateSystem = World.GetOrCreateSystemManaged<CameraUpdateSystem>();
             m_terrainSystem = World.GetOrCreateSystemManaged<TerrainSystem>();
             m_terrainMaterialSystem = World.GetOrCreateSystemManaged<TerrainMaterialSystem>();
 
             MigrateSavedPaths();
+            MigrateLegacyTiling();
 
-            //initialize textureTypes
             if (Mod.Options.TextureSelectData == null)
             {
-                //UnityEngine.Debug.Log("MapTextureReplacerMod.Options.TextureSelectData == null");
                 Mod.Options.ActiveDropdown = "none";
+                textureSelectData = DefaultSelectData();
                 SetTextureSelectDataJson();
             }
             else
             {
-                //Mod.log.Info("Mod.Options.TextureSelectData NOT null" + Mod.Options.TextureSelectData);
-
                 textureSelectData = JsonConvert.DeserializeObject<List<KeyValuePair<string, string>>>(Mod.Options.TextureSelectData);
+                PadSelectData();
             }
 
             Dictionary<string, string> texturePackFolderSources = new Dictionary<string, string>();
 
             string[] modsFolders =
             {
-                Path.Combine(EnvPath.kCacheDataPath, "Mods", "pdx_mods"), //paradox mods download location
-                Path.Combine(EnvPath.kUserDataPath, "Mods"), //local mods folder
+                Path.Combine(EnvPath.kCacheDataPath, "Mods", "pdx_mods"),
+                Path.Combine(EnvPath.kUserDataPath, "Mods"),
             };
 
-            //find folders that contain pack config json files
             foreach (string modsFolder in modsFolders)
             {
                 if (!Directory.Exists(modsFolder))
@@ -113,26 +132,21 @@ namespace MapTextureReplacer.Systems
                 string source = modsFolder == modsFolders[0] ? "pdx" : "local";
                 foreach (string filePath in Directory.GetFiles(modsFolder, "maptextureconfig.json", SearchOption.AllDirectories))
                 {
-                    Mod.log.Info($"{filePath}");
                     texturePackFolderSources[Directory.GetParent(filePath).FullName] = source;
                 }
             }
 
-            //read pack config json files in the folders that have them
             foreach (var entry in texturePackFolderSources)
             {
-                string folder = entry.Key;
-                string source = entry.Value;
-                foreach (string filePath in Directory.GetFiles(folder))
+                foreach (string filePath in Directory.GetFiles(entry.Key))
                 {
-                    var filename = Path.GetFileName(filePath);
-                    if (filename == "maptextureconfig.json")
+                    if (Path.GetFileName(filePath) == "maptextureconfig.json")
                     {
                         try
                         {
                             MapTextureConfig mapTheme = JsonConvert.DeserializeObject<MapTextureConfig>(File.ReadAllText(filePath));
                             importedPacks.Add(filePath, mapTheme.pack_name);
-                            packSources[filePath] = source;
+                            packSources[filePath] = entry.Value;
                         }
                         catch (Exception ex)
                         {
@@ -144,11 +158,31 @@ namespace MapTextureReplacer.Systems
             }
             SerializeImportedPacksWithSource();
 
-            //populate string
             textureSelectDataJsonString = JsonConvert.SerializeObject(textureSelectData);
+        }
 
-            //no-op until a map is loaded (currentTerrainRenderSettings is null in menus)
-            //PrepareTextureFloatSliders();
+        private static List<KeyValuePair<string, string>> DefaultSelectData()
+        {
+            List<KeyValuePair<string, string>> list = new List<KeyValuePair<string, string>>(SlotOrder.Length);
+            for (int i = 0; i < SlotOrder.Length; i++)
+            {
+                list.Add(new KeyValuePair<string, string>("Default", "none"));
+            }
+            return list;
+        }
+
+        //old saves stored 6 entries (grass/dirt/rock); pad to the current slot count so indices line up
+        private void PadSelectData()
+        {
+            if (textureSelectData == null)
+            {
+                textureSelectData = DefaultSelectData();
+                return;
+            }
+            while (textureSelectData.Count < SlotOrder.Length)
+            {
+                textureSelectData.Add(new KeyValuePair<string, string>("Default", "none"));
+            }
         }
 
         public void SerializeImportedPacksWithSource()
@@ -157,7 +191,7 @@ namespace MapTextureReplacer.Systems
             foreach (var entry in importedPacks.OrderBy(e =>
                 packSources.TryGetValue(e.Key, out var s) && s == "local" ? 1 : 0))
             {
-                var src = packSources.TryGetValue(entry.Key, out var s) ? s : "pdx"; //if source unknown tag, no icon
+                var src = packSources.TryGetValue(entry.Key, out var s) ? s : "pdx";
                 if ((src == "local" && !Mod.Options.ShowLocalPacks)
                     || (src != "local" && !Mod.Options.ShowDownloadedPacks)) continue;
                 payload[entry.Key] = new
@@ -168,7 +202,6 @@ namespace MapTextureReplacer.Systems
             }
             importedPacksJsonString = JsonConvert.SerializeObject(payload);
         }
-
 
         protected override void OnUpdate()
         {
@@ -183,391 +216,342 @@ namespace MapTextureReplacer.Systems
                 CurrentCameraHeightAboveGround = heightAboveGround;
             }
         }
+
+        // ----- slot helpers -----
+
+        public static string ShaderPropertyAt(int index) =>
+            (index >= 0 && index < SlotOrder.Length) ? SlotOrder[index] : null;
+
+        public static int IndexOfSlot(string shaderProperty) => Array.IndexOf(SlotOrder, shaderProperty);
+
+        //"colossal_TerrainGrassDiffuse" -> "GrassDiffuse"
+        private static string SlotCore(string shaderProperty) => shaderProperty.Replace("colossal_Terrain", "");
+
+        //"colossal_TerrainGrassNormal" -> "Grass", "colossal_TerrainExtra1Diffuse" -> "Extra1"
+        private static string MaterialGroup(string shaderProperty)
+        {
+            string core = SlotCore(shaderProperty);
+            if (core.EndsWith("Diffuse")) return core.Substring(0, core.Length - "Diffuse".Length);
+            if (core.EndsWith("Normal")) return core.Substring(0, core.Length - "Normal".Length);
+            return core;
+        }
+
+        private static bool IsLegacyGroup(string group) => group == "Grass" || group == "Dirt" || group == "Rock";
+
+        // ----- texture override application (durable, re-asserted by the ApplyRenderSettings postfix) -----
+
+        //re-applies every mod override after the game rewrites the shader globals; never calls ApplyRenderSettings
+        public void ApplyAllOverrides()
+        {
+            if (m_overrides.Count == 0) return;
+
+            foreach (var kv in m_overrides)
+            {
+                Shader.SetGlobalTexture(Shader.PropertyToID(kv.Key), kv.Value.tex);
+            }
+            RefreshGroupLegacy("Grass");
+            RefreshGroupLegacy("Dirt");
+            RefreshGroupLegacy("Rock");
+        }
+
+        //per-material legacy flag: 1 if any overridden slot in the group is legacy, 0 if overridden non-legacy,
+        //untouched (game's value stands) if no slot in the group is overridden
+        private void RefreshGroupLegacy(string group)
+        {
+            if (!IsLegacyGroup(group)) return;
+
+            bool any = false;
+            bool legacy = false;
+            foreach (var kv in m_overrides)
+            {
+                if (MaterialGroup(kv.Key) == group)
+                {
+                    any = true;
+                    legacy |= kv.Value.legacy;
+                }
+            }
+            if (any)
+            {
+                Shader.SetGlobalFloat(Shader.PropertyToID($"_TerrainLegacy{group}Texture"), legacy ? 1f : 0f);
+            }
+        }
+
+        private void SetOverrideTexture(string shaderProperty, Texture tex, bool legacy)
+        {
+            m_overrides[shaderProperty] = (tex, legacy);
+            Shader.SetGlobalTexture(Shader.PropertyToID(shaderProperty), tex);
+            RefreshGroupLegacy(MaterialGroup(shaderProperty));
+        }
+
+        public void ClearAllOverrides() => m_overrides.Clear();
+
+        //decode + validate; on failure leave the slot vanilla (graceful fallback) and log an actionable error
+        private bool TryDecodeTexture(byte[] data, string sourceName, out Texture2D tex)
+        {
+            tex = null;
+            if (data == null || !(IsPng(data) || IsJpg(data)))
+            {
+                Mod.errorLog.Error($"'{sourceName}' isn't a valid PNG/JPG ({GuessFormat(data)}), using the default for this slot");
+                return false;
+            }
+            Texture2D t = new Texture2D(4096, 4096);
+            if (!t.LoadImage(data))
+            {
+                UnityEngine.Object.Destroy(t);
+                Mod.errorLog.Error($"'{sourceName}' could not be decoded as PNG/JPG, using the default for this slot");
+                return false;
+            }
+            tex = t;
+            return true;
+        }
+
+        private static bool IsPng(byte[] d) => d.Length >= 8 && d[0] == 0x89 && d[1] == 0x50 && d[2] == 0x4E && d[3] == 0x47;
+        private static bool IsJpg(byte[] d) => d.Length >= 3 && d[0] == 0xFF && d[1] == 0xD8 && d[2] == 0xFF;
+        private static bool IsDds(byte[] d) => d.Length >= 4 && d[0] == 0x44 && d[1] == 0x44 && d[2] == 0x53 && d[3] == 0x20;
+        private static string GuessFormat(byte[] d) => IsDds(d) ? "looks like a DDS renamed to .png" : "unsupported format";
+
+        private void LoadTextureFromBytes(string shaderProperty, byte[] data, string sourceName)
+        {
+            if (TryDecodeTexture(data, sourceName, out Texture2D tex))
+            {
+                SetOverrideTexture(shaderProperty, tex, true);
+            }
+        }
+
+        //generic: derive the prefab field from the shader property (colossal_TerrainExtra1Normal -> m_Extra1Normal)
+        private Texture LoadPrefabSlotTexture(string shaderProperty, TerrainRenderSettingsPrefab prefab)
+        {
+            FieldInfo field = typeof(TerrainRenderSettingsPrefab).GetField("m_" + SlotCore(shaderProperty),
+                BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
+            if (field == null) return null;
+
+            AssetReference<TextureAsset> assetRef = (AssetReference<TextureAsset>)field.GetValue(prefab);
+            TextureAsset asset = assetRef;
+            return asset?.Load();
+        }
+
+        // ----- pack selection (base-pack dropdown) -----
+
         public void ChangePack(string current)
         {
-
-            //Tiling is always applied before textures: ChangeFloatField ends in
-            //ApplyTerrainTextures(), which re-applies the prefab's textures, so the
-            //custom texture writes below must be the last to land.
             if (current == "none")
             {
-                LegacyTextureMode(false);
-                //ResetTextureFloats();
-                foreach (var item in textureTypes)
-                {
-                    ResetTexture(item.Key);
-                }
-                //m_terrainMaterialSystem.ApplyRenderSettings();
-                //SetSelectImageAllText("Select Image");
-            }
-            else
-            {
-                if (current.EndsWith(".zip"))
-                {
-                    LegacyTextureMode(true);
-                    OpenTextureZip(current.Split(',')[1]);
-                    SetSelectImageAllText(current.Split(',')[0], current);
-                }
-                else if (current.EndsWith(".json"))
-                {
-                    var directory = Path.GetDirectoryName(current);
-                    Mod.log.Info("loading (json) folder: " + directory);
-
-                    try
-                    {
-                        MapTextureConfig config = JsonConvert.DeserializeObject<MapTextureConfig>(File.ReadAllText(current));
-
-                        LegacyTextureMode(true);
-                        SetTilingValuesJsonPack(config.far_tiling, config.close_tiling, config.close_dirt_tiling);
-
-                        foreach (string filePath in Directory.GetFiles(directory))
-                        {
-                            foreach (var item in textureTypes)
-                            {
-                                LoadImageFile(filePath, item.Value, item.Key);
-                            }
-                        }
-
-                        SetSelectImageAllText(config.pack_name, current);
-                        //m_terrainMaterialSystem.ApplyRenderSettings();
-                    }
-                    catch (Exception ex)
-                    {
-                        string packId = TryReadPackName(current) ?? Directory.GetParent(current).Name;
-                        Mod.errorLog.Error($"Malformed pack config '{packId}', check the JSON file. {ex.Message}");
-                    }
-                }
-                else if (m_prefabSystem.TryGetPrefab(PrefabIDParse(current), out PrefabBase newPrefab))
-                {
-                    Mod.log.Info("loading " + PrefabIDParse(current));
-                    if (newPrefab is TerrainRenderSettingsPrefab terrainSettings)
-                    {
-                        //ChangeFloatField("m_TerrainFarTiling", terrainSettings.m_TerrainFarTiling);
-                        //ChangeFloatField("m_TerrainCloseTiling", terrainSettings.m_TerrainCloseTiling);
-                        //ChangeFloatField("m_TerrainCloseDirtTiling", terrainSettings.m_TerrainCloseDirtTiling);
-
-                        foreach (var key in textureTypes.Keys)
-                        {
-                            SetTextureTerrainPrefab(key, terrainSettings);
-                        }
-                        SetSelectImageAllText(PrefabIDParse(current).GetName(), current);
-                    }
-                }
-
-            }
-        }
-
-        private void LegacyTextureMode(bool legacy)
-        {
-            //m_prefabSystem.GetPrefab<TerrainRenderSettingsPrefab>(m_terrainMaterialSystem.currentTerrainRenderSettings).m_UseLegacyTextureFormat = legacy;
-
-            Shader.SetGlobalFloat(Shader.PropertyToID("_TerrainLegacyGrassTexture"), legacy ? 1f : 0f);
-            Shader.SetGlobalFloat(Shader.PropertyToID("_TerrainLegacyDirtTexture"), legacy ? 1f : 0f);
-            Shader.SetGlobalFloat(Shader.PropertyToID("_TerrainLegacyRockTexture"), legacy ? 1f : 0f);
-        }
-
-        public void SetTextureTerrainPrefab(string shaderProperty, TerrainRenderSettingsPrefab terrainSettings)
-        {
-            TextureAsset textureAsset = null;
-            int propertyId = 0;
-
-            switch (shaderProperty)
-            {
-                case "colossal_TerrainGrassDiffuse":
-                    textureAsset = terrainSettings.m_GrassDiffuse;
-                    propertyId = Shader.PropertyToID("colossal_TerrainGrassDiffuse");
-                    break;
-
-                case "colossal_TerrainGrassNormal":
-                    textureAsset = terrainSettings.m_GrassNormal;
-                    propertyId = Shader.PropertyToID("colossal_TerrainGrassNormal");
-                    break;
-                case "colossal_TerrainDirtDiffuse":
-                    textureAsset = terrainSettings.m_DirtDiffuse;
-                    propertyId = Shader.PropertyToID("colossal_TerrainDirtDiffuse");
-                    break;
-                case "colossal_TerrainDirtNormal":
-                    textureAsset = terrainSettings.m_DirtNormal;
-                    propertyId = Shader.PropertyToID("colossal_TerrainDirtNormal");
-                    break;
-                case "colossal_TerrainRockDiffuse":
-                    textureAsset = terrainSettings.m_RockDiffuse;
-                    propertyId = Shader.PropertyToID("colossal_TerrainRockDiffuse");
-                    break;
-                case "colossal_TerrainRockNormal":
-                    textureAsset = terrainSettings.m_RockNormal;
-                    propertyId = Shader.PropertyToID("colossal_TerrainRockNormal");
-                    break;
-                default:
-                    Mod.log.Info("shaderproperty not passed");
-                    break;
-            }
-
-            if (textureAsset == null)
-            {
-                Mod.log.Info($"TextureAsset for {shaderProperty} was null");
+                ClearAllOverrides();
+                if (HasActiveTerrain()) m_terrainMaterialSystem.ApplyRenderSettings();
                 return;
             }
 
-            Shader.SetGlobalTexture(propertyId, textureAsset.Load());
-            Mod.log.Info("Set Texture" + shaderProperty);
+            if (current.EndsWith(".zip"))
+            {
+                string label = current.Split(',')[0];
+                string zipPath = current.Split(',')[1];
+                LoadAllFromZip(zipPath, label, current);
+            }
+            else if (current.EndsWith(".json"))
+            {
+                try
+                {
+                    MapTextureConfig config = JsonConvert.DeserializeObject<MapTextureConfig>(File.ReadAllText(current));
+                    LoadAllFromFolder(Path.GetDirectoryName(current), config.pack_name, current);
+                    ApplyJsonPackTiling(config);
+                }
+                catch (Exception ex)
+                {
+                    string packId = TryReadPackName(current) ?? Directory.GetParent(current).Name;
+                    Mod.errorLog.Error($"Malformed pack config '{packId}', check the JSON file. {ex.Message}");
+                }
+            }
+            else if (m_prefabSystem.TryGetPrefab(PrefabIDParse(current), out PrefabBase newPrefab) && newPrefab is TerrainRenderSettingsPrefab terrainSettings)
+            {
+                LoadAllFromPrefab(terrainSettings, PrefabIDParse(current).GetName(), current);
+            }
+        }
+
+        private void LoadAllFromZip(string zipPath, string label, string packPath)
+        {
+            if (string.IsNullOrEmpty(zipPath) || !File.Exists(zipPath))
+            {
+                Mod.errorLog.Error($"Zip file not found: '{zipPath}'");
+                return;
+            }
+            int loaded = 0;
+            using (ZipArchive archive = ZipFile.Open(zipPath, ZipArchiveMode.Read))
+            {
+                foreach (string shaderProperty in SlotOrder)
+                {
+                    ZipArchiveEntry entry = archive.GetEntry(textureTypes[shaderProperty]);
+                    if (entry == null) continue;
+                    byte[] data = ReadZipEntry(entry);
+                    if (TryDecodeTexture(data, entry.Name, out Texture2D tex))
+                    {
+                        SetOverrideTexture(shaderProperty, tex, true);
+                        SetSlotLabel(IndexOfSlot(shaderProperty), label, packPath);
+                        loaded++;
+                    }
+                }
+            }
+            if (loaded == 0) Mod.errorLog.Error($"No terrain textures found in '{label}' (expected Grass_BaseColor.png etc.)");
+        }
+
+        private void LoadAllFromFolder(string directory, string label, string packPath)
+        {
+            int loaded = 0;
+            foreach (string shaderProperty in SlotOrder)
+            {
+                string filePath = Path.Combine(directory, textureTypes[shaderProperty]);
+                if (!File.Exists(filePath)) continue;
+                if (TryDecodeTexture(File.ReadAllBytes(filePath), Path.GetFileName(filePath), out Texture2D tex))
+                {
+                    SetOverrideTexture(shaderProperty, tex, true);
+                    SetSlotLabel(IndexOfSlot(shaderProperty), label, packPath);
+                    loaded++;
+                }
+            }
+            if (loaded == 0) Mod.errorLog.Error($"No terrain textures found in '{label}'");
+        }
+
+        private void LoadAllFromPrefab(TerrainRenderSettingsPrefab prefab, string label, string packPath)
+        {
+            bool legacy = prefab.isLegacyFormat;
+            foreach (string shaderProperty in SlotOrder)
+            {
+                Texture tex = LoadPrefabSlotTexture(shaderProperty, prefab);
+                if (tex == null) continue;
+                SetOverrideTexture(shaderProperty, tex, legacy);
+                SetSlotLabel(IndexOfSlot(shaderProperty), label, packPath);
+            }
+        }
+
+        // ----- per-slot selection (texture dropdown) -----
+
+        public void OpenImage(int index, string path)
+        {
+            string shaderProperty = ShaderPropertyAt(index);
+            if (shaderProperty == null) return;
+            string filenameTexture = textureTypes[shaderProperty];
+
+            if (path == "")
+            {
+                string file = OpenFileDialog.ShowDialog("Image files\0*.jpg;*.png\0");
+                if (!string.IsNullOrEmpty(file) && TryDecodeTexture(File.ReadAllBytes(file), Path.GetFileName(file), out Texture2D tex))
+                {
+                    SetOverrideTexture(shaderProperty, tex, true);
+                    SetSlotLabel(index, ShortenDisplayedFilename(file), file);
+                }
+            }
+            else if (path.EndsWith(".zip"))
+            {
+                using (ZipArchive archive = ZipFile.Open(path.Split(',')[1], ZipArchiveMode.Read))
+                {
+                    ZipArchiveEntry entry = archive.GetEntry(filenameTexture);
+                    if (entry != null && TryDecodeTexture(ReadZipEntry(entry), entry.Name, out Texture2D tex))
+                    {
+                        SetOverrideTexture(shaderProperty, tex, true);
+                        SetSlotLabel(index, path.Split(',')[0], path);
+                    }
+                }
+            }
+            else if (m_prefabSystem.TryGetPrefab(PrefabIDParse(path), out PrefabBase newPrefab) && newPrefab is TerrainRenderSettingsPrefab terrainSettings)
+            {
+                Texture tex = LoadPrefabSlotTexture(shaderProperty, terrainSettings);
+                if (tex != null)
+                {
+                    SetOverrideTexture(shaderProperty, tex, terrainSettings.isLegacyFormat);
+                    SetSlotLabel(index, PrefabIDParse(path).GetName(), path);
+                }
+            }
+            else if (path.EndsWith(".json"))
+            {
+                string filePath = Path.Combine(Path.GetDirectoryName(path), filenameTexture);
+                string label = importedPacks.TryGetValue(path, out string v) ? v : ShortenDisplayedFilename(Path.GetFileName(path));
+                if (File.Exists(filePath) && TryDecodeTexture(File.ReadAllBytes(filePath), filenameTexture, out Texture2D tex))
+                {
+                    SetOverrideTexture(shaderProperty, tex, true);
+                    SetSlotLabel(index, label, path);
+                }
+            }
+            else if (File.Exists(path))
+            {
+                if (TryDecodeTexture(File.ReadAllBytes(path), Path.GetFileName(path), out Texture2D tex))
+                {
+                    SetOverrideTexture(shaderProperty, tex, true);
+                    SetSlotLabel(index, ShortenDisplayedFilename(Path.GetFileName(path)), path);
+                }
+            }
+        }
+
+        public void ResetTexture(int index)
+        {
+            string shaderProperty = ShaderPropertyAt(index);
+            if (shaderProperty == null) return;
+
+            m_overrides.Remove(shaderProperty);
+            textureSelectData[index] = new KeyValuePair<string, string>("Default", "none");
+            SetTextureSelectDataJson();
+
+            //let the game restore this slot's vanilla texture; the postfix re-applies any remaining overrides
+            if (HasActiveTerrain()) m_terrainMaterialSystem.ApplyRenderSettings();
+        }
+
+        public void ResetTextureSelectData()
+        {
+            textureSelectData = DefaultSelectData();
+            SetTextureSelectDataJson();
+        }
+
+        private void SetSlotLabel(int index, string key, string path)
+        {
+            if (index < 0 || index >= textureSelectData.Count) return;
+            textureSelectData[index] = new KeyValuePair<string, string>(key, path);
+            SetTextureSelectDataJson();
+        }
+
+        private void SetTextureSelectDataJson()
+        {
+            textureSelectDataJsonString = JsonConvert.SerializeObject(textureSelectData);
+            Mod.Options.TextureSelectData = textureSelectDataJsonString;
+            AssetDatabase.global.SaveSettings();
+        }
+
+        private static byte[] ReadZipEntry(ZipArchiveEntry entry)
+        {
+            using (Stream s = entry.Open())
+            using (MemoryStream ms = new MemoryStream())
+            {
+                s.CopyTo(ms);
+                return ms.ToArray();
+            }
+        }
+
+        private static string ShortenDisplayedFilename(string file)
+        {
+            string fileName = Path.GetFileName(file);
+            return fileName.Length > 15 ? fileName.Substring(0, 15) : fileName;
+        }
+
+        public void GetTextureZip()
+        {
+            string zipFilePath = OpenFileDialog.ShowDialog("Zip archives\0*.zip\0");
+            PackImportedText = Path.GetFileNameWithoutExtension(zipFilePath) + "," + zipFilePath;
         }
 
         public static PrefabID PrefabIDParse(string s)
         {
             try
             {
-                var i = s.IndexOf(':');
-                var j = s.LastIndexOf(" (", StringComparison.Ordinal);
-                return new PrefabID(
-                    s[..i],
-                    s[(i + 1)..j],
-                    Colossal.Hash128.Parse(s[(j + 2)..^1])
-                );
+                int i = s.IndexOf(':');
+                int j = s.LastIndexOf(" (", StringComparison.Ordinal);
+                return new PrefabID(s[..i], s[(i + 1)..j], Colossal.Hash128.Parse(s[(j + 2)..^1]));
             }
             catch
             {
-                return new PrefabID(
-                    null,
-                    "empty"
-                );
+                return new PrefabID(null, "empty");
             }
         }
 
-        private void SetSelectImageAllText(string key, string path)
-        {
-            //set select image text labels
-            for (int i = 0; i < textureSelectData.Count; i++)
-            {
-                textureSelectData[i] = new KeyValuePair<string, string>(key, path);
-            }
-            SetTextureSelectDataJson();
-        }
+        // ----- active prefab / settings persistence -----
 
-        private void SetTextureSelectDataJson()
-        {
-            //Debug.Log("SetTextureSelectDataJson() Called");
-            textureSelectDataJsonString = JsonConvert.SerializeObject(textureSelectData);
-            Mod.Options.TextureSelectData = textureSelectDataJsonString;
-            AssetDatabase.global.SaveSettings();
-        }
-
-        public void SetTilingValuesJsonPack(string far, string close, string dirtClose)
-        {
-            //loop over each tiling type
-            //ChangeFloatField("m_TerrainFarTiling", float.Parse(far));
-            //ChangeFloatField("m_TerrainCloseTiling", float.Parse(close));
-            //ChangeFloatField("m_TerrainCloseDirtTiling", float.Parse(dirtClose));
-        }
-        private void LoadImageFile(string filePath, string textureFile, string shaderProperty)
-        {
-            if (Path.GetFileName(filePath) == textureFile)
-            {
-                byte[] data = File.ReadAllBytes(filePath);
-
-                LoadTextureInGame(shaderProperty, data);
-            }
-        }
-
-        public void OpenImage(string shaderProperty, string packPath)
-        {
-            var filenameTexture = "";
-            foreach (var item in textureTypes)
-            {
-                if (item.Key == shaderProperty)
-                {
-                    filenameTexture = item.Value;
-                }
-            }
-
-            if (packPath == "")
-            {
-                var file = OpenFileDialog.ShowDialog("Image files\0*.jpg;*.png\0");
-
-                byte[] fileData;
-
-                if (!string.IsNullOrEmpty(file))
-                {
-                    fileData = File.ReadAllBytes(file);
-                    LoadTextureInGame(shaderProperty, fileData);
-
-                    int index = textureTypes.Keys.ToList().IndexOf(shaderProperty);
-                    string fileName = ShortenDisplayedFilename(file);
-                    textureSelectData[index] = new KeyValuePair<string, string>(fileName, file);
-                    SetTextureSelectDataJson();
-                }
-            }
-            else if (packPath.EndsWith(".zip"))
-            {
-                int index = textureTypes.Keys.ToList().IndexOf(shaderProperty);
-                textureSelectData[index] = new KeyValuePair<string, string>(packPath.Split(',')[0], packPath);
-                SetTextureSelectDataJson();
-
-                using (ZipArchive archive = ZipFile.Open(packPath.Split(',')[1], ZipArchiveMode.Read))
-                {
-                    ExtractEntry(archive, filenameTexture, shaderProperty);
-                }
-            }
-            else if (m_prefabSystem.TryGetPrefab(PrefabIDParse(packPath), out PrefabBase newPrefab))
-            {
-                if (newPrefab is TerrainRenderSettingsPrefab terrainSettings)
-                {
-                    SetTextureTerrainPrefab(shaderProperty, terrainSettings);
-
-                    int index = textureTypes.Keys.ToList().IndexOf(shaderProperty);
-                    textureSelectData[index] = new KeyValuePair<string, string>(PrefabIDParse(packPath).GetName(), packPath);
-                    SetTextureSelectDataJson();
-                }
-
-            }
-            else
-            {
-                int index = textureTypes.Keys.ToList().IndexOf(shaderProperty);
-
-                string labelName = importedPacks.TryGetValue(packPath, out string value) ? value : ShortenDisplayedFilename(Path.GetFileName(packPath));
-
-                //Debug.Log("packPath: " + packPath);
-                //Debug.Log("importedPacks[packPath]:  " + labelName);
-
-                textureSelectData[index] = new KeyValuePair<string, string>(labelName, packPath);
-                SetTextureSelectDataJson();
-
-                if (packPath.EndsWith(".json"))
-                {
-                    var directory = Path.GetDirectoryName(packPath);
-
-                    foreach (string filePath in Directory.GetFiles(directory))
-                    {
-                        LoadImageFile(filePath, filenameTexture, shaderProperty);
-                    }
-                }
-                else
-                {
-                    byte[] data = File.ReadAllBytes(packPath);
-                    LoadTextureInGame(shaderProperty, data);
-                }
-            }
-            
-        }
-
-        private static string ShortenDisplayedFilename(string file)
-        {
-            string fileName = Path.GetFileName(file);
-            if (fileName.Length > 15)
-            {
-                fileName = fileName.Substring(0, 15);
-            }
-
-            return fileName;
-        }
-
-        public void GetTextureZip()
-        {
-            var zipFilePath = OpenFileDialog.ShowDialog("Zip archives\0*.zip\0");
-            PackImportedText = Path.GetFileNameWithoutExtension(zipFilePath) + "," + zipFilePath;
-        }
-        public void OpenTextureZip(string zipFilePath)
-        {
-            //var zipFilePath = OpenFileDialog.ShowDialog("Zip archives\0*.zip\0");
-            
-            if (!string.IsNullOrEmpty(zipFilePath))
-            {
-                using (ZipArchive archive = ZipFile.Open(zipFilePath, ZipArchiveMode.Read))
-                {
-                    List<string> notFoundFiles = new List<string>();
-
-                    if (!ExtractEntry(archive, "Grass_BaseColor.png", "colossal_TerrainGrassDiffuse"))
-                        notFoundFiles.Add("Grass_BaseColor.png");
-                    if (!ExtractEntry(archive, "Grass_Normal.png", "colossal_TerrainGrassNormal"))
-                        notFoundFiles.Add("Grass_Normal.png");
-                    if (!ExtractEntry(archive, "Dirt_BaseColor.png", "colossal_TerrainDirtDiffuse"))
-                        notFoundFiles.Add("Dirt_BaseColor.png");
-                    if (!ExtractEntry(archive, "Dirt_Normal.png", "colossal_TerrainDirtNormal"))
-                        notFoundFiles.Add("Dirt_Normal.png");
-                    if (!ExtractEntry(archive, "Cliff_BaseColor.png", "colossal_TerrainRockDiffuse"))
-                        notFoundFiles.Add("Cliff_BaseColor.png");
-                    if (!ExtractEntry(archive, "Cliff_Normal.png", "colossal_TerrainRockNormal"))
-                        notFoundFiles.Add("Cliff_Normal.png");
-
-                    //change this!
-                    if (notFoundFiles.Count > 0)
-                    {
-                        string outputError = "Files not found in .zip file:\n";
-                        foreach (string file in notFoundFiles)
-                        {
-                            outputError = outputError + "\n" + file;
-                        }
-
-
-                        throw new Exception(outputError + "\n\n");
-                    }
-
-                    //add json file reading??
-                }
-
-            }
-        }
-        
-
-        private void LoadTextureInGame(string shaderProperty, byte[] fileData)
-        {
-
-            Texture2D newTexture = new Texture2D(4096, 4096);
-            newTexture.LoadImage(fileData);
-            //Shader.SetGlobalTexture(Shader.PropertyToID(shaderProperty), newTexture);
-            //m_terrainMaterialSystem.
-            //Debug.Log("Replaced " + shaderProperty + " ingame");
-        }
-
-        public void ResetTexture(string shaderProperty)
-        {
-            m_mapTextureTextureCacheSystem.mapTextureCache.TryGetValue(shaderProperty, out Texture texture);
-            if (texture != null)
-                {
-                    Shader.SetGlobalTexture(Shader.PropertyToID(shaderProperty), texture);
-                }
-                //reset neighboring button text to select image
-                int index = textureTypes.Keys.ToList().IndexOf(shaderProperty);
-                textureSelectData[index] = new KeyValuePair<string, string>("Default", "none");
-                SetTextureSelectDataJson();
-        }
-
-        private bool ExtractEntry(ZipArchive archive, string entryName, string shaderProperty)
-        {
-            ZipArchiveEntry entry = archive.GetEntry(entryName);
-
-            if (entry != null)
-            {
-                using (Stream entryStream = entry.Open())
-                {
-                    byte[] data = new byte[entry.Length];
-                    entryStream.Read(data, 0, data.Length);
-                    LoadTextureInGame(shaderProperty, data);
-                }
-                return true;
-            }
-            else
-            {
-                return false;
-            }
-        }
-
-        public void ResetTextureSelectData()
-        {
-            textureSelectData = new List<KeyValuePair<string, string>>() {
-            new KeyValuePair<string, string>("Default", "none"),
-            new KeyValuePair<string, string>("Default", "none"),
-            new KeyValuePair<string, string>("Default", "none"),
-            new KeyValuePair<string, string>("Default", "none"),
-            new KeyValuePair<string, string>("Default", "none"),
-            new KeyValuePair<string, string>("Default", "none"),
-            };
-
-
-            SetTextureSelectDataJson();
-        }
-
-            public void SetActivePackDropdown(string data)
+        public void SetActivePackDropdown(string data)
         {
             try
             {
@@ -580,21 +564,23 @@ namespace MapTextureReplacer.Systems
             }
         }
 
-        public string GetActivePackDropdown()
-        {
-            return Mod.Options.ActiveDropdown;
-        }
+        public string GetActivePackDropdown() => Mod.Options.ActiveDropdown;
+
+        private bool HasActiveTerrain() =>
+            m_terrainMaterialSystem != null && m_terrainMaterialSystem.currentTerrainRenderSettings != Entity.Null;
+
+        private TerrainRenderSettingsPrefab ActivePrefab() =>
+            HasActiveTerrain() ? m_prefabSystem.GetPrefab<TerrainRenderSettingsPrefab>(m_terrainMaterialSystem.currentTerrainRenderSettings) : null;
+
+        // ----- tiling: read / apply / persist / reset -----
 
         public void PrepareTextureFloatSliders()
         {
             var entries = new List<object>();
-
             foreach (var entry in ReadFloatFields())
             {
                 float min, max;
-                var matchingRange = SliderRangeOverrides.Ranges
-        .FirstOrDefault(r => entry.Key.Contains(r.Key));
-
+                var matchingRange = SliderRangeOverrides.Ranges.FirstOrDefault(r => entry.Key.Contains(r.Key));
                 if (!string.IsNullOrEmpty(matchingRange.Key))
                 {
                     min = matchingRange.Value.min;
@@ -602,10 +588,9 @@ namespace MapTextureReplacer.Systems
                 }
                 else
                 {
-                    var rangeAttr = GetLowestField(entry.Key).GetCustomAttribute<RangeAttribute>();
+                    RangeAttribute rangeAttr = GetLowestField(entry.Key).GetCustomAttribute<RangeAttribute>();
                     min = rangeAttr?.min ?? 0f;
                     max = rangeAttr?.max ?? 100f;
-                    Mod.log.Info($"min{min} | max{max}");
                 }
 
                 entries.Add(new
@@ -623,52 +608,41 @@ namespace MapTextureReplacer.Systems
         private Dictionary<string, float> ReadFloatFields()
         {
             Dictionary<string, float> textureSettingFloats = new Dictionary<string, float>();
-            var prefab = m_prefabSystem.GetPrefab<TerrainRenderSettingsPrefab>(m_terrainMaterialSystem.currentTerrainRenderSettings);
+            TerrainRenderSettingsPrefab prefab = ActivePrefab();
+            if (prefab == null) return textureSettingFloats;
 
-            Mod.log.Info($"Current terrain render settings: {prefab.name}");
-
-            //dynamically grab available field values
             foreach (FieldInfo field in prefab.GetType().GetFields(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic))
             {
-                Mod.log.Info($"  {field.Name} = {field.GetValue(prefab)}");
                 object value = field.GetValue(prefab);
 
-                //get all floats not bound inside objects
                 if (value is float floatValue)
                 {
                     textureSettingFloats[field.Name] = floatValue;
                 }
-
-                //each texture group has sets of these values
                 if (value is TerrainTilingData terrainTilingData)
                 {
                     textureSettingFloats[$"{field.Name}.m_FarTiling"] = terrainTilingData.m_FarTiling;
                     textureSettingFloats[$"{field.Name}.m_MidTiling"] = terrainTilingData.m_MidTiling;
                     textureSettingFloats[$"{field.Name}.m_NearTiling"] = terrainTilingData.m_NearTiling;
                 }
-
                 if (value is TerrainLodBlendData terrainLodBlendData)
                 {
                     textureSettingFloats[$"{field.Name}.m_MidBlendStart"] = terrainLodBlendData.m_MidBlendStart;
                     textureSettingFloats[$"{field.Name}.m_MidBlendEnd"] = terrainLodBlendData.m_MidBlendEnd;
                     textureSettingFloats[$"{field.Name}.m_FarBlendStart"] = terrainLodBlendData.m_FarBlendStart;
                     textureSettingFloats[$"{field.Name}.m_FarBlendEnd"] = terrainLodBlendData.m_FarBlendEnd;
-                }      
-
+                }
                 if (value is TerrainDepthScaleSetting terrainDepthScaleSetting)
                 {
                     foreach (FieldInfo depthScalingValues in typeof(TerrainDepthScaleSetting).GetFields(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic))
                     {
-                        object scaleValue = depthScalingValues.GetValue(terrainDepthScaleSetting);
-                        if (scaleValue is Vector2 scaleVector)
+                        if (depthScalingValues.GetValue(terrainDepthScaleSetting) is Vector2 scaleVector)
                         {
                             textureSettingFloats[$"{field.Name}.{depthScalingValues.Name}.x"] = scaleVector.x;
                             textureSettingFloats[$"{field.Name}.{depthScalingValues.Name}.y"] = scaleVector.y;
                         }
                     }
                 }
-
-                //shared between texture groups
                 if (value is TerrainBlurDepthData terrainBlurDepthData)
                 {
                     textureSettingFloats[$"{field.Name}.m_NearBlurDepth"] = terrainBlurDepthData.m_NearBlurDepth;
@@ -677,77 +651,251 @@ namespace MapTextureReplacer.Systems
                     textureSettingFloats[$"{field.Name}.m_NearDistance"] = terrainBlurDepthData.m_NearDistance;
                 }
             }
-
             return textureSettingFloats;
         }
 
         public FieldInfo GetLowestField(string path)
         {
-            object obj = m_prefabSystem.GetPrefab<TerrainRenderSettingsPrefab>(
-                m_terrainMaterialSystem.currentTerrainRenderSettings
-            );
-
+            object obj = ActivePrefab();
             FieldInfo field = null;
-
             foreach (string name in path.Split('.'))
             {
-                field = obj.GetType().GetField(
-                    name,
-                    BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic
-                ) ?? throw new Exception($"Field not found: {name}");
-
+                field = obj.GetType().GetField(name, BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic)
+                    ?? throw new Exception($"Field not found: {name}");
                 obj = field.GetValue(obj);
             }
             return field;
         }
+
         public void ChangeFloatField(string path, float amount)
         {
-            if (m_terrainMaterialSystem == null || m_terrainMaterialSystem.currentTerrainRenderSettings == Entity.Null)
-            {
-                return;
-            }
+            if (!HasActiveTerrain()) return;
+            SetFieldValue(path, amount);
+            RefreshShaderForField(path);
+            PrepareTextureFloatSliders();
+            ScheduleTilingSave();
+        }
 
-            var prefab = m_prefabSystem.GetPrefab<TerrainRenderSettingsPrefab>(m_terrainMaterialSystem.currentTerrainRenderSettings);
-            object obj = prefab;
+        //walk the reflection path and assign, copying nested value-type (struct) fields back into their parent
+        private void SetFieldValue(string path, float amount)
+        {
+            object obj = ActivePrefab();
+            if (obj == null) return;
             var chain = new List<(object parent, FieldInfo field)>();
-
             foreach (string name in path.Split('.'))
             {
-                FieldInfo field = obj.GetType().GetField(name, BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic) ?? throw new Exception($"Field not found: {name}");
+                FieldInfo field = obj.GetType().GetField(name, BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic)
+                    ?? throw new Exception($"Field not found: {name}");
                 chain.Add((obj, field));
                 obj = field.GetValue(obj);
             }
 
-            obj = amount;
-
-            //walk back up so nested value-type (struct) fields are copied into their parent
+            object boxed = amount;
             for (int i = chain.Count - 1; i >= 0; i--)
             {
-                chain[i].field.SetValue(chain[i].parent, obj);
-                obj = chain[i].parent;
+                chain[i].field.SetValue(chain[i].parent, boxed);
+                boxed = chain[i].parent;
             }
+        }
 
-            //m_terrainMaterialSystem.ApplyRenderSettings();
+        private void RefreshShaderForField(string path)
+        {
+            TerrainRenderSettingsPrefab p = ActivePrefab();
+            if (p == null) return;
+            string lower = path.ToLowerInvariant();
 
+            if (lower.Contains("grasstiling") || lower.Contains("grasslodblend")) PushGrassTiling(p);
+            else if (lower.Contains("dirttiling") || lower.Contains("dirtlodblend")) PushDirtTiling(p);
+            else if (lower.Contains("rocktiling") || lower.Contains("rocklodblend")) PushRockTiling(p);
+            else if (lower.Contains("extra")) RefreshExtraShaderVectors(p);
+            //depth-scale / blur-depth: applied per-frame by the game's UpdateMaterial(); no push needed
+        }
+
+        private static void PushGrassTiling(TerrainRenderSettingsPrefab p)
+        {
+            Shader.SetGlobalVector(Shader.PropertyToID("_TerrainGrassTextureTiling"), p.m_TerrainGrassTiling.ShaderData);
+            Shader.SetGlobalVector(Shader.PropertyToID("_TerrainGrassTextureTilingBlend"), p.m_TerrainGrassLodBlend.ShaderData);
+        }
+
+        private static void PushDirtTiling(TerrainRenderSettingsPrefab p)
+        {
+            Shader.SetGlobalVector(Shader.PropertyToID("_TerrainDirtTextureTiling"), p.m_TerrainDirtTiling.ShaderData);
+            Shader.SetGlobalVector(Shader.PropertyToID("_TerrainDirtTextureTilingBlend"), p.m_TerrainDirtLodBlend.ShaderData);
+        }
+
+        private static void PushRockTiling(TerrainRenderSettingsPrefab p)
+        {
+            Shader.SetGlobalVector(Shader.PropertyToID("_TerrainRockTextureTiling"), p.m_TerrainRockTiling.ShaderData);
+            Shader.SetGlobalVector(Shader.PropertyToID("_TerrainRockTextureTilingBlend"), p.m_TerrainRockLodBlend.ShaderData);
+        }
+
+        //mirrors the extra block of the game's ApplyRenderSettings without reloading textures
+        private static void RefreshExtraShaderVectors(TerrainRenderSettingsPrefab p)
+        {
+            Vector4 dirt = default, blur = default, splat = default, height = default;
+            dirt.x = p.m_Extra1DirtOverride; blur.x = p.m_Extra1BlurDepth; splat.x = Mathf.Max(p.m_Extra1SplatRange, p.m_Extra1BlurDepth); height.x = p.m_Extra1HeightOffset;
+            dirt.y = p.m_Extra2DirtOverride; blur.y = p.m_Extra2BlurDepth; splat.y = Mathf.Max(p.m_Extra2SplatRange, p.m_Extra2BlurDepth); height.y = p.m_Extra2HeightOffset;
+            dirt.z = p.m_Extra3DirtOverride; blur.z = p.m_Extra3BlurDepth; splat.z = Mathf.Max(p.m_Extra3SplatRange, p.m_Extra3BlurDepth); height.z = p.m_Extra3HeightOffset;
+            dirt.w = p.m_Extra4DirtOverride; blur.w = p.m_Extra4BlurDepth; splat.w = Mathf.Max(p.m_Extra4SplatRange, p.m_Extra4BlurDepth); height.w = p.m_Extra4HeightOffset;
+            Shader.SetGlobalVector(Shader.PropertyToID("_TerrainExtraDirtOverride"), dirt);
+            Shader.SetGlobalVector(Shader.PropertyToID("_TerrainExtraBlurDepth"), blur);
+            Shader.SetGlobalVector(Shader.PropertyToID("_TerrainExtraSplatRange"), splat);
+            Shader.SetGlobalVector(Shader.PropertyToID("_TerrainExtraHeightOffset"), height);
+            Shader.SetGlobalVector(Shader.PropertyToID("_TerrainExtraTextureTiling"), p.m_TerrainGrassTiling.ShaderData);
+        }
+
+        private void PushAllTilingShaders()
+        {
+            TerrainRenderSettingsPrefab p = ActivePrefab();
+            if (p == null) return;
+            PushGrassTiling(p);
+            PushDirtTiling(p);
+            PushRockTiling(p);
+            RefreshExtraShaderVectors(p);
+        }
+
+        //capture pristine defaults once per prefab (before the mod mutates it), used by the reset buttons
+        public void CaptureFloatDefaults()
+        {
+            TerrainRenderSettingsPrefab prefab = ActivePrefab();
+            if (prefab == null) return;
+            if (!m_defaultsByPrefab.TryGetValue(prefab.name, out Dictionary<string, float> def))
+            {
+                def = ReadFloatFields();
+                m_defaultsByPrefab[prefab.name] = def;
+            }
+            m_defaultFloats = def;
+        }
+
+        public void ApplySavedTiling()
+        {
+            if (string.IsNullOrEmpty(Mod.Options.TilingFloatData)) return;
+            Dictionary<string, float> saved = JsonConvert.DeserializeObject<Dictionary<string, float>>(Mod.Options.TilingFloatData);
+            if (saved == null) return;
+            foreach (var kv in saved) SetFieldValue(kv.Key, kv.Value);
+            PushAllTilingShaders();
             PrepareTextureFloatSliders();
         }
 
-        //Restore the active map's captured float defaults.
-        public void ResetTextureFloats()
+        private void ScheduleTilingSave()
         {
-            if (m_defaultFloats != null)
+            if (m_tilingSaveScheduled) return;
+            m_tilingSaveScheduled = true;
+            StaticCoroutine.Start(SaveTilingAfterDelay());
+        }
+
+        private IEnumerator SaveTilingAfterDelay()
+        {
+            yield return new WaitForSeconds(1.5f);
+            PersistTiling();
+            m_tilingSaveScheduled = false;
+        }
+
+        private void PersistTiling()
+        {
+            if (m_defaultFloats == null) return;
+            Dictionary<string, float> diff = new Dictionary<string, float>();
+            foreach (var kv in ReadFloatFields())
             {
+                if (!m_defaultFloats.TryGetValue(kv.Key, out float d) || !Mathf.Approximately(d, kv.Value))
+                {
+                    diff[kv.Key] = kv.Value;
+                }
+            }
+            Mod.Options.TilingFloatData = diff.Count > 0 ? JsonConvert.SerializeObject(diff) : "";
+            AssetDatabase.global.SaveSettings();
+        }
+
+        //per-group reset: the UI passes the active tab's filter(s), e.g. "grass" / "depth" / "extra"
+        public void ResetTextureFloats(string group)
+        {
+            if (m_defaultFloats != null && !string.IsNullOrEmpty(group))
+            {
+                string[] filters = group.Split(',');
                 foreach (var kv in m_defaultFloats)
                 {
-                    ChangeFloatField(kv.Key, kv.Value);
+                    string key = kv.Key.ToLowerInvariant();
+                    if (filters.Any(f => key.Contains(f.Trim().ToLowerInvariant())))
+                    {
+                        ChangeFloatField(kv.Key, kv.Value);
+                    }
                 }
             }
             PrepareTextureFloatSliders();
         }
 
-        private void PersistFloatFields(TerrainRenderSettingsPrefab prefab)
+        //restore the active prefab's pristine tiling without touching saved persistence
+        public void RestoreTilingDefaults()
         {
+            if (m_defaultFloats == null) return;
+            foreach (var kv in m_defaultFloats) SetFieldValue(kv.Key, kv.Value);
+            PushAllTilingShaders();
+        }
 
+        private void ApplyJsonPackTiling(MapTextureConfig config)
+        {
+            if (config == null) return;
+            if (!float.TryParse(config.far_tiling, out float far)
+                || !float.TryParse(config.close_tiling, out float close)
+                || !float.TryParse(config.close_dirt_tiling, out float closeDirt)) return;
+            foreach (var kv in BuildLegacyTilingDict(far, close, closeDirt)) ChangeFloatField(kv.Key, kv.Value);
+        }
+
+        // ----- full reset (Options "Reset All Settings" button) -----
+
+        public void ResetAll()
+        {
+            ResetTextureSelectData();
+            ClearAllOverrides();
+            if (HasActiveTerrain())
+            {
+                RestoreTilingDefaults();
+                m_terrainMaterialSystem.ApplyRenderSettings();
+            }
+        }
+
+        // ----- exit to menu: drop overrides + pristine tiling, restore vanilla (saved data reapplies on next load) -----
+
+        public void OnExitToMenu()
+        {
+            ClearAllOverrides();
+            if (HasActiveTerrain())
+            {
+                RestoreTilingDefaults();
+                m_terrainMaterialSystem.ApplyRenderSettings();
+            }
+        }
+
+        // ----- migration / helpers -----
+
+        //best-effort migration of the old Vector4 (far, close, closeDirt) into the new Near/Mid/Far model,
+        //using the same formula the game applies to legacy prefabs in TerrainRenderSettingsPrefab.Initialize
+        private static Dictionary<string, float> BuildLegacyTilingDict(float far, float close, float closeDirt)
+        {
+            float mid = far * 2f;
+            return new Dictionary<string, float>
+            {
+                {"m_TerrainGrassTiling.m_FarTiling", far},
+                {"m_TerrainGrassTiling.m_MidTiling", Mathf.Min(mid, close)},
+                {"m_TerrainGrassTiling.m_NearTiling", close},
+                {"m_TerrainDirtTiling.m_FarTiling", far},
+                {"m_TerrainDirtTiling.m_MidTiling", Mathf.Min(mid, closeDirt)},
+                {"m_TerrainDirtTiling.m_NearTiling", closeDirt},
+                {"m_TerrainRockTiling.m_FarTiling", far},
+                {"m_TerrainRockTiling.m_MidTiling", Mathf.Min(mid, close)},
+                {"m_TerrainRockTiling.m_NearTiling", close},
+            };
+        }
+
+        private static void MigrateLegacyTiling()
+        {
+            if (!string.IsNullOrEmpty(Mod.Options.TilingFloatData)) return;
+            Vector4 v = Mod.Options.CurrentTilingVector;
+            if (v == Vector4.zero) return;
+
+            Mod.Options.TilingFloatData = JsonConvert.SerializeObject(BuildLegacyTilingDict(v.x, v.y, v.z));
+            Mod.Options.CurrentTilingVector = Vector4.zero;
+            AssetDatabase.global.SaveSettings();
         }
 
         private static string PrettyFieldLabel(string fieldName)
@@ -757,9 +905,7 @@ namespace MapTextureReplacer.Systems
                 .ToArray();
 
             string name = p[p.Length - 1];
-
-            if (name.Length == 1)
-                name = name.ToUpperInvariant();
+            if (name.Length == 1) name = name.ToUpperInvariant();
 
             if (p.Length > 2 && p[0].EndsWith("Settings"))
                 name = p[p.Length - 2] + " " + p[0].Substring(0, p[0].Length - "Settings".Length) + " " + name;
@@ -773,7 +919,7 @@ namespace MapTextureReplacer.Systems
         {
             try
             {
-                var match = Regex.Match(File.ReadAllText(jsonPath), @"""pack_name""\s*:\s*""([^""]+)""");
+                Match match = Regex.Match(File.ReadAllText(jsonPath), @"""pack_name""\s*:\s*""([^""]+)""");
                 return match.Success ? match.Groups[1].Value : null;
             }
             catch { return null; }
@@ -781,7 +927,7 @@ namespace MapTextureReplacer.Systems
 
         private static void MigrateSavedPaths()
         {
-            var pattern = new Regex(@"(Mods[\\/]+)mods_subscribed");
+            Regex pattern = new Regex(@"(Mods[\\/]+)mods_subscribed");
             string replacement = "$1pdx_mods";
             bool changed = false;
 
@@ -794,7 +940,6 @@ namespace MapTextureReplacer.Systems
                     changed = true;
                 }
             }
-
             if (!string.IsNullOrEmpty(Mod.Options.TextureSelectData))
             {
                 string updated = pattern.Replace(Mod.Options.TextureSelectData, replacement);
@@ -804,23 +949,7 @@ namespace MapTextureReplacer.Systems
                     changed = true;
                 }
             }
-
-            if (changed)
-            {
-                AssetDatabase.global.SaveSettings();
-            }
+            if (changed) AssetDatabase.global.SaveSettings();
         }
-
-
-        static IEnumerator SaveSettingsOnceAfterDelay()
-        {
-            //instead of saving the settings file after each value in the slider changes, save it only once after delay
-            Mod.log.Info("SaveSettingsOnceAfterDelay! Triggered");
-            yield return new WaitForSeconds(2f);
-            AssetDatabase.global.SaveSettings();
-            isOver = false;
-            yield break;
-        }
-
     }
 }
