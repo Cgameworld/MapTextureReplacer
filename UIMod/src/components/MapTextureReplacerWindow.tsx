@@ -21,22 +21,20 @@ interface FloatEntry {
     value: number;
     min: number;
     max: number;
+    group: string;
 }
 
 type TilingSlidersProps = {
-    namesToShow: string[];
+    group: string;
+    resetLabel: string;
 };
 
-const TilingSliders: React.FC<TilingSlidersProps> = ({ namesToShow }) => {
+const TilingSliders: React.FC<TilingSlidersProps> = ({ group, resetLabel }) => {
     const raw = useValue(TextureFloats$);
     let floats: FloatEntry[] = [];
     try { floats = JSON.parse(raw || '[]'); } catch { floats = []; }
 
-    const matching = floats.filter(f =>
-        namesToShow.some(name =>
-            String(f.name).trim().toLowerCase().includes(name.trim().toLowerCase())
-        )
-    );
+    const matching = floats.filter(f => f.group === group);
 
     if (matching.length === 0) return null;
 
@@ -47,8 +45,8 @@ const TilingSliders: React.FC<TilingSlidersProps> = ({ namesToShow }) => {
                 />
             ))}
             <div className="field_MBO" style={{ minHeight: '52.5rem' }}>
-                <button className="button_WWa button_SH8" onClick={() => { ResetTiling(namesToShow.join(',')); engine.trigger('audio.playSound', 'select-item', 1); }}>
-                    Reset Tiling
+                <button className="button_WWa button_SH8" onClick={() => { ResetTiling(group); engine.trigger('audio.playSound', 'select-item', 1); }}>
+                    Reset {resetLabel}
                 </button>
             </div>
         </div>
@@ -60,16 +58,6 @@ const MapTextureReplacerWindow: React.FC = () => {
     const persistedPack = useValue(ActivePackDropdown$);
     const detected = useValue(DetectedPacks$);
     const texturePack = useValue(TexturePack$);
-    const rawFloats = useValue(TextureFloats$);
-
-    // DEBUG: compact, comma-separated list of every slider name (unfiltered)
-    const debugSliderNames = useMemo<string>(() => {
-        try {
-            return (JSON.parse(rawFloats || '[]') as FloatEntry[]).map(f => f.name).join(', ');
-        } catch {
-            return '<parse error>';
-        }
-    }, [rawFloats]);
 
     const [activeTab, setActiveTab] = useState<string>('GRASS');
     const [selectedPack, setSelectedPack] = useState<string>(persistedPack);
@@ -136,7 +124,7 @@ const MapTextureReplacerWindow: React.FC = () => {
                 <>
                     <TextureSelect index={0} label="Grass Diffuse" packOptions={packOptions} />
                     <TextureSelect index={1} label="Grass Normal" packOptions={packOptions} />
-                    <TilingSliders namesToShow={['grass']} />
+                    <TilingSliders group="grass" resetLabel="Grass" />
                 </>
             )
         },
@@ -145,7 +133,7 @@ const MapTextureReplacerWindow: React.FC = () => {
                 <>
                     <TextureSelect index={2} label="Dirt Diffuse" packOptions={packOptions} />
                     <TextureSelect index={3} label="Dirt Normal" packOptions={packOptions} />
-                    <TilingSliders namesToShow={['dirt']} />
+                    <TilingSliders group="dirt" resetLabel="Dirt" />
                 </>
             )
         },
@@ -154,7 +142,7 @@ const MapTextureReplacerWindow: React.FC = () => {
                 <>
                     <TextureSelect index={4} label="Rock Diffuse" packOptions={packOptions} />
                     <TextureSelect index={5} label="Rock Normal" packOptions={packOptions} />
-                    <TilingSliders namesToShow={['rock']} />
+                    <TilingSliders group="rock" resetLabel="Rock" />
                 </>
             )
         },
@@ -169,12 +157,12 @@ const MapTextureReplacerWindow: React.FC = () => {
                     <TextureSelect index={11} label="Extra 3 Normal" packOptions={packOptions} />
                     <TextureSelect index={12} label="Extra 4 Diffuse" packOptions={packOptions} />
                     <TextureSelect index={13} label="Extra 4 Normal" packOptions={packOptions} />
-                    <TilingSliders namesToShow={['extra']} />
+                    <TilingSliders group="extra" resetLabel="Painted" />
                 </>
             )
         },
         {
-            id: 'COMMON', label: 'Common', content: <TilingSliders namesToShow={['depth']} />
+            id: 'COMMON', label: 'Common', content: <TilingSliders group="common" resetLabel="Common" />
         },
     ];
 

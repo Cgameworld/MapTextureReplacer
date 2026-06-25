@@ -334,14 +334,15 @@ namespace MapTextureReplacer.Systems
 
         public void ChangePack(string current)
         {
+            //start every pack selection from the map's pristine tiling so float values don't carry over between packs
+            RestoreTilingDefaults();
+
             if (current == "none")
             {
                 ClearAllOverrides();
                 if (HasActiveTerrain()) m_terrainMaterialSystem.ApplyRenderSettings();
-                return;
             }
-
-            if (current.EndsWith(".zip"))
+            else if (current.EndsWith(".zip"))
             {
                 string label = current.Split(',')[0];
                 string zipPath = current.Split(',')[1];
@@ -365,6 +366,9 @@ namespace MapTextureReplacer.Systems
             {
                 LoadAllFromPrefab(terrainSettings, PrefabIDParse(current).GetName(), current);
             }
+
+            PrepareTextureFloatSliders();
+            PersistTiling();
         }
 
         private void LoadAllFromZip(string zipPath, string label, string packPath)
@@ -574,6 +578,26 @@ namespace MapTextureReplacer.Systems
 
         // ----- tiling: read / apply / persist / reset -----
 
+        //ordered material tokens; "Extra" must precede the others so painted fields like m_Extra1DirtOverride
+        //land in the painted group instead of Dirt. A field matching no token is a global "common" setting.
+        private static readonly (string token, string group)[] FieldGroupRules = new (string, string)[]
+        {
+            ("Extra", "extra"),
+            ("Grass", "grass"),
+            ("Dirt", "dirt"),
+            ("Rock", "rock"),
+        };
+
+        //single authority for which UI tab a float field belongs to (display + reset both read this)
+        public static string GroupForField(string fieldName)
+        {
+            foreach ((string token, string group) in FieldGroupRules)
+            {
+                if (fieldName.IndexOf(token, StringComparison.OrdinalIgnoreCase) >= 0) return group;
+            }
+            return "common";
+        }
+
         public void PrepareTextureFloatSliders()
         {
             var entries = new List<object>();
@@ -600,6 +624,7 @@ namespace MapTextureReplacer.Systems
                     value = entry.Value,
                     min,
                     max,
+                    group = GroupForField(entry.Key),
                 });
             }
             textureFloatsJsonString = JsonConvert.SerializeObject(entries);
@@ -806,22 +831,27 @@ namespace MapTextureReplacer.Systems
             AssetDatabase.global.SaveSettings();
         }
 
-        //per-group reset: the UI passes the active tab's filter(s), e.g. "grass" / "depth" / "extra"
+        //per-tab reset: the UI passes the active tab's group id (grass/dirt/rock/extra/common)
         public void ResetTextureFloats(string group)
         {
-            if (m_defaultFloats != null && !string.IsNullOrEmpty(group))
+            Dictionary<string, float> baseline = ResetBaseline();
+            if (baseline != null && !string.IsNullOrEmpty(group))
             {
-                string[] filters = group.Split(',');
-                foreach (var kv in m_defaultFloats)
+                foreach (var kv in baseline)
                 {
-                    string key = kv.Key.ToLowerInvariant();
-                    if (filters.Any(f => key.Contains(f.Trim().ToLowerInvariant())))
-                    {
-                        ChangeFloatField(kv.Key, kv.Value);
-                    }
+                    if (GroupForField(kv.Key) == group) ChangeFloatField(kv.Key, kv.Value);
                 }
             }
             PrepareTextureFloatSliders();
+        }
+
+        //reset target: the map's pristine defaults, overlaid with the active legacy pack's inferred tiling
+        private Dictionary<string, float> ResetBaseline()
+        {
+            if (m_defaultFloats == null) return null;
+            Dictionary<string, float> baseline = new Dictionary<string, float>(m_defaultFloats);
+            foreach (var kv in InferredTilingForActivePack()) baseline[kv.Key] = kv.Value;
+            return baseline;
         }
 
         //restore the active prefab's pristine tiling without touching saved persistence
@@ -834,11 +864,33 @@ namespace MapTextureReplacer.Systems
 
         private void ApplyJsonPackTiling(MapTextureConfig config)
         {
-            if (config == null) return;
-            if (!float.TryParse(config.far_tiling, out float far)
-                || !float.TryParse(config.close_tiling, out float close)
-                || !float.TryParse(config.close_dirt_tiling, out float closeDirt)) return;
-            foreach (var kv in BuildLegacyTilingDict(far, close, closeDirt)) ChangeFloatField(kv.Key, kv.Value);
+            foreach (var kv in InferredTilingFromConfig(config)) ChangeFloatField(kv.Key, kv.Value);
+        }
+
+        //inferred Near/Mid/Far tiling for a legacy JSON pack (far/close/closeDirt), or empty if the pack defines none
+        private static Dictionary<string, float> InferredTilingFromConfig(MapTextureConfig config)
+        {
+            if (config != null
+                && float.TryParse(config.far_tiling, out float far)
+                && float.TryParse(config.close_tiling, out float close)
+                && float.TryParse(config.close_dirt_tiling, out float closeDirt))
+            {
+                return BuildLegacyTilingDict(far, close, closeDirt);
+            }
+            return new Dictionary<string, float>();
+        }
+
+        //same inference for whichever base pack is currently active (read live, so it survives a reload)
+        private Dictionary<string, float> InferredTilingForActivePack()
+        {
+            string active = Mod.Options.ActiveDropdown;
+            if (string.IsNullOrEmpty(active) || !active.EndsWith(".json") || !File.Exists(active))
+                return new Dictionary<string, float>();
+            try
+            {
+                return InferredTilingFromConfig(JsonConvert.DeserializeObject<MapTextureConfig>(File.ReadAllText(active)));
+            }
+            catch { return new Dictionary<string, float>(); }
         }
 
         // ----- full reset (Options "Reset All Settings" button) -----
