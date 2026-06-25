@@ -10,5 +10,11 @@ Don't use var on the C# side, write out types
 
 # Decompiled Code Location
 
-C:\Users\Cgameworld\Downloads\CS-1-5-7-gamedecomp
 C:\Users\Cgameworld\Downloads\CS-1-6-0-gamedecomp
+C:\Users\Cgameworld\Downloads\CS-1-5-7-gamedecomp (only use if comparing old code)
+
+
+# Documentation
+
+Offical documentation about the map texturing system as of 1-6-0 is here
+https://cs2.paradoxwikis.com/Map_Creation:_Terrain

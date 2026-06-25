@@ -645,10 +645,29 @@ namespace MapTextureReplacer.Systems
             return m.Success ? int.Parse(m.Groups[1].Value) : 0;
         }
 
+        //display order within a tab. grass/dirt/rock: tiling, then depth scale, then the rest (lod blend).
+        //common: triplanar + splat, then the rest (blur depth). extra/painted keeps declaration order.
+        private static int FieldSortRank(string fieldName)
+        {
+            string group = GroupForField(fieldName);
+            if (group == "grass" || group == "dirt" || group == "rock")
+            {
+                if (fieldName.Contains("Tiling")) return 0;
+                if (fieldName.Contains("DepthScale")) return 1;
+                return 2;
+            }
+            if (group == "common")
+            {
+                if (fieldName.Contains("Triplanar") || fieldName.Contains("Splat")) return 0;
+                return 1;
+            }
+            return 0;
+        }
+
         public void PrepareTextureFloatSliders()
         {
             var entries = new List<object>();
-            foreach (var entry in ReadFloatFields())
+            foreach (KeyValuePair<string, float> entry in ReadFloatFields().OrderBy(e => FieldSortRank(e.Key)))
             {
                 float min, max;
                 var matchingRange = SliderRangeOverrides.Ranges.FirstOrDefault(r => entry.Key.Contains(r.Key));
@@ -688,7 +707,8 @@ namespace MapTextureReplacer.Systems
             {
                 object value = field.GetValue(prefab);
 
-                if (value is float floatValue)
+                //skip the private m_Legacy*Tiling fields; they only feed Initialize's legacy->Near/Mid/Far migration, editing them at runtime does nothing
+                if (value is float floatValue && !field.Name.Contains("Legacy"))
                 {
                     textureSettingFloats[field.Name] = floatValue;
                 }
@@ -781,7 +801,17 @@ namespace MapTextureReplacer.Systems
             else if (lower.Contains("dirttiling") || lower.Contains("dirtlodblend")) PushDirtTiling(p);
             else if (lower.Contains("rocktiling") || lower.Contains("rocklodblend")) PushRockTiling(p);
             else if (lower.Contains("extra")) RefreshExtraShaderVectors(p);
+            else if (lower.Contains("triplanar") || lower.Contains("splatmultiplier") || lower.Contains("splatpower")) PushCommonShaderFloats(p);
             //depth-scale / blur-depth: applied per-frame by the game's UpdateMaterial(); no push needed
+        }
+
+        //triplanar + splat globals the game sets only inside ApplyRenderSettings (not per-frame), so push them on edit/reload
+        private static void PushCommonShaderFloats(TerrainRenderSettingsPrefab p)
+        {
+            Shader.SetGlobalFloat(Shader.PropertyToID("_TriplanarHeightmapBlending"), p.m_TriplanarHeightMapBlending);
+            Shader.SetGlobalFloat(Shader.PropertyToID("_TerrainTriplanarBlendStrengthY"), p.m_TriplanarBlendStrengthY);
+            Shader.SetGlobalFloat(Shader.PropertyToID("_SplatMultiplier"), p.m_SplatMultiplier);
+            Shader.SetGlobalFloat(Shader.PropertyToID("_SplatPower"), p.m_SplatPower);
         }
 
         private static void PushGrassTiling(TerrainRenderSettingsPrefab p)
@@ -825,6 +855,7 @@ namespace MapTextureReplacer.Systems
             PushDirtTiling(p);
             PushRockTiling(p);
             RefreshExtraShaderVectors(p);
+            PushCommonShaderFloats(p);
         }
 
         //capture pristine defaults once per prefab (before the mod mutates it), used by the reset buttons
