@@ -23,6 +23,7 @@ interface FloatEntry {
     max: number;
     group: string;
     extra: number;  // parent Extra index (1-4), 0 for non-extra fields
+    alert?: string | null;  // legacy-pack value that was ignored on load; shown as a warning triangle tooltip
 }
 
 const useFloats = (): FloatEntry[] => {
@@ -36,7 +37,7 @@ const TilingSliderList: React.FC<{ group: string; extra?: number }> = ({ group, 
     return (
         <>
             {matching.map(f => (
-                <Slider key={f.name} title={f.label} min={f.min} max={f.max} value={f.value} onChange={(v) => ChangeFloatField(f.name, v)} />
+                <Slider key={f.name} title={f.label} min={f.min} max={f.max} value={f.value} alert={f.alert} onChange={(v) => ChangeFloatField(f.name, v)} />
             ))}
         </>
     );

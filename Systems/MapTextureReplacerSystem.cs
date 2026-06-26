@@ -53,6 +53,9 @@ namespace MapTextureReplacer.Systems
 
         private bool m_tilingSaveScheduled;
 
+        //rock far/mid/near a legacy JSON pack specifies but the mod ignores on load; field -> original value, shown as a slider alert
+        private Dictionary<string, float> m_ignoredRockTiling = new Dictionary<string, float>();
+
         //ordered slot list; index is the stable id used by the UI and by textureSelectData
         public static readonly string[] SlotOrder = new string[]
         {
@@ -242,6 +245,8 @@ namespace MapTextureReplacer.Systems
 
         private static bool IsLegacyGroup(string group) => group == "Grass" || group == "Dirt" || group == "Rock";
 
+        private static bool IsNormalSlot(string shaderProperty) => shaderProperty.EndsWith("Normal");
+
         // ----- texture override application (durable, re-asserted by the ApplyRenderSettings postfix) -----
 
         //re-applies every mod override after the game rewrites the shader globals; never calls ApplyRenderSettings
@@ -290,7 +295,8 @@ namespace MapTextureReplacer.Systems
         public void ClearAllOverrides() => m_overrides.Clear();
 
         //decode + validate; on failure leave the slot vanilla (graceful fallback) and log an actionable error
-        private bool TryDecodeTexture(byte[] data, string sourceName, out Texture2D tex)
+        //linear=true for normal/mask slots: a normal map sampled as sRGB gives broken cliff lighting; diffuse stays sRGB
+        private bool TryDecodeTexture(byte[] data, string sourceName, bool linear, out Texture2D tex)
         {
             tex = null;
             if (data == null || !(IsPng(data) || IsJpg(data)))
@@ -298,13 +304,17 @@ namespace MapTextureReplacer.Systems
                 Mod.errorLog.Error($"'{sourceName}' isn't a valid PNG/JPG ({GuessFormat(data)}), using the default for this slot");
                 return false;
             }
-            Texture2D t = new Texture2D(4096, 4096);
+            Texture2D t = new Texture2D(4096, 4096, TextureFormat.RGBA32, true, linear);
             if (!t.LoadImage(data))
             {
                 UnityEngine.Object.Destroy(t);
                 Mod.errorLog.Error($"'{sourceName}' could not be decoded as PNG/JPG, using the default for this slot");
                 return false;
             }
+            //match the game's terrain sampler quality; its BC7 texture assets load as aniso 16 / trilinear
+            t.anisoLevel = 16;
+            t.filterMode = FilterMode.Trilinear;
+            t.wrapMode = TextureWrapMode.Repeat;
             tex = t;
             return true;
         }
@@ -316,7 +326,7 @@ namespace MapTextureReplacer.Systems
 
         private void LoadTextureFromBytes(string shaderProperty, byte[] data, string sourceName)
         {
-            if (TryDecodeTexture(data, sourceName, out Texture2D tex))
+            if (TryDecodeTexture(data, sourceName, IsNormalSlot(shaderProperty), out Texture2D tex))
             {
                 SetOverrideTexture(shaderProperty, tex, true);
             }
@@ -376,11 +386,15 @@ namespace MapTextureReplacer.Systems
         {
             //start every pack selection from the map's pristine tiling so float values don't carry over between packs
             RestoreTilingDefaults();
+            m_ignoredRockTiling = new Dictionary<string, float>();
+
+            //drop the previous pack first so slots the new pack doesn't define revert to vanilla instead of keeping stale textures
+            ClearAllOverrides();
+            if (HasActiveTerrain()) m_terrainMaterialSystem.ApplyRenderSettings();
 
             if (current == "none")
             {
-                ClearAllOverrides();
-                if (HasActiveTerrain()) m_terrainMaterialSystem.ApplyRenderSettings();
+                //nothing to load; vanilla already restored above
             }
             else if (current.EndsWith(".zip"))
             {
@@ -394,6 +408,7 @@ namespace MapTextureReplacer.Systems
                 {
                     MapTextureConfig config = JsonConvert.DeserializeObject<MapTextureConfig>(File.ReadAllText(current));
                     LoadAllFromFolder(Path.GetDirectoryName(current), config.pack_name, current);
+                    m_ignoredRockTiling = RockTilingFromConfig(config);
                     ApplyJsonPackTiling(config);
                 }
                 catch (Exception ex)
@@ -426,7 +441,7 @@ namespace MapTextureReplacer.Systems
                     ZipArchiveEntry entry = archive.GetEntry(textureTypes[shaderProperty]);
                     if (entry == null) continue;
                     byte[] data = ReadZipEntry(entry);
-                    if (TryDecodeTexture(data, entry.Name, out Texture2D tex))
+                    if (TryDecodeTexture(data, entry.Name, IsNormalSlot(shaderProperty), out Texture2D tex))
                     {
                         SetOverrideTexture(shaderProperty, tex, true);
                         SetSlotLabel(IndexOfSlot(shaderProperty), label, packPath);
@@ -444,7 +459,7 @@ namespace MapTextureReplacer.Systems
             {
                 string filePath = Path.Combine(directory, textureTypes[shaderProperty]);
                 if (!File.Exists(filePath)) continue;
-                if (TryDecodeTexture(File.ReadAllBytes(filePath), Path.GetFileName(filePath), out Texture2D tex))
+                if (TryDecodeTexture(File.ReadAllBytes(filePath), Path.GetFileName(filePath), IsNormalSlot(shaderProperty), out Texture2D tex))
                 {
                     SetOverrideTexture(shaderProperty, tex, true);
                     SetSlotLabel(IndexOfSlot(shaderProperty), label, packPath);
@@ -477,7 +492,7 @@ namespace MapTextureReplacer.Systems
             if (path == "")
             {
                 string file = OpenFileDialog.ShowDialog("Image files\0*.jpg;*.png\0");
-                if (!string.IsNullOrEmpty(file) && TryDecodeTexture(File.ReadAllBytes(file), Path.GetFileName(file), out Texture2D tex))
+                if (!string.IsNullOrEmpty(file) && TryDecodeTexture(File.ReadAllBytes(file), Path.GetFileName(file), IsNormalSlot(shaderProperty), out Texture2D tex))
                 {
                     SetOverrideTexture(shaderProperty, tex, true);
                     SetSlotLabel(index, ShortenDisplayedFilename(file), file);
@@ -488,7 +503,7 @@ namespace MapTextureReplacer.Systems
                 using (ZipArchive archive = ZipFile.Open(path.Split(',')[1], ZipArchiveMode.Read))
                 {
                     ZipArchiveEntry entry = archive.GetEntry(filenameTexture);
-                    if (entry != null && TryDecodeTexture(ReadZipEntry(entry), entry.Name, out Texture2D tex))
+                    if (entry != null && TryDecodeTexture(ReadZipEntry(entry), entry.Name, IsNormalSlot(shaderProperty), out Texture2D tex))
                     {
                         SetOverrideTexture(shaderProperty, tex, true);
                         SetSlotLabel(index, path.Split(',')[0], path);
@@ -508,7 +523,7 @@ namespace MapTextureReplacer.Systems
             {
                 string filePath = Path.Combine(Path.GetDirectoryName(path), filenameTexture);
                 string label = importedPacks.TryGetValue(path, out string v) ? v : ShortenDisplayedFilename(Path.GetFileName(path));
-                if (File.Exists(filePath) && TryDecodeTexture(File.ReadAllBytes(filePath), filenameTexture, out Texture2D tex))
+                if (File.Exists(filePath) && TryDecodeTexture(File.ReadAllBytes(filePath), filenameTexture, IsNormalSlot(shaderProperty), out Texture2D tex))
                 {
                     SetOverrideTexture(shaderProperty, tex, true);
                     SetSlotLabel(index, label, path);
@@ -516,7 +531,7 @@ namespace MapTextureReplacer.Systems
             }
             else if (File.Exists(path))
             {
-                if (TryDecodeTexture(File.ReadAllBytes(path), Path.GetFileName(path), out Texture2D tex))
+                if (TryDecodeTexture(File.ReadAllBytes(path), Path.GetFileName(path), IsNormalSlot(shaderProperty), out Texture2D tex))
                 {
                     SetOverrideTexture(shaderProperty, tex, true);
                     SetSlotLabel(index, ShortenDisplayedFilename(Path.GetFileName(path)), path);
@@ -692,6 +707,9 @@ namespace MapTextureReplacer.Systems
                     max,
                     group = GroupForField(entry.Key),
                     extra = ExtraIndexOf(entry.Key),
+                    alert = m_ignoredRockTiling.TryGetValue(entry.Key, out float originalRock)
+                        ? $"Original value {originalRock:0.###}, changed to new system default"
+                        : null,
                 });
             }
             textureFloatsJsonString = JsonConvert.SerializeObject(entries);
@@ -946,7 +964,15 @@ namespace MapTextureReplacer.Systems
             foreach (var kv in InferredTilingFromConfig(config)) ChangeFloatField(kv.Key, kv.Value);
         }
 
-        //inferred Near/Mid/Far tiling for a legacy JSON pack (far/close/closeDirt), or empty if the pack defines none
+        //rock far/mid/near keys: legacy JSON packs no longer drive these (the new-system default is kept), surfaced as a UI alert instead
+        private static readonly string[] LegacyRockTilingKeys =
+        {
+            "m_TerrainRockTiling.m_FarTiling",
+            "m_TerrainRockTiling.m_MidTiling",
+            "m_TerrainRockTiling.m_NearTiling",
+        };
+
+        //inferred Near/Mid/Far tiling for a legacy JSON pack (far/close/closeDirt) minus the ignored rock keys, or empty if the pack defines none
         private static Dictionary<string, float> InferredTilingFromConfig(MapTextureConfig config)
         {
             if (config != null
@@ -954,9 +980,26 @@ namespace MapTextureReplacer.Systems
                 && float.TryParse(config.close_tiling, out float close)
                 && float.TryParse(config.close_dirt_tiling, out float closeDirt))
             {
-                return BuildLegacyTilingDict(far, close, closeDirt);
+                Dictionary<string, float> dict = BuildLegacyTilingDict(far, close, closeDirt);
+                foreach (string key in LegacyRockTilingKeys) dict.Remove(key);
+                return dict;
             }
             return new Dictionary<string, float>();
+        }
+
+        //the rock far/mid/near values a legacy JSON pack specifies but the mod intentionally ignores; keyed by field for the slider alert
+        private static Dictionary<string, float> RockTilingFromConfig(MapTextureConfig config)
+        {
+            Dictionary<string, float> rock = new Dictionary<string, float>();
+            if (config != null
+                && float.TryParse(config.far_tiling, out float far)
+                && float.TryParse(config.close_tiling, out float close)
+                && float.TryParse(config.close_dirt_tiling, out float closeDirt))
+            {
+                Dictionary<string, float> all = BuildLegacyTilingDict(far, close, closeDirt);
+                foreach (string key in LegacyRockTilingKeys) rock[key] = all[key];
+            }
+            return rock;
         }
 
         //same inference for whichever base pack is currently active (read live, so it survives a reload)
@@ -971,6 +1014,22 @@ namespace MapTextureReplacer.Systems
             }
             catch { return new Dictionary<string, float>(); }
         }
+
+        //ignored rock tiling for whichever legacy JSON pack is active (read from disk, so it survives a reload)
+        private Dictionary<string, float> IgnoredRockTilingForActivePack()
+        {
+            string active = Mod.Options.ActiveDropdown;
+            if (string.IsNullOrEmpty(active) || !active.EndsWith(".json") || !File.Exists(active))
+                return new Dictionary<string, float>();
+            try
+            {
+                return RockTilingFromConfig(JsonConvert.DeserializeObject<MapTextureConfig>(File.ReadAllText(active)));
+            }
+            catch { return new Dictionary<string, float>(); }
+        }
+
+        //recompute the ignored-rock alert data from the active pack (load path; ChangePack seeds it directly from the config)
+        public void RefreshIgnoredRockTiling() => m_ignoredRockTiling = IgnoredRockTilingForActivePack();
 
         // ----- full reset (Options "Reset All Settings" button) -----
 

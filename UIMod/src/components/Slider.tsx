@@ -1,5 +1,6 @@
 import React, { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import engine from 'cohtml/cohtml';
+import { VanillaComponentsResolver } from '../../types/internal';
 
 interface SliderProps {
     title: string;
@@ -7,10 +8,12 @@ interface SliderProps {
     max: number;
     value: number;
     step?: number;
+    alert?: string | null;  // when set, shows a yellow warning triangle with this text in a tooltip
     onChange: (value: number) => void;
 }
 
-const Slider: React.FC<SliderProps> = ({ title, min, max, value, step = 0.01, onChange }) => {
+const Slider: React.FC<SliderProps> = ({ title, min, max, value, step = 0.01, alert, onChange }) => {
+    const { DescriptionTooltip } = VanillaComponentsResolver.instance;
     // snap to the step and clean up floating-point drift (e.g. 1.2000000000000002 -> 1.2)
     const snap = (v: number) => Math.round(Math.round(v / step) * step * 1e6) / 1e6;
     const [sliderWidth, setSliderWidth] = useState(0);
@@ -80,7 +83,14 @@ const Slider: React.FC<SliderProps> = ({ title, min, max, value, step = 0.01, on
     return (
         <div className="field_MBO" style={{ minHeight: '52.5rem' }}>
             <div className="row_d2o">
-                <div className="label_ZLb label_test2" style={{ width: '140rem', marginRight: '5rem' }}>{title}</div>
+                <div className="label_ZLb label_test2" style={{ width: '140rem', marginRight: '12rem', display: 'flex', alignItems: 'center', overflowY: 'inherit' }}>
+                    {title}
+                    {alert ? (
+                        <DescriptionTooltip title="Tiling Changed" description={alert}>
+                            <div className="tinted-icon_iKo" style={{ maskImage: 'url(Media/Glyphs/Warning.svg)', backgroundColor: 'var(--warningColor)', width: '16rem', height: '16rem', flexShrink: 0, marginLeft: '4rem' }} />
+                        </DescriptionTooltip>
+                    ) : null}
+                </div>
                 <div style={{ flexGrow: 1, flexShrink: 1, display: 'flex', flexDirection: 'row', width: '55%', position: 'relative', left: '20rem', top: '5rem' }}>
                     <div className="slider-container_Q_K" style={{ height: '10rem' }}>
                         <div className="slider_KXG slider_pUS horizontal slider_ROT">

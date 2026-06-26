@@ -74,6 +74,7 @@ namespace MapTextureReplacer.Systems
             //snapshot this map's pristine float defaults (for Reset) before applying any saved tiling
             m_mapTextureReplacerSystem.CaptureFloatDefaults();
             m_mapTextureReplacerSystem.ApplySavedTiling();
+            m_mapTextureReplacerSystem.RefreshIgnoredRockTiling();
             m_mapTextureReplacerSystem.PrepareTextureFloatSliders();
 
             for (int i = 0; i < m_mapTextureReplacerSystem.textureSelectData.Count; i++)
