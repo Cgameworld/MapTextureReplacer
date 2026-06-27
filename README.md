@@ -3,17 +3,13 @@ This mod allows you to easily replace grass, dirt and cliff map textures ingame.
 
 Features include:
 - Dropdowns to easily change packs or individual textures on any map or savegame
+- Settings sorted into tabs by texture type for grass, dirt, rock, painted textures, and common settings
 - Persistent settings between game loads
-- Texture tiling adjustments
 - Replacement of individual textures with any jpg/png from your computer
-
-This mod takes advantage of the fact that map textures are stored as standard unity textures, making them straightforward to read and set. 
 
 # Resources
 
 ### [Publishing Map Texture Packs to PDXMods](https://github.com/Cgameworld/MapTextureReplacer/wiki/Publishing-Map-Texture-Packs-to-PDXMods)
-
-### [Far Tiling Breakpoints](https://github.com/Cgameworld/MapTextureReplacer/wiki/Far-Tiling-Breakpoints)
 
 # Installation
 1) Download the mod from [Paradox Mods](https://mods.paradoxplaza.com/mods/76050/Windows)
