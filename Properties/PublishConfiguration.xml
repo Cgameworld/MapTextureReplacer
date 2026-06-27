@@ -56,20 +56,19 @@ If you like this mod be sure to leave an upvote! Thanks
   <!--Link to the forum post where the mod can be discussed-->
   <ForumLink Value="https://forum.paradoxplaza.com/forum/threads/map-texture-replacer.1644700/" />
   <!--Version of the mod-->
-  <ModVersion Value="2.3" />
+  <ModVersion Value="3.0" />
   <!--Recommended version of the base game to use the mod-->
   <GameVersion Value="1.*" />
   <!--Dependency for the mod, can be set multiple times-->
   <Dependency Id="" />
   <!--Change log for new version. Single line or multi line. Supports minimal markdown subset-->
   <ChangeLog>
-# v2.3
-* Added ability for pack configs to set far distance tiling height breakpoints
-* Fixed mod icon size not updating in Universal Mods menu when adjusting global toolbar scaling 
-* Added icon in dropdown for local texture packs
-* Added support to scan local Mods folder for legacy texture packs
-* Added settings toggles to filter local or downloaded packs in dropdown
-* Added settings toggle to enable window showing current camera height
+# v3.0
+* Full compatibilty with the new 1.6.0f1 terrain system
+* Added almost 50 new adjustable sliders
+* Added tabs to organize settings by texture type
+* Added support for replacing and mixing painted textures
+* Rebuilt backend to support new map texturing pipeline
   </ChangeLog>
   <!--External link. supported types are discord, github, youtube, twitch, x, paypal, patreon-->
   <ExternalLink Type="youtube" Url="https://www.youtube.com/watch?v=SVhGONBBeIw" />

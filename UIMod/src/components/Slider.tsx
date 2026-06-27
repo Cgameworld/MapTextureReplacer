@@ -83,7 +83,7 @@ const Slider: React.FC<SliderProps> = ({ title, min, max, value, step = 0.01, al
     return (
         <div className="field_MBO" style={{ minHeight: '52.5rem' }}>
             <div className="row_d2o">
-                <div className="label_ZLb label_test2" style={{ width: '140rem', marginRight: '12rem', display: 'flex', alignItems: 'center', overflowY: 'inherit' }}>
+                <div className="label_ZLb label_test2" style={{ width: '140rem', marginRight: '12rem', display: 'flex', alignItems: 'center', overflow: 'visible' }}>
                     {title}
                     {alert ? (
                         <DescriptionTooltip title="Tiling Changed" description={alert}>
