@@ -9,21 +9,19 @@
   <LongDescription>
 ## Intro
 
-Map Texture Replacer allows you to easily replace grass, dirt and cliff map textures ingame.
+Map Texture Replacer allows you to easily replace grass, dirt, rock and painted map textures ingame.
 
 The mod is intended to be used with map texture packs. To find texture packs that work with this mod, search "maptex" in the PDXMods search.
 
 Features include:
 * Dropdowns to easily change packs or individual textures on any map or savegame
+* Settings sorted into tabs by texture type for grass, dirt, rock, painted textures, and common settings
 * Persistent settings between game loads
-* Texture tiling adjustments
 * Replacement of individual textures with any jpg/png from your computer
-
-This mod takes advantage of the fact that map textures are stored as standard unity textures, making them straightforward to read and set.
 
 ## Map Texture Packs
 
-The vanilla game uses 4096x4096 sized map textures by default for grass, 2048x2048 for dirt and cliff though smaller scaled textures will successfully replace. For example, the Desert Map Theme texture pack uses 1024x1024 sized textures.
+The vanilla game uses 4096x4096 sized map textures by default for grass, 2048x2048 for dirt and rock though smaller scaled textures will successfully replace. For example, the Desert Map Theme texture pack uses 1024x1024 sized textures.
 
 ## Texture Pack Creation
 
@@ -36,10 +34,6 @@ Workflow:
 3) After configuring, save the prefab package by clicking on the three dots next to "Environment" in the workspace window and click "Share Terrain Render Settings prefab".
 4) Name/save the asset and then build it. The last publishing step can be optionally skipped if you are not sharing to PDXMods.
 5) Restart the game and then a new entry will be selectable in the mod settings ingame
-
-Advanced Features:
-
-Legacy json based texture packs have support for far tiling breakpoints based on the camera height. See the GitHub repo for more info on how to use.
 
 ## Conclusion
 
@@ -64,10 +58,10 @@ If you like this mod be sure to leave an upvote! Thanks
   <!--Change log for new version. Single line or multi line. Supports minimal markdown subset-->
   <ChangeLog>
 # v3.0
-* Full compatibilty with the new 1.6.0f1 terrain system
+* Full compatibility with the new 1.6.0f1 terrain system
 * Added almost 50 new adjustable sliders
 * Added tabs to organize settings by texture type
-* Added support for replacing and mixing painted textures
+* Added support for replacing painted textures
 * Rebuilt backend to support new map texturing pipeline
   </ChangeLog>
   <!--External link. supported types are discord, github, youtube, twitch, x, paypal, patreon-->
