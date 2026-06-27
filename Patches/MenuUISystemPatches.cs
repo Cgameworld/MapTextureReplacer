@@ -16,7 +16,7 @@ public static class MenuUISystem_ExitToMainMenu_Prefix
         var m_mapTextureReplacerTextureCacheSystem = World.DefaultGameObjectInjectionWorld?.GetOrCreateSystemManaged<MapTextureReplacerTextureCacheSystem>();
         var m_mapTextureReplacerUISystem = World.DefaultGameObjectInjectionWorld?.GetOrCreateSystemManaged<MapTextureReplacerUISystem>();
 
-        m_mapTextureReplacerUISystem.DisableMainWindow();
+        m_mapTextureReplacerUISystem.SetWindowOpen(false);
 
         foreach (var item in m_mapTextureReplacerSystem.textureTypes)
         {
@@ -27,8 +27,9 @@ public static class MenuUISystem_ExitToMainMenu_Prefix
                 Shader.SetGlobalTexture(Shader.PropertyToID(item.Key), texture);
             }
         }
-        Shader.SetGlobalVector(Shader.PropertyToID("colossal_TerrainTextureTiling"), new Vector4(160, 1600, 2400, 0));
-
+        //tiling no longer reset here: saved float values are reapplied on the next map load
+        //(MapTextureReplacerInGameLoadedSystem), and routing a reset through ChangeFloatField
+        //would overwrite the persisted tiling.
 
         Mod.log.Info("Restored Texture Cache");
     }

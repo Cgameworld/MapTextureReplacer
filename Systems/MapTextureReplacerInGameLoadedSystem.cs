@@ -75,6 +75,24 @@ namespace MapTextureReplacer.Systems
             yield return new WaitForEndOfFrame();
             yield return new WaitForEndOfFrame();
 
+            //snapshot this map's float defaults (for Reset) and populate the slider data
+            //m_mapTextureReplacerSystem.CaptureFloatDefaults();
+            m_mapTextureReplacerSystem.PrepareTextureFloatSliders();
+
+            //apply saved float fields first: ChangeFloatField ends in ApplyTerrainTextures(), which
+            //re-applies the prefab's textures, so the custom textures below must be applied after
+            if (!string.IsNullOrEmpty(Mod.Options.TilingFloatData))
+            {
+                var savedFloats = JsonConvert.DeserializeObject<Dictionary<string, float>>(Mod.Options.TilingFloatData);
+                if (savedFloats != null)
+                {
+                    foreach (var kv in savedFloats)
+                    {
+                        m_mapTextureReplacerSystem.ChangeFloatField(kv.Key, kv.Value);
+                    }
+                }
+            }
+
             List<string> textureTypeKeys = new List<string>(m_mapTextureReplacerSystem.textureTypes.Keys);
             for (int i = 0; i < textureTypeKeys.Count; i++)
             {
@@ -83,13 +101,6 @@ namespace MapTextureReplacer.Systems
                 {
                     m_mapTextureReplacerSystem.OpenImage(textureTypeKeys[i], m_mapTextureReplacerSystem.textureSelectData[i].Value);
                 }
-            }
-
-            //apply tiling values
-
-            if (Mod.Options.CurrentTilingVector != Vector4.zero)
-            {
-                Shader.SetGlobalVector(Shader.PropertyToID("colossal_TerrainTextureTiling"), Mod.Options.CurrentTilingVector);
             }
 
             yield break;

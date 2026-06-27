@@ -1,4 +1,5 @@
-﻿using Colossal.IO.AssetDatabase;
+﻿using cohtml.Net;
+using Colossal.IO.AssetDatabase;
 using Colossal.PSI.Environment;
 using Game;
 using Game.Prefabs;
@@ -9,13 +10,16 @@ using Game.Simulation;
 using Game.Vehicles;
 using MapTextureReplacer.Helpers;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.IO.Compression;
 using System.Linq;
+using System.Reflection;
 using System.Text.RegularExpressions;
+using Unity.Entities;
 using Unity.Mathematics;
 using UnityEngine;
 
@@ -27,6 +31,7 @@ namespace MapTextureReplacer.Systems
         private PrefabSystem m_prefabSystem;
         private CameraUpdateSystem m_cameraUpdateSystem;
         private TerrainSystem m_terrainSystem;
+        private TerrainMaterialSystem m_terrainMaterialSystem;
 
         public float CurrentCameraHeightAboveGround { get; private set; }
 
@@ -35,7 +40,12 @@ namespace MapTextureReplacer.Systems
         public Dictionary<string, string> importedPacks = new Dictionary<string, string>();
         public Dictionary<string, string> packSources = new Dictionary<string, string>();
         public string importedPacksJsonString;
-       
+
+        //serialized float fields of the active terrain render settings prefab, sent to the slider UI
+        public string textureFloatsJsonString = "[]";
+        //per-field default values captured for the active map, used by ResetTextureFloats()
+        private Dictionary<string, float> m_defaultFloats;
+
         public string textureSelectDataJsonString;
         public List<KeyValuePair<string, string>> textureSelectData = new List<KeyValuePair<string, string>>() {
             new KeyValuePair<string, string>("Default", "none"),
@@ -65,6 +75,7 @@ namespace MapTextureReplacer.Systems
             m_prefabSystem = World.GetOrCreateSystemManaged<PrefabSystem>();
             m_cameraUpdateSystem = World.GetOrCreateSystemManaged<CameraUpdateSystem>();
             m_terrainSystem = World.GetOrCreateSystemManaged<TerrainSystem>();
+            m_terrainMaterialSystem = World.GetOrCreateSystemManaged<TerrainMaterialSystem>();
 
             MigrateSavedPaths();
 
@@ -135,6 +146,9 @@ namespace MapTextureReplacer.Systems
 
             //populate string
             textureSelectDataJsonString = JsonConvert.SerializeObject(textureSelectData);
+
+            //no-op until a map is loaded (currentTerrainRenderSettings is null in menus)
+            //PrepareTextureFloatSliders();
         }
 
         public void SerializeImportedPacksWithSource()
@@ -172,19 +186,25 @@ namespace MapTextureReplacer.Systems
         public void ChangePack(string current)
         {
 
+            //Tiling is always applied before textures: ChangeFloatField ends in
+            //ApplyTerrainTextures(), which re-applies the prefab's textures, so the
+            //custom texture writes below must be the last to land.
             if (current == "none")
             {
+                LegacyTextureMode(false);
+                //ResetTextureFloats();
                 foreach (var item in textureTypes)
                 {
                     ResetTexture(item.Key);
                 }
-                SetTilingValueDefault();
+                //m_terrainMaterialSystem.ApplyRenderSettings();
                 //SetSelectImageAllText("Select Image");
             }
             else
             {
                 if (current.EndsWith(".zip"))
                 {
+                    LegacyTextureMode(true);
                     OpenTextureZip(current.Split(',')[1]);
                     SetSelectImageAllText(current.Split(',')[0], current);
                 }
@@ -193,19 +213,23 @@ namespace MapTextureReplacer.Systems
                     var directory = Path.GetDirectoryName(current);
                     Mod.log.Info("loading (json) folder: " + directory);
 
-                    foreach (string filePath in Directory.GetFiles(directory))
-                    {
-                        foreach (var item in textureTypes)
-                        {
-                            LoadImageFile(filePath, item.Value, item.Key);
-                        }
-                    }
-
                     try
                     {
                         MapTextureConfig config = JsonConvert.DeserializeObject<MapTextureConfig>(File.ReadAllText(current));
-                        SetTilingValues(config.far_tiling, config.close_tiling, config.close_dirt_tiling);
+
+                        LegacyTextureMode(true);
+                        SetTilingValuesJsonPack(config.far_tiling, config.close_tiling, config.close_dirt_tiling);
+
+                        foreach (string filePath in Directory.GetFiles(directory))
+                        {
+                            foreach (var item in textureTypes)
+                            {
+                                LoadImageFile(filePath, item.Value, item.Key);
+                            }
+                        }
+
                         SetSelectImageAllText(config.pack_name, current);
+                        //m_terrainMaterialSystem.ApplyRenderSettings();
                     }
                     catch (Exception ex)
                     {
@@ -218,19 +242,28 @@ namespace MapTextureReplacer.Systems
                     Mod.log.Info("loading " + PrefabIDParse(current));
                     if (newPrefab is TerrainRenderSettingsPrefab terrainSettings)
                     {
-                        List<string> textureTypeKeys = new List<string>(textureTypes.Keys);
-                        for (int i = 0; i < textureTypeKeys.Count; i++)
+                        //ChangeFloatField("m_TerrainFarTiling", terrainSettings.m_TerrainFarTiling);
+                        //ChangeFloatField("m_TerrainCloseTiling", terrainSettings.m_TerrainCloseTiling);
+                        //ChangeFloatField("m_TerrainCloseDirtTiling", terrainSettings.m_TerrainCloseDirtTiling);
+
+                        foreach (var key in textureTypes.Keys)
                         {
-                            SetTextureTerrainPrefab(textureTypeKeys[i], terrainSettings);
-                            TileVectorChange("colossal_TerrainTextureTiling", 0, Convert.ToInt32(terrainSettings.m_TerrainFarTiling));
-                            TileVectorChange("colossal_TerrainTextureTiling", 1, Convert.ToInt32(terrainSettings.m_TerrainCloseTiling));
-                            TileVectorChange("colossal_TerrainTextureTiling", 2, Convert.ToInt32(terrainSettings.m_TerrainCloseDirtTiling));
-                            SetSelectImageAllText(PrefabIDParse(current).GetName(),current);
+                            SetTextureTerrainPrefab(key, terrainSettings);
                         }
+                        SetSelectImageAllText(PrefabIDParse(current).GetName(), current);
                     }
                 }
 
             }
+        }
+
+        private void LegacyTextureMode(bool legacy)
+        {
+            //m_prefabSystem.GetPrefab<TerrainRenderSettingsPrefab>(m_terrainMaterialSystem.currentTerrainRenderSettings).m_UseLegacyTextureFormat = legacy;
+
+            Shader.SetGlobalFloat(Shader.PropertyToID("_TerrainLegacyGrassTexture"), legacy ? 1f : 0f);
+            Shader.SetGlobalFloat(Shader.PropertyToID("_TerrainLegacyDirtTexture"), legacy ? 1f : 0f);
+            Shader.SetGlobalFloat(Shader.PropertyToID("_TerrainLegacyRockTexture"), legacy ? 1f : 0f);
         }
 
         public void SetTextureTerrainPrefab(string shaderProperty, TerrainRenderSettingsPrefab terrainSettings)
@@ -319,23 +352,14 @@ namespace MapTextureReplacer.Systems
             AssetDatabase.global.SaveSettings();
         }
 
-        public void SetTilingValues(string far, string close, string dirtClose)
+        public void SetTilingValuesJsonPack(string far, string close, string dirtClose)
         {
-            //Shader.SetGlobalVector(Shader.PropertyToID("colossal_TerrainTextureTiling"), new Vector4(float.Parse(far), float.Parse(close), float.Parse(dirtClose), 1f));
-
-            TileVectorChange("colossal_TerrainTextureTiling", 0, int.Parse(far));
-            TileVectorChange("colossal_TerrainTextureTiling", 1, int.Parse(close));
-            TileVectorChange("colossal_TerrainTextureTiling", 2, int.Parse(dirtClose));
+            //loop over each tiling type
+            //ChangeFloatField("m_TerrainFarTiling", float.Parse(far));
+            //ChangeFloatField("m_TerrainCloseTiling", float.Parse(close));
+            //ChangeFloatField("m_TerrainCloseDirtTiling", float.Parse(dirtClose));
         }
-        public void SetTilingValueDefault()
-        {
-            //Shader.SetGlobalVector(Shader.PropertyToID("colossal_TerrainTextureTiling"), new Vector4(160f, 1600f, 2400f, 1f));
-
-            TileVectorChange("colossal_TerrainTextureTiling", 0, 160);
-            TileVectorChange("colossal_TerrainTextureTiling", 1, 1600);
-            TileVectorChange("colossal_TerrainTextureTiling", 2, 2400);
-        }
-        private static void LoadImageFile(string filePath, string textureFile, string shaderProperty)
+        private void LoadImageFile(string filePath, string textureFile, string shaderProperty)
         {
             if (Path.GetFileName(filePath) == textureFile)
             {
@@ -485,12 +509,14 @@ namespace MapTextureReplacer.Systems
         }
         
 
-        private static void LoadTextureInGame(string shaderProperty, byte[] fileData)
+        private void LoadTextureInGame(string shaderProperty, byte[] fileData)
         {
+
             Texture2D newTexture = new Texture2D(4096, 4096);
             newTexture.LoadImage(fileData);
-            Shader.SetGlobalTexture(Shader.PropertyToID(shaderProperty), newTexture);
-            Debug.Log("Replaced " + shaderProperty + " ingame");
+            //Shader.SetGlobalTexture(Shader.PropertyToID(shaderProperty), newTexture);
+            //m_terrainMaterialSystem.
+            //Debug.Log("Replaced " + shaderProperty + " ingame");
         }
 
         public void ResetTexture(string shaderProperty)
@@ -506,7 +532,7 @@ namespace MapTextureReplacer.Systems
                 SetTextureSelectDataJson();
         }
 
-        private static bool ExtractEntry(ZipArchive archive, string entryName, string shaderProperty)
+        private bool ExtractEntry(ZipArchive archive, string entryName, string shaderProperty)
         {
             ZipArchiveEntry entry = archive.GetEntry(entryName);
 
@@ -524,15 +550,6 @@ namespace MapTextureReplacer.Systems
             {
                 return false;
             }
-        }
-
-        public void SetTile(int v)
-        {
-            //UnityEngine.Debug.Log("SetTile Pressed!");
-            //UnityEngine.Debug.Log("BF colossal_TerrainTextureTiling: " + Shader.GetGlobalVector(Shader.PropertyToID("colossal_TerrainTextureTiling")));
-            Shader.SetGlobalVector(Shader.PropertyToID("colossal_TerrainTextureTiling"), new Vector4(new System.Random().Next(0, 10000), new System.Random().Next(0, 10000), new System.Random().Next(0, 10000), 1f));
-
-
         }
 
         public void ResetTextureSelectData()
@@ -568,19 +585,188 @@ namespace MapTextureReplacer.Systems
             return Mod.Options.ActiveDropdown;
         }
 
-        public void TileVectorChange(string shaderProperty, int vectorIndex, int tileValue)
+        public void PrepareTextureFloatSliders()
         {
-            int propertyID = Shader.PropertyToID(shaderProperty);
-            Vector4 currentVector = Shader.GetGlobalVector(propertyID);
-            currentVector[vectorIndex] = tileValue;
-            Shader.SetGlobalVector(propertyID, currentVector);
-            Mod.Options.CurrentTilingVector = currentVector;
-            if (!isOver)
+            var entries = new List<object>();
+
+            foreach (var entry in ReadFloatFields())
             {
-                StaticCoroutine.Start(SaveSettingsOnceAfterDelay());
+                float min, max;
+                var matchingRange = SliderRangeOverrides.Ranges
+        .FirstOrDefault(r => entry.Key.Contains(r.Key));
+
+                if (!string.IsNullOrEmpty(matchingRange.Key))
+                {
+                    min = matchingRange.Value.min;
+                    max = matchingRange.Value.max;
+                }
+                else
+                {
+                    var rangeAttr = GetLowestField(entry.Key).GetCustomAttribute<RangeAttribute>();
+                    min = rangeAttr?.min ?? 0f;
+                    max = rangeAttr?.max ?? 100f;
+                    Mod.log.Info($"min{min} | max{max}");
+                }
+
+                entries.Add(new
+                {
+                    name = entry.Key,
+                    label = PrettyFieldLabel(entry.Key),
+                    value = entry.Value,
+                    min,
+                    max,
+                });
             }
-            isOver = true;
-                        
+            textureFloatsJsonString = JsonConvert.SerializeObject(entries);
+        }
+
+        private Dictionary<string, float> ReadFloatFields()
+        {
+            Dictionary<string, float> textureSettingFloats = new Dictionary<string, float>();
+            var prefab = m_prefabSystem.GetPrefab<TerrainRenderSettingsPrefab>(m_terrainMaterialSystem.currentTerrainRenderSettings);
+
+            Mod.log.Info($"Current terrain render settings: {prefab.name}");
+
+            //dynamically grab available field values
+            foreach (FieldInfo field in prefab.GetType().GetFields(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic))
+            {
+                Mod.log.Info($"  {field.Name} = {field.GetValue(prefab)}");
+                object value = field.GetValue(prefab);
+
+                //get all floats not bound inside objects
+                if (value is float floatValue)
+                {
+                    textureSettingFloats[field.Name] = floatValue;
+                }
+
+                //each texture group has sets of these values
+                if (value is TerrainTilingData terrainTilingData)
+                {
+                    textureSettingFloats[$"{field.Name}.m_FarTiling"] = terrainTilingData.m_FarTiling;
+                    textureSettingFloats[$"{field.Name}.m_MidTiling"] = terrainTilingData.m_MidTiling;
+                    textureSettingFloats[$"{field.Name}.m_NearTiling"] = terrainTilingData.m_NearTiling;
+                }
+
+                if (value is TerrainLodBlendData terrainLodBlendData)
+                {
+                    textureSettingFloats[$"{field.Name}.m_MidBlendStart"] = terrainLodBlendData.m_MidBlendStart;
+                    textureSettingFloats[$"{field.Name}.m_MidBlendEnd"] = terrainLodBlendData.m_MidBlendEnd;
+                    textureSettingFloats[$"{field.Name}.m_FarBlendStart"] = terrainLodBlendData.m_FarBlendStart;
+                    textureSettingFloats[$"{field.Name}.m_FarBlendEnd"] = terrainLodBlendData.m_FarBlendEnd;
+                }      
+
+                if (value is TerrainDepthScaleSetting terrainDepthScaleSetting)
+                {
+                    foreach (FieldInfo depthScalingValues in typeof(TerrainDepthScaleSetting).GetFields(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic))
+                    {
+                        object scaleValue = depthScalingValues.GetValue(terrainDepthScaleSetting);
+                        if (scaleValue is Vector2 scaleVector)
+                        {
+                            textureSettingFloats[$"{field.Name}.{depthScalingValues.Name}.x"] = scaleVector.x;
+                            textureSettingFloats[$"{field.Name}.{depthScalingValues.Name}.y"] = scaleVector.y;
+                        }
+                    }
+                }
+
+                //shared between texture groups
+                if (value is TerrainBlurDepthData terrainBlurDepthData)
+                {
+                    textureSettingFloats[$"{field.Name}.m_NearBlurDepth"] = terrainBlurDepthData.m_NearBlurDepth;
+                    textureSettingFloats[$"{field.Name}.m_FarBlurDepth"] = terrainBlurDepthData.m_FarBlurDepth;
+                    textureSettingFloats[$"{field.Name}.m_FarDistance"] = terrainBlurDepthData.m_FarDistance;
+                    textureSettingFloats[$"{field.Name}.m_NearDistance"] = terrainBlurDepthData.m_NearDistance;
+                }
+            }
+
+            return textureSettingFloats;
+        }
+
+        public FieldInfo GetLowestField(string path)
+        {
+            object obj = m_prefabSystem.GetPrefab<TerrainRenderSettingsPrefab>(
+                m_terrainMaterialSystem.currentTerrainRenderSettings
+            );
+
+            FieldInfo field = null;
+
+            foreach (string name in path.Split('.'))
+            {
+                field = obj.GetType().GetField(
+                    name,
+                    BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic
+                ) ?? throw new Exception($"Field not found: {name}");
+
+                obj = field.GetValue(obj);
+            }
+            return field;
+        }
+        public void ChangeFloatField(string path, float amount)
+        {
+            if (m_terrainMaterialSystem == null || m_terrainMaterialSystem.currentTerrainRenderSettings == Entity.Null)
+            {
+                return;
+            }
+
+            var prefab = m_prefabSystem.GetPrefab<TerrainRenderSettingsPrefab>(m_terrainMaterialSystem.currentTerrainRenderSettings);
+            object obj = prefab;
+            var chain = new List<(object parent, FieldInfo field)>();
+
+            foreach (string name in path.Split('.'))
+            {
+                FieldInfo field = obj.GetType().GetField(name, BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic) ?? throw new Exception($"Field not found: {name}");
+                chain.Add((obj, field));
+                obj = field.GetValue(obj);
+            }
+
+            obj = amount;
+
+            //walk back up so nested value-type (struct) fields are copied into their parent
+            for (int i = chain.Count - 1; i >= 0; i--)
+            {
+                chain[i].field.SetValue(chain[i].parent, obj);
+                obj = chain[i].parent;
+            }
+
+            //m_terrainMaterialSystem.ApplyRenderSettings();
+
+            PrepareTextureFloatSliders();
+        }
+
+        //Restore the active map's captured float defaults.
+        public void ResetTextureFloats()
+        {
+            if (m_defaultFloats != null)
+            {
+                foreach (var kv in m_defaultFloats)
+                {
+                    ChangeFloatField(kv.Key, kv.Value);
+                }
+            }
+            PrepareTextureFloatSliders();
+        }
+
+        private void PersistFloatFields(TerrainRenderSettingsPrefab prefab)
+        {
+
+        }
+
+        private static string PrettyFieldLabel(string fieldName)
+        {
+            string[] p = fieldName.Split('.')
+                .Select(x => x.StartsWith("m_") ? x.Substring(2) : x)
+                .ToArray();
+
+            string name = p[p.Length - 1];
+
+            if (name.Length == 1)
+                name = name.ToUpperInvariant();
+
+            if (p.Length > 2 && p[0].EndsWith("Settings"))
+                name = p[p.Length - 2] + " " + p[0].Substring(0, p[0].Length - "Settings".Length) + " " + name;
+            else if (p.Length > 1)
+                name = Regex.Replace(p[p.Length - 2], "^Terrain|Tiling$|LodBlend$", "") + " " + name;
+
+            return Regex.Replace(name, "(?<=[a-z0-9])(?=[A-Z])", " ").Trim();
         }
 
         private static string TryReadPackName(string jsonPath)

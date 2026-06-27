@@ -91,7 +91,7 @@ namespace MapTextureReplacer
                 MakeSureSave = new System.Random().Next();
                 TextureSelectData = "[{\"Key\":\"Default\",\"Value\":\"none\"},{\"Key\":\"Default\",\"Value\":\"none\"},{\"Key\":\"Default\",\"Value\":\"none\"},{\"Key\":\"Default\",\"Value\":\"none\"},{\"Key\":\"Default\",\"Value\":\"none\"},{\"Key\":\"Default\",\"Value\":\"none\"}]";
                 ActiveDropdown = "none";
-                CurrentTilingVector = Vector4.zero;
+                TilingFloatData = "";
 
                 m_MapTextureReplacerSystem = World.DefaultGameObjectInjectionWorld?.GetOrCreateSystemManaged<MapTextureReplacerSystem>();
                 m_MapTextureReplacerSystem.ChangePack("none");
@@ -105,8 +105,9 @@ namespace MapTextureReplacer
         [SettingsUIHidden]
         public string TextureSelectData { get; set; }
 
+        //serialized { fieldName: value } of the terrain render settings floats, reapplied on load
         [SettingsUIHidden]
-        public Vector4 CurrentTilingVector { get; set; }
+        public string TilingFloatData { get; set; }
 
         //sometimes saving doesn't happen when changing values to their default? - hack to guarantee
         [SettingsUIHidden]

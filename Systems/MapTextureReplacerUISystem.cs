@@ -1,24 +1,19 @@
-﻿using cohtml.Net;
 using Colossal.UI.Binding;
-using Game.SceneFlow;
 using Game.UI;
-using System;
-using System.Collections.Generic;
-using UnityEngine;
 
 namespace MapTextureReplacer.Systems
 {
     public partial class MapTextureReplacerUISystem : UISystemBase
     {
-        public int current_vehicle_count = 0;
         public MapTextureReplacerSystem systemManaged;
-        private Dictionary<string, Action<int>> handlers = new Dictionary<string, Action<int>>();
+        private ValueBinding<bool> m_WindowOpen;
 
         protected override void OnCreate()
         {
             this.systemManaged = this.World.GetExistingSystemManaged<MapTextureReplacerSystem>();
 
             base.OnCreate();
+
             this.AddUpdateBinding(new GetterValueBinding<bool>("map_texture", "in_univeral_mod_menu", () =>
             {
                 return Mod.Options?.InUniversalModMenu ?? false;
@@ -45,25 +40,18 @@ namespace MapTextureReplacer.Systems
 
             this.AddBinding(new TriggerBinding<string>("map_texture", "change_pack", this.systemManaged.ChangePack));
 
-
             this.AddUpdateBinding(new GetterValueBinding<bool>("map_texture", "show_camera_height", () => Mod.Options?.ShowCameraHeight ?? false));
 
             this.AddUpdateBinding(new GetterValueBinding<float>("map_texture", "camera_height", () => systemManaged.CurrentCameraHeightAboveGround));
 
             this.AddUpdateBinding(new GetterValueBinding<string>("map_texture", "get_active_pack_dropdown", () => this.systemManaged.GetActivePackDropdown()));
             this.AddBinding(new TriggerBinding<string>("map_texture", "set_active_pack_dropdown", this.systemManaged.SetActivePackDropdown));
-            
 
             this.AddBinding(new TriggerBinding<string>("map_texture", "open_image_gd", (imageFile) => this.systemManaged.OpenImage("colossal_TerrainGrassDiffuse", imageFile)));
-         
             this.AddBinding(new TriggerBinding<string>("map_texture", "open_image_gn", (imageFile) => this.systemManaged.OpenImage("colossal_TerrainGrassNormal", imageFile)));
-            
             this.AddBinding(new TriggerBinding<string>("map_texture", "open_image_dd", (imageFile) => this.systemManaged.OpenImage("colossal_TerrainDirtDiffuse", imageFile)));
-    
             this.AddBinding(new TriggerBinding<string>("map_texture", "open_image_dn", (imageFile) => this.systemManaged.OpenImage("colossal_TerrainDirtNormal", imageFile)));
-         
             this.AddBinding(new TriggerBinding<string>("map_texture", "open_image_cd", (imageFile) => this.systemManaged.OpenImage("colossal_TerrainRockDiffuse", imageFile)));
-
             this.AddBinding(new TriggerBinding<string>("map_texture", "open_image_cn", (imageFile) => this.systemManaged.OpenImage("colossal_TerrainRockNormal", imageFile)));
 
             //reset
@@ -74,54 +62,25 @@ namespace MapTextureReplacer.Systems
             this.AddBinding(new TriggerBinding("map_texture", "reset_texture_cd", () => this.systemManaged.ResetTexture("colossal_TerrainRockDiffuse")));
             this.AddBinding(new TriggerBinding("map_texture", "reset_texture_cn", () => this.systemManaged.ResetTexture("colossal_TerrainRockNormal")));
 
-            //reset tiling
-            this.AddBinding(new TriggerBinding("map_texture", "reset_tiling", this.systemManaged.SetTilingValueDefault));
+            //tiling sliders (dynamically generated from the prefab's float fields)
+            this.AddUpdateBinding(new GetterValueBinding<string>("map_texture", "get_texture_floats", () => systemManaged.textureFloatsJsonString));
+            this.AddBinding(new TriggerBinding<string, float>("map_texture", "change_float_field", this.systemManaged.ChangeFloatField));
+            this.AddBinding(new TriggerBinding("map_texture", "reset_tiling", this.systemManaged.ResetTextureFloats));
 
-            AddSlider("slider1", "colossal_TerrainTextureTiling", 0);
-            AddSlider("slider2", "colossal_TerrainTextureTiling", 1);
-            AddSlider("slider3", "colossal_TerrainTextureTiling", 2);
-
-
-            //trigger legacy window container injection
-            this.AddBinding(new TriggerBinding("map_texture", "MapButtonLoaded", this.MapButtonLoaded));
-
-            //Ui Button to jsx launch binding
-            this.AddBinding(new TriggerBinding("map_texture", "MainWindowCreate", EnableMainWindow));
-
-            this.AddBinding(new TriggerBinding("map_texture", "MainWindowDisable", DisableMainWindow));
-
+            //window open/close state (read with useValue, toggled via trigger)
+            m_WindowOpen = new ValueBinding<bool>("map_texture", "window_open", false);
+            this.AddBinding(m_WindowOpen);
+            this.AddBinding(new TriggerBinding<bool>("map_texture", "window_open", SetWindowOpen));
         }
 
-        private void MapButtonLoaded()
+        public void SetWindowOpen(bool open)
         {
-            World.GetOrCreateSystemManaged<MapTextureReplacerLegacyUIInjectSystem>().SpawnMainWindow();
-        }
-
-        private void EnableMainWindow()
-        {
-            View? m_UIView;
-            Mod.log.Info("EnableMainWindow() called!");
-            m_UIView = GameManager.instance.userInterface.view.View;           
-            m_UIView.ExecuteScript("window.mapTextureReplacerShowWindow = true;window.dispatchEvent(new Event('mapTextureReplacerShowWindowChanged'));");         
-        }
-
-        public void DisableMainWindow()
-        {
-            View? m_UIView;
-            Mod.log.Info("EnableMainWindow() called!");
-            m_UIView = GameManager.instance.userInterface.view.View;
-            m_UIView.ExecuteScript("window.mapTextureReplacerShowWindow = false;window.dispatchEvent(new Event('mapTextureReplacerShowWindowChanged'));");
-        }
-
-        private void AddSlider(string sliderName, string shaderProperty, int vectorIndex)
-        {
-            this.AddUpdateBinding(new GetterValueBinding<int>("map_texture", $"{sliderName}_Pos", () =>
+            if (open)
             {
-                return (int)Shader.GetGlobalVector(Shader.PropertyToID(shaderProperty))[vectorIndex];
-            }));
-
-            this.AddBinding(new TriggerBinding<int>("map_texture", $"{sliderName}_UpdatedValue", (tileValue) => this.systemManaged.TileVectorChange(shaderProperty, vectorIndex, tileValue)));
+                //refresh slider values from the current map before the panel reads them
+                systemManaged.PrepareTextureFloatSliders();
+            }
+            m_WindowOpen.Update(open);
         }
- 
     }
 }

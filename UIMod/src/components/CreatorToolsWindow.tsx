@@ -1,6 +1,7 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
 import ReactDOM from 'react-dom';
 import { bindValue, useValue } from 'cs2/api';
+import { WindowOpen$ } from '../bindings';
 
 const ShowCameraHeight$ = bindValue<boolean>('map_texture', 'show_camera_height');
 const CameraHeight$ = bindValue<number>('map_texture', 'camera_height');
@@ -40,13 +41,7 @@ const CreatorToolsPanel: React.FC = () => {
 
 const CreatorToolsWindow: React.FC = () => {
     const showCameraHeight = useValue(ShowCameraHeight$);
-    const [mainWindowOpen, setMainWindowOpen] = useState<boolean>(!!(window as any).mapTextureReplacerShowWindow);
-
-    useEffect(() => {
-        const handler = () => setMainWindowOpen(!!(window as any).mapTextureReplacerShowWindow);
-        window.addEventListener('mapTextureReplacerShowWindowChanged', handler);
-        return () => window.removeEventListener('mapTextureReplacerShowWindowChanged', handler);
-    }, []);
+    const mainWindowOpen = useValue(WindowOpen$);
 
     useEffect(() => {
         const parentElement = document.querySelector('.main-container__E2');
