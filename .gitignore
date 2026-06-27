@@ -7,5 +7,5 @@ node_modules/
 /Properties/PublishProfiles/PublishNewVersion.pubxml.user
 /Properties/PublishProfiles/UpdatePublishedConfiguration.pubxml.user
 
-# Claude
 CLAUDE.md
+bash.exe.stackdump

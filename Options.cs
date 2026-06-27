@@ -104,7 +104,6 @@ namespace MapTextureReplacer
         [SettingsUIHidden]
         public string TextureSelectData { get; set; }
 
-        //serialized { fieldName: value } of the terrain render settings floats, reapplied on load
         [SettingsUIHidden]
         public string TilingFloatData { get; set; }
 

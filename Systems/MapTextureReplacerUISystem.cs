@@ -47,16 +47,14 @@ namespace MapTextureReplacer.Systems
             this.AddUpdateBinding(new GetterValueBinding<string>("map_texture", "get_active_pack_dropdown", () => this.systemManaged.GetActivePackDropdown()));
             this.AddBinding(new TriggerBinding<string>("map_texture", "set_active_pack_dropdown", this.systemManaged.SetActivePackDropdown));
 
-            //generic per-slot bindings keyed by slot index (scales to all texture slots incl. extras)
+            
             this.AddBinding(new TriggerBinding<int, string>("map_texture", "open_image", this.systemManaged.OpenImage));
             this.AddBinding(new TriggerBinding<int>("map_texture", "reset_texture", this.systemManaged.ResetTexture));
 
-            //tiling sliders (dynamically generated from the prefab's float fields)
             this.AddUpdateBinding(new GetterValueBinding<string>("map_texture", "get_texture_floats", () => systemManaged.textureFloatsJsonString));
             this.AddBinding(new TriggerBinding<string, float>("map_texture", "change_float_field", this.systemManaged.ChangeFloatField));
             this.AddBinding(new TriggerBinding<string>("map_texture", "reset_tiling", this.systemManaged.ResetTextureFloats));
 
-            //window open/close state (read with useValue, toggled via trigger)
             m_WindowOpen = new ValueBinding<bool>("map_texture", "window_open", false);
             this.AddBinding(m_WindowOpen);
             this.AddBinding(new TriggerBinding<bool>("map_texture", "window_open", SetWindowOpen));
@@ -66,7 +64,6 @@ namespace MapTextureReplacer.Systems
         {
             if (open)
             {
-                //refresh slider values from the current map before the panel reads them
                 systemManaged.PrepareTextureFloatSliders();
             }
             m_WindowOpen.Update(open);

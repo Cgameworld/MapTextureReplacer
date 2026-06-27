@@ -34,26 +34,26 @@ namespace MapTextureReplacer.Systems
 
         public Dictionary<string, string> importedPacks = new Dictionary<string, string>();
         public Dictionary<string, string> packSources = new Dictionary<string, string>();
-        //slot indices (into SlotOrder) each pack actually supplies a texture for; filters the per-slot dropdowns
+
+
         public Dictionary<string, List<int>> packValidSlots = new Dictionary<string, List<int>>();
         public string importedPacksJsonString;
 
-        //serialized float fields of the active terrain render settings prefab, sent to the slider UI
+
         public string textureFloatsJsonString = "[]";
-        //pristine per-field float defaults per prefab, captured once before the mod mutates them
+
         private readonly Dictionary<string, Dictionary<string, float>> m_defaultsByPrefab = new Dictionary<string, Dictionary<string, float>>();
         private Dictionary<string, float> m_defaultFloats;
 
         public string textureSelectDataJsonString;
         public List<KeyValuePair<string, string>> textureSelectData;
 
-        //runtime shader-global texture overrides; key = shader property, value = (texture, isLegacyFormat)
-        //re-asserted after every game ApplyRenderSettings via the Harmony postfix so they stay durable
+
         private readonly Dictionary<string, (Texture tex, bool legacy)> m_overrides = new Dictionary<string, (Texture, bool)>();
 
         private bool m_tilingSaveScheduled;
 
-        //rock far/mid/near a legacy JSON pack specifies but the mod ignores on load; field -> original value, shown as a slider alert
+
         private Dictionary<string, float> m_ignoredRockTiling = new Dictionary<string, float>();
 
         //ordered slot list; index is the stable id used by the UI and by textureSelectData
@@ -224,7 +224,7 @@ namespace MapTextureReplacer.Systems
             }
         }
 
-        // ----- slot helpers -----
+        // slot helpers
 
         public static string ShaderPropertyAt(int index) =>
             (index >= 0 && index < SlotOrder.Length) ? SlotOrder[index] : null;
@@ -247,9 +247,6 @@ namespace MapTextureReplacer.Systems
 
         private static bool IsNormalSlot(string shaderProperty) => shaderProperty.EndsWith("Normal");
 
-        // ----- texture override application (durable, re-asserted by the ApplyRenderSettings postfix) -----
-
-        //re-applies every mod override after the game rewrites the shader globals; never calls ApplyRenderSettings
         public void ApplyAllOverrides()
         {
             if (m_overrides.Count == 0) return;
@@ -332,7 +329,6 @@ namespace MapTextureReplacer.Systems
             }
         }
 
-        //generic: derive the prefab field from the shader property (colossal_TerrainExtra1Normal -> m_Extra1Normal)
         private Texture LoadPrefabSlotTexture(string shaderProperty, TerrainRenderSettingsPrefab prefab)
         {
             FieldInfo field = typeof(TerrainRenderSettingsPrefab).GetField("m_" + SlotCore(shaderProperty),
@@ -344,7 +340,6 @@ namespace MapTextureReplacer.Systems
             return asset?.Load();
         }
 
-        //slot indices a folder pack supplies a texture file for
         private List<int> ValidSlotsForFolder(string directory)
         {
             List<int> slots = new List<int>();
@@ -354,8 +349,6 @@ namespace MapTextureReplacer.Systems
             }
             return slots;
         }
-
-        //slot indices a prefab pack has a texture reference assigned for
         public List<int> ValidSlotsForPrefab(TerrainRenderSettingsPrefab prefab)
         {
             List<int> slots = new List<int>();
@@ -380,21 +373,20 @@ namespace MapTextureReplacer.Systems
             catch { return false; }
         }
 
-        // ----- pack selection (base-pack dropdown) -----
 
         public void ChangePack(string current)
         {
-            //start every pack selection from the map's pristine tiling so float values don't carry over between packs
+           
             RestoreTilingDefaults();
             m_ignoredRockTiling = new Dictionary<string, float>();
 
-            //drop the previous pack first so slots the new pack doesn't define revert to vanilla instead of keeping stale textures
+
             ClearAllOverrides();
             if (HasActiveTerrain()) m_terrainMaterialSystem.ApplyRenderSettings();
 
             if (current == "none")
             {
-                //nothing to load; vanilla already restored above
+                //nothing to load, placeholder
             }
             else if (current.EndsWith(".zip"))
             {
@@ -481,7 +473,6 @@ namespace MapTextureReplacer.Systems
             }
         }
 
-        // ----- per-slot selection (texture dropdown) -----
 
         public void OpenImage(int index, string path)
         {
@@ -548,7 +539,6 @@ namespace MapTextureReplacer.Systems
             textureSelectData[index] = new KeyValuePair<string, string>("Default", "none");
             SetTextureSelectDataJson();
 
-            //let the game restore this slot's vanilla texture; the postfix re-applies any remaining overrides
             if (HasActiveTerrain()) m_terrainMaterialSystem.ApplyRenderSettings();
         }
 
@@ -608,8 +598,6 @@ namespace MapTextureReplacer.Systems
             }
         }
 
-        // ----- active prefab / settings persistence -----
-
         public void SetActivePackDropdown(string data)
         {
             try
@@ -631,10 +619,7 @@ namespace MapTextureReplacer.Systems
         private TerrainRenderSettingsPrefab ActivePrefab() =>
             HasActiveTerrain() ? m_prefabSystem.GetPrefab<TerrainRenderSettingsPrefab>(m_terrainMaterialSystem.currentTerrainRenderSettings) : null;
 
-        // ----- tiling: read / apply / persist / reset -----
 
-        //ordered material tokens; "Extra" must precede the others so painted fields like m_Extra1DirtOverride
-        //land in the painted group instead of Dirt. A field matching no token is a global "common" setting.
         private static readonly (string token, string group)[] FieldGroupRules = new (string, string)[]
         {
             ("Extra", "extra"),
@@ -643,7 +628,6 @@ namespace MapTextureReplacer.Systems
             ("Rock", "rock"),
         };
 
-        //single authority for which UI tab a float field belongs to (display + reset both read this)
         public static string GroupForField(string fieldName)
         {
             foreach ((string token, string group) in FieldGroupRules)
@@ -653,15 +637,12 @@ namespace MapTextureReplacer.Systems
             return "common";
         }
 
-        //parent Extra index (1-4) for an extra override field, else 0 — lets the UI nest each extra's sliders under its textures
         private static int ExtraIndexOf(string fieldName)
         {
             Match m = Regex.Match(fieldName, "Extra([1-4])");
             return m.Success ? int.Parse(m.Groups[1].Value) : 0;
         }
 
-        //display order within a tab. grass/dirt/rock: tiling, then depth scale, then the rest (lod blend).
-        //common: triplanar + splat, then the rest (blur depth). extra/painted keeps declaration order.
         private static int FieldSortRank(string fieldName)
         {
             string group = GroupForField(fieldName);
@@ -725,7 +706,6 @@ namespace MapTextureReplacer.Systems
             {
                 object value = field.GetValue(prefab);
 
-                //skip the private m_Legacy*Tiling fields; they only feed Initialize's legacy->Near/Mid/Far migration, editing them at runtime does nothing
                 if (value is float floatValue && !field.Name.Contains("Legacy"))
                 {
                     textureSettingFloats[field.Name] = floatValue;
@@ -787,7 +767,6 @@ namespace MapTextureReplacer.Systems
             ScheduleTilingSave();
         }
 
-        //walk the reflection path and assign, copying nested value-type (struct) fields back into their parent
         private void SetFieldValue(string path, float amount)
         {
             object obj = ActivePrefab();
@@ -820,10 +799,8 @@ namespace MapTextureReplacer.Systems
             else if (lower.Contains("rocktiling") || lower.Contains("rocklodblend")) PushRockTiling(p);
             else if (lower.Contains("extra")) RefreshExtraShaderVectors(p);
             else if (lower.Contains("triplanar") || lower.Contains("splatmultiplier") || lower.Contains("splatpower")) PushCommonShaderFloats(p);
-            //depth-scale / blur-depth: applied per-frame by the game's UpdateMaterial(); no push needed
         }
 
-        //triplanar + splat globals the game sets only inside ApplyRenderSettings (not per-frame), so push them on edit/reload
         private static void PushCommonShaderFloats(TerrainRenderSettingsPrefab p)
         {
             Shader.SetGlobalFloat(Shader.PropertyToID("_TriplanarHeightmapBlending"), p.m_TriplanarHeightMapBlending);
@@ -876,7 +853,6 @@ namespace MapTextureReplacer.Systems
             PushCommonShaderFloats(p);
         }
 
-        //capture pristine defaults once per prefab (before the mod mutates it), used by the reset buttons
         public void CaptureFloatDefaults()
         {
             TerrainRenderSettingsPrefab prefab = ActivePrefab();
@@ -928,7 +904,6 @@ namespace MapTextureReplacer.Systems
             AssetDatabase.global.SaveSettings();
         }
 
-        //per-tab reset: the UI passes the active tab's group id (grass/dirt/rock/extra/common)
         public void ResetTextureFloats(string group)
         {
             Dictionary<string, float> baseline = ResetBaseline();
@@ -942,7 +917,6 @@ namespace MapTextureReplacer.Systems
             PrepareTextureFloatSliders();
         }
 
-        //reset target: the map's pristine defaults, overlaid with the active legacy pack's inferred tiling
         private Dictionary<string, float> ResetBaseline()
         {
             if (m_defaultFloats == null) return null;
@@ -951,7 +925,6 @@ namespace MapTextureReplacer.Systems
             return baseline;
         }
 
-        //restore the active prefab's pristine tiling without touching saved persistence
         public void RestoreTilingDefaults()
         {
             if (m_defaultFloats == null) return;
@@ -964,7 +937,6 @@ namespace MapTextureReplacer.Systems
             foreach (var kv in InferredTilingFromConfig(config)) ChangeFloatField(kv.Key, kv.Value);
         }
 
-        //rock far/mid/near keys: legacy JSON packs no longer drive these (the new-system default is kept), surfaced as a UI alert instead
         private static readonly string[] LegacyRockTilingKeys =
         {
             "m_TerrainRockTiling.m_FarTiling",
@@ -972,7 +944,6 @@ namespace MapTextureReplacer.Systems
             "m_TerrainRockTiling.m_NearTiling",
         };
 
-        //inferred Near/Mid/Far tiling for a legacy JSON pack (far/close/closeDirt) minus the ignored rock keys, or empty if the pack defines none
         private static Dictionary<string, float> InferredTilingFromConfig(MapTextureConfig config)
         {
             if (config != null
@@ -987,7 +958,6 @@ namespace MapTextureReplacer.Systems
             return new Dictionary<string, float>();
         }
 
-        //the rock far/mid/near values a legacy JSON pack specifies but the mod intentionally ignores; keyed by field for the slider alert
         private static Dictionary<string, float> RockTilingFromConfig(MapTextureConfig config)
         {
             Dictionary<string, float> rock = new Dictionary<string, float>();
@@ -1002,7 +972,6 @@ namespace MapTextureReplacer.Systems
             return rock;
         }
 
-        //same inference for whichever base pack is currently active (read live, so it survives a reload)
         private Dictionary<string, float> InferredTilingForActivePack()
         {
             string active = Mod.Options.ActiveDropdown;
@@ -1015,7 +984,6 @@ namespace MapTextureReplacer.Systems
             catch { return new Dictionary<string, float>(); }
         }
 
-        //ignored rock tiling for whichever legacy JSON pack is active (read from disk, so it survives a reload)
         private Dictionary<string, float> IgnoredRockTilingForActivePack()
         {
             string active = Mod.Options.ActiveDropdown;
@@ -1028,10 +996,7 @@ namespace MapTextureReplacer.Systems
             catch { return new Dictionary<string, float>(); }
         }
 
-        //recompute the ignored-rock alert data from the active pack (load path; ChangePack seeds it directly from the config)
         public void RefreshIgnoredRockTiling() => m_ignoredRockTiling = IgnoredRockTilingForActivePack();
-
-        // ----- full reset (Options "Reset All Settings" button) -----
 
         public void ResetAll()
         {
@@ -1044,8 +1009,6 @@ namespace MapTextureReplacer.Systems
             }
         }
 
-        // ----- exit to menu: drop overrides + pristine tiling, restore vanilla (saved data reapplies on next load) -----
-
         public void OnExitToMenu()
         {
             ClearAllOverrides();
@@ -1056,10 +1019,6 @@ namespace MapTextureReplacer.Systems
             }
         }
 
-        // ----- migration / helpers -----
-
-        //best-effort migration of the old Vector4 (far, close, closeDirt) into the new Near/Mid/Far model,
-        //using the same formula the game applies to legacy prefabs in TerrainRenderSettingsPrefab.Initialize
         private static Dictionary<string, float> BuildLegacyTilingDict(float far, float close, float closeDirt)
         {
             float mid = far * 2f;
