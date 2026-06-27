@@ -1042,9 +1042,40 @@ namespace MapTextureReplacer.Systems
             Vector4 v = Mod.Options.CurrentTilingVector;
             if (v == Vector4.zero) return;
 
-            Mod.Options.TilingFloatData = JsonConvert.SerializeObject(BuildLegacyTilingDict(v.x, v.y, v.z));
+            //no pack, no textures, default tiling. reset to new defaults instead of carrying stale defaults forward
+            bool noPack = string.IsNullOrEmpty(Mod.Options.ActiveDropdown) || Mod.Options.ActiveDropdown == "none";
+            if (noPack && AllTexturesNone(Mod.Options.TextureSelectData) && IsLegacyDefaultTiling(v))
+            {
+                Mod.Options.ActiveDropdown = "none";
+                Mod.Options.TextureSelectData = null;
+                Mod.Options.TilingFloatData = "";
+                Mod.Options.CurrentTilingVector = Vector4.zero;
+                AssetDatabase.global.SaveSettings();
+                return;
+            }
+
+            //prevent general far/close values into new rock tiling
+            Dictionary<string, float> dict = BuildLegacyTilingDict(v.x, v.y, v.z);
+            foreach (string key in LegacyRockTilingKeys) dict.Remove(key);
+
+            Mod.Options.TilingFloatData = JsonConvert.SerializeObject(dict);
             Mod.Options.CurrentTilingVector = Vector4.zero;
             AssetDatabase.global.SaveSettings();
+        }
+
+        private static bool IsLegacyDefaultTiling(Vector4 v) =>
+            Mathf.Approximately(v.x, 160f) && Mathf.Approximately(v.y, 1600f) && Mathf.Approximately(v.z, 2400f);
+
+        private static bool AllTexturesNone(string textureSelectData)
+        {
+            if (string.IsNullOrEmpty(textureSelectData)) return true;
+            try
+            {
+                List<KeyValuePair<string, string>> data =
+                    JsonConvert.DeserializeObject<List<KeyValuePair<string, string>>>(textureSelectData);
+                return data == null || data.All(kv => kv.Value == "none");
+            }
+            catch { return false; }
         }
 
         private static string PrettyFieldLabel(string fieldName)
